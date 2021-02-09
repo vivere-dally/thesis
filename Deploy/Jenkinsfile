@@ -1,0 +1,15 @@
+pipeline{
+    agent{
+        label "master"
+    }
+
+    options {
+        copyArtifactPermission '*'
+    }
+
+    stages{
+        stage("Test") {
+            echo "Hello World!"
+        }
+    }
+}
