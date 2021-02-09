@@ -1,5 +1,5 @@
-pipeline{
-    agent{
+pipeline {
+    agent {
         label "master"
     }
 
@@ -7,9 +7,11 @@ pipeline{
         copyArtifactPermission '*'
     }
 
-    stages{
+    stages {
         stage("Test") {
-            echo "Hello World!"
+            steps {
+                echo "Hello world"
+            }
         }
     }
 }
