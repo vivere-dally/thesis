@@ -1,6 +1,8 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonLoading, IonMenuButton, IonPage, IonRow, IonText, IonTitle, IonToolbar } from "@ionic/react";
-import React, { useContext, useState } from "react";
+import { IonButton, IonButtons, IonCol, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from "@ionic/react";
+import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AuthenticationContext } from "../authentication-provider";
 import './AuthenticationPage.scss';
 
@@ -10,6 +12,18 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
     const [password, setPassword] = useState<string>('');
 
     const { isAuthenticated, isAuthenticating, authenticationError, login } = useContext(AuthenticationContext);
+
+    useEffect(() => {
+        if (authenticationError) {
+            toast.error(authenticationError);
+        }
+    }, [authenticationError]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            toast.success('Logged in successfully');
+        }
+    }, [isAuthenticated]);
 
     return (
         <IonPage id='authentication-page'>
@@ -25,7 +39,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
             <IonContent fullscreen>
                 <IonLoading isOpen={isAuthenticating} message="Authenticationg..." />
 
-                <form noValidate onSubmit={__handleAuthentication}>
+                <form onSubmit={__handleAuthentication}>
                     <IonItem>
                         <IonLabel position={"floating"}>Username</IonLabel>
                         <IonInput
@@ -57,12 +71,25 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                     </IonRow>
                 </form>
             </IonContent>
+
+            <ToastContainer
+                position="bottom-center"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
         </IonPage>
     );
 
     async function __handleAuthentication(e: React.FormEvent) {
         e.preventDefault();
-
+        if (username && password) {
+            login && login({ username: username, password: password });
+        }
     }
 };
 

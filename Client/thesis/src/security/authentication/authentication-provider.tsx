@@ -111,7 +111,7 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
                     return;
                 }
 
-                log('{__loginEffect}', '(authenticate)', JSON.stringify(error));
+                log('{__loginEffect}', '(authenticate)', error);
                 setState({
                     ...state,
                     authenticationProps: undefined,

@@ -1,8 +1,8 @@
-import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonList, IonLoading, IonPage, IonRow, IonText, IonTitle, IonToolbar } from "@ionic/react";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonList, IonLoading, IonPage, IonRow, IonText, IonTitle, IonToolbar } from "@ionic/react";
 import React, { useContext, useState } from "react";
 import { RouteComponentProps } from "react-router";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { SignupContext } from "../signup-provider";
 import './SignupPage.scss';
 

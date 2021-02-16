@@ -19,16 +19,16 @@ export const loginApi: (userLogin: UserLogin) => Promise<AuthenticationProps> = 
         .then(async (response) => {
             const authenticationProps: AuthenticationProps = {
                 user: response.data as UserAuthenticated,
-                tokenType: response.headers['tokenType'],
-                accessToken: response.headers['accessToken'],
-                refreshToken: response.headers['refreshToken']
+                tokenType: response.headers['tokentype'],
+                accessToken: response.headers['accesstoken'],
+                refreshToken: response.headers['refreshtoken']
             };
 
             await storageSet(getConfig().STORAGE_AUTHENTICATION_KEY, authenticationProps);
             return authenticationProps;
         })
         .catch(error => {
-            log('{loginApi}', error.response.status, error.response);
-            throw error;
+            log('{loginApi}', error.response.data, error.message);
+            throw error.message;
         });
 }
