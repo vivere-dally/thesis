@@ -3,7 +3,6 @@ spring:
     username: admindev
     password: admindev
     url: jdbc:mysql://localhost:3306/thesis
-#    driver-class-name: org.postgresql.Driver
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

@@ -1,16 +1,40 @@
 pipeline {
     agent {
-        label "master"
+        label 'master'
     }
 
     options {
-        copyArtifactPermission '*'
+        copyArtifactPermission 'thesisDeploy'
     }
 
     stages {
-        stage("Test") {
+        stage ('Build') {
             steps {
-                echo "Hello world"
+                powershell '''
+                    Set-Location -Path './Server/thesis'
+                    & 'mvn' @('-B', '-DskipTests', 'clean', 'package')
+                '''
+            }
+        }
+
+        stage ('Test') {
+            steps {
+                powershell '''
+                    Set-Location -Path './Server/thesis'
+                    & 'mvn' @('test')
+                '''
+            }
+
+            post {
+                always {
+                    junit './Server/thesis/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage ('Artifacts') {
+            steps {
+                archiveArtifacts artifacts: './Server/thesis/target/*.jar', fingerprint: true
             }
         }
     }

@@ -101,10 +101,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                         SecurityConstants.ACCESS_TOKEN_HEADER,
                         SecurityConstants.REFRESH_TOKEN_HEADER));
 
-//        response.setHeader("Access-Control-Expose-Headers", SecurityConstants.ACCESS_TOKEN_TYPE_HEADER);
-//        response.addHeader("Access-Control-Expose-Headers", SecurityConstants.ACCESS_TOKEN_HEADER);
-//        response.addHeader("Access-Control-Expose-Headers", SecurityConstants.REFRESH_TOKEN_HEADER);
-
         request.setAttribute("username", securityUser.getUsername()); // Used in UserController @ login method to find the user by username.
 
         chain.doFilter(request, response);
