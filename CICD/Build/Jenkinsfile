@@ -67,13 +67,15 @@ pipeline {
         }
 
         stage ('Git Push') {
-            when {
-                expression {
-                    params.ReleaseType
+            steps {
+                when {
+                    expression {
+                        params.ReleaseType
+                    }
                 }
-            }
 
-            echo "TODO"
+                echo "TODO"
+            }
         }
     }
 }
