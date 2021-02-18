@@ -16,21 +16,23 @@
 param (
     [Parameter(Mandatory = $false)]
     [string]
-    $ProjectPath = "../../Server/thesis"
+    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path
 )
 
 Import-Module -Name @(
     "$PSScriptRoot\Utils.ps1"
 ) -Global -Force
 
-$MyInvocation.InvocationName
-$MyInvocation.ScriptName
-
 try {
-    $currentPath = $PSScriptRoot
-    Set-Location -Path $ProjectPath
+    Set-Location -Path $BackendAbsolutePath
     Invoke-NativeCommand -Command "mvn" -CommandArgs @('test')
-    Set-Location -Path $currentPath
+
+    Set-Location -Path $FrontendAbsolutePath
+    # TODO npm tests
 }
 catch {
     $_

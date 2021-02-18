@@ -110,8 +110,9 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
     async function __handleSignup(e: React.FormEvent) {
         e.preventDefault();
         setFormSubmitted(true);
-        if (__validateUsername() &&
-            __validatePassword()) {
+        const usernameResult = __validateUsername();
+        const passwordResult = __validatePassword();
+        if (usernameResult && passwordResult) {
             signup && signup({ username: username, password: password })
                 .then(result => {
                     toast.success(result, {

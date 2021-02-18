@@ -3,16 +3,43 @@ pipeline {
         label 'master'
     }
 
+    environment {
+        BuildMetadata = VersionNumber(versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy.w.D"}.${BUILDS_ALL_TIME, XXX}', worstResultForIncrement: 'SUCCESS')
+    }
+
     options {
-        copyArtifactPermission 'thesisDeploy'
+        copyArtifactPermission 'thesis-deploy'
+    }
+
+    parameters {
+        choice(choices: ['', 'alpha', 'beta', 'rc'], name: 'PreReleaseTag')
+        choice(choices: ['', 'Patch', 'Minor', 'Major'], name: 'ReleaseType')
     }
 
     stages {
+        stage ('Init') {
+            steps {
+                script {
+                    def output = powershell(returnStdout: true, script: '''
+                        ('./Server/thesis' | Resolve-Path).Path
+                        ('./Client/thesis' | Resolve-Path).Path
+                    ''').tokenize('\n')
+
+                    env.BackendAbsolutePath = output[0].trim()
+                    env.FrontendAbsolutePath = output[1].trim()
+                }
+            }
+        }
+
         stage ('Build') {
             steps {
                 powershell '''
-                    Set-Location -Path './Server/thesis'
-                    & 'mvn' @('-B', '-DskipTests', 'clean', 'package')
+                    ./CICD/Build/Build.ps1 `
+                        -BackendAbsolutePath $env:BackendAbsolutePath `
+                        -FrontendAbsolutePath $env:FrontendAbsolutePath `
+                        -BuildMetadata $env:BuildMetadata `
+                        -PreReleaseTag $env:PreReleaseTag `
+                        -ReleaseType $env:ReleaseType
                 '''
             }
         }
@@ -20,8 +47,9 @@ pipeline {
         stage ('Test') {
             steps {
                 powershell '''
-                    Set-Location -Path './Server/thesis'
-                    & 'mvn' @('test')
+                    ./CICD/Build/Test.ps1 `
+                        -BackendAbsolutePath $env:BackendAbsolutePath `
+                        -FrontendAbsolutePath $env:FrontendAbsolutePath
                 '''
             }
 
@@ -36,6 +64,16 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'Server/thesis/target/*.jar', fingerprint: true
             }
+        }
+
+        stage ('Git Push') {
+            when {
+                expression {
+                    params.ReleaseType
+                }
+            }
+
+            echo "TODO"
         }
     }
 }
