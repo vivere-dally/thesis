@@ -47,8 +47,8 @@ Import-Module -Name @(
 try {
     Set-Location -Path $BackendAbsolutePath
     $ProjectVersion = Invoke-NativeCommand -Command 'mvn' -CommandArgs @('help:evaluate', '-Dexpression=project.version') | Where-Object { -not $_.StartsWith('[') }
+    $ProjectVersion = $ProjectVersion.TrimEnd('-SNAPSHOT')
     if ($ReleaseType) {
-        $ProjectVersion = $ProjectVersion.TrimEnd('-SNAPSHOT')
         $parts = $ProjectVersion.Split('.') | ForEach-Object { [int]$_ }
         switch ($ReleaseType) {
             'Patch' {
@@ -90,6 +90,7 @@ try {
     Set-Location $FrontendAbsolutePath
     Invoke-NativeCommand -Command "npm" -CommandArgs @('install')
     Invoke-NativeCommand -Command "npm" -CommandArgs @('run', 'build')
+    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesisClient-$ProjectVersion.zip" -CompressionLevel Fastest
 }
 catch {
     $_
