@@ -17,18 +17,25 @@ function Invoke-NativeCommand {
         
         [Parameter(Mandatory = $false)]
         [array]
-        $CommandArgs = @()
+        $CommandArgs = @(),
+
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $NoLogs
     )
 
     & $Command $CommandArgs
 
     $formattedCommandArgs = $commandArgs | ForEach-Object { "[$_]" }
     $formattedCommandArgs = $formattedCommandArgs -join ' '
-    Write-Host @"
-Command: $command
+    if (-not $NoLogs) {
+        Write-Host @"
+Command: [$command]
 CommandArgs: $formattedCommandArgs
 Exit Code: $LASTEXITCODE
 "@
+    }
+
     if ($LASTEXITCODE -ne 0) {
         throw 'Failure'
     }

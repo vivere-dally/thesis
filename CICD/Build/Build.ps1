@@ -24,74 +24,52 @@ param (
 
     [Parameter(Mandatory = $false)]
     [string]
-    $BuildMetadata = 'local',
+    $ProjectVersion,
 
     [Parameter(Mandatory = $false)]
-    [AllowEmptyString()]
-    [ValidateSet('', 'alpha', 'beta', 'rc')]
-    [string]
-    $PreReleaseTag = '',
+    [boolean]
+    $UseCommonNpmModules = $true,
 
     [Parameter(Mandatory = $false)]
-    [AllowEmptyString()]
-    [ValidateSet('', 'Patch', 'Minor', 'Major')]
     [string]
-    $ReleaseType = ''
-
+    $CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
 )
 
-Import-Module -Name @(
-    "$PSScriptRoot\Utils.ps1"
-) -Global -Force
+#Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
+Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 
 try {
     Set-Location -Path $BackendAbsolutePath
-    $ProjectVersion = Invoke-NativeCommand -Command 'mvn' -CommandArgs @('help:evaluate', '-Dexpression=project.version') | Where-Object { -not $_.StartsWith('[') }
-    $ProjectVersion = $ProjectVersion.TrimEnd('-SNAPSHOT')
-    if ($ReleaseType) {
-        $parts = $ProjectVersion.Split('.') | ForEach-Object { [int]$_ }
-        switch ($ReleaseType) {
-            'Patch' {
-                $parts[2]++
-                break
-            }
-
-            'Minor' {
-                $parts[2] = 0
-                $parts[1]++
-                break
-            }
-
-            'Major' {
-                $parts[2] = 0
-                $parts[1] = 0
-                $parts[0]++
-                break
-            }
-        }
-
-        $ProjectVersion = $parts -join '.'
-    }
-    
-    if (-not $ReleaseType) {
-        if ($PreReleaseTag) {
-            $ProjectVersion = "$ProjectVersion-$PreReleaseTag"
-        }
-
-        $ProjectVersion = "$ProjectVersion+$BuildMetadata"
-    }
-
-    if ('local' -ne $BuildMetadata) {
+    # Update Backend's Version
+    if ($ProjectVersion) {
         Invoke-NativeCommand -Command "mvn" -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
     }
 
+    # Build Backend
     Invoke-NativeCommand -Command "mvn" -CommandArgs @('-B', '-DskipTests', 'clean', 'package')
 
     Set-Location $FrontendAbsolutePath
+    # Update Frontend's Version
+    if ($ProjectVersion) {
+        $packageJson = Get-Content -Path ".\package.json" | ConvertFrom-Json
+        $packageJson.version = $ProjectVersion
+        $packageJson | ConvertTo-Json -Depth 5 | Set-Content -Path ".\package.json" -Force
+    }
+
+    # Create junction for node_modules. Improve lifetime of my SSD since Jenkins is running on it.
+    if ($UseCommonNpmModules -and (Test-Path $CommonNpmModulesPath) -and -not (Test-Path '.\node_modules')) {
+        Invoke-NativeCommand -Command "cmd.exe" -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $CommonNpmModulesPath)
+    }
+
+    # Build Frontend
     Invoke-NativeCommand -Command "npm" -CommandArgs @('install')
     Invoke-NativeCommand -Command "npm" -CommandArgs @('run', 'build')
-    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesisClient-$ProjectVersion.zip" -CompressionLevel Fastest
+
+    # Zip Frontend's Artifacts
+    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesis-$ProjectVersion.zip" -CompressionLevel Fastest
+    exit 0
 }
 catch {
     $_
+    exit 1
 }

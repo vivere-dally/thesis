@@ -4,7 +4,7 @@ pipeline {
     }
 
     environment {
-        BuildMetadata = VersionNumber(versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy.w.D"}.${BUILDS_ALL_TIME, XXX}', worstResultForIncrement: 'SUCCESS')
+        BuildMetadata = VersionNumber(versionNumberString: '${BUILD_DATE_FORMATTED, "yyD"}.${BUILDS_ALL_TIME, XXXX}', worstResultForIncrement: 'SUCCESS')
     }
 
     options {
@@ -12,8 +12,10 @@ pipeline {
     }
 
     parameters {
-        choice(choices: ['', 'alpha', 'beta', 'rc'], name: 'PreReleaseTag')
-        choice(choices: ['', 'Patch', 'Minor', 'Major'], name: 'ReleaseType')
+        choice(choices: ['', 'Patch', 'Minor', 'Major'], description: 'Specifies the Release type.', name: 'Release')
+        choice(choices: ['', 'alpha', 'beta', 'rc'], description: 'Specifies the Prerelease type.', name: 'Prerelease')
+        booleanParam(defaultValue: true, description: 'Use the existing npm_modules.', name: 'UseCommonNpmModules')
+        string(defaultValue: 'E:/Dev/npm/node_modules', description: 'Path to the shared npm_modules.', name: 'CommonNpmModules', trim: true)
     }
 
     stages {
@@ -27,6 +29,13 @@ pipeline {
 
                     env.BackendAbsolutePath = output[0].trim()
                     env.FrontendAbsolutePath = output[1].trim()
+                    env.ProjectVersion = powershell(returnStdout: true, script: '''
+                        ./CICD/Build/Init.ps1 `
+                            -BackendAbsolutePath $env:BackendAbsolutePath `
+                            -Release $env:Release `
+                            -Prerelease $env:Prerelease `
+                            -BuildMetadata $env:BuildMetadata
+                    ''')
                 }
             }
         }
@@ -37,9 +46,9 @@ pipeline {
                     ./CICD/Build/Build.ps1 `
                         -BackendAbsolutePath $env:BackendAbsolutePath `
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
-                        -BuildMetadata $env:BuildMetadata `
-                        -PreReleaseTag $env:PreReleaseTag `
-                        -ReleaseType $env:ReleaseType
+                        -ProjectVersion $env:ProjectVersion `
+                        -UseCommonNpmModules $env:UseCommonNpmModules `
+                        -CommonNpmModulesPath $env:CommonNpmModulesPath
                 '''
             }
         }
@@ -67,15 +76,27 @@ pipeline {
             }
         }
 
-        stage ('Git Push') {
+        stage ('Tag') {
             when {
                 expression {
-                    params.ReleaseType
+                    params.Release
                 }
             }
 
             steps {
-                echo "TODO"
+                sshagent(['Thesis-Github-SSH']) {
+                    powershell '''
+                        ./CICD/Build/Tag.ps1 `
+                            -BackendAbsolutePath $env:BackendAbsolutePath `
+                            -FrontendAbsolutePath $env:FrontendAbsolutePath `
+                            -ProjectVersion $env:ProjectVersion
+                    '''
+                }
+
+                script {
+                    // Keep this build forever
+                    currentBuild.keepLog = true
+                }
             }
         }
     }

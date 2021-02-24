@@ -23,9 +23,7 @@ param (
     $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path
 )
 
-Import-Module -Name @(
-    "$PSScriptRoot\Utils.ps1"
-) -Global -Force
+Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 
 try {
     Set-Location -Path $BackendAbsolutePath
@@ -33,8 +31,11 @@ try {
 
     Set-Location -Path $FrontendAbsolutePath
     # TODO npm tests
+    
+    exit 0
 }
 catch {
     $_
+    exit 1
 }
 
