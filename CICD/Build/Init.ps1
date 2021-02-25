@@ -52,10 +52,10 @@ try {
         'Major' { $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major + 1, 0, 0, $Prerelease, $BuildMetadata); break; }
         Default {
             if (-not $Prerelease) {
-                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $Prerelease, $BuildMetadata);
+                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $ProjectVersion.Prerelease, $BuildMetadata);
             }
             else {
-                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $ProjectVersion.Prerelease, $BuildMetadata);
+                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $Prerelease, $BuildMetadata);
             }
         }
     }

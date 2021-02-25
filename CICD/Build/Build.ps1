@@ -37,6 +37,7 @@ param (
 
 #Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
+$pythonUtilsPath = "$PSScriptRoot\Utils.py"
 
 try {
     Set-Location -Path $BackendAbsolutePath
@@ -51,9 +52,7 @@ try {
     Set-Location $FrontendAbsolutePath
     # Update Frontend's Version
     if ($ProjectVersion) {
-        $packageJson = Get-Content -Path ".\package.json" | ConvertFrom-Json
-        $packageJson.version = $ProjectVersion
-        $packageJson | ConvertTo-Json -Depth 5 | Set-Content -Path ".\package.json" -Force
+        Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $ProjectVersion)
     }
 
     # Create junction for node_modules. Improve lifetime of my SSD since Jenkins is running on it.
