@@ -22,6 +22,22 @@ pipeline {
         stage ('Init') {
             steps {
                 script {
+                    if (!binding.hasVariable('Release')) {
+                        env.Release = ''
+                    }
+
+                    if (!binding.hasVariable('Prerelease')) {
+                        env.Prerelease = ''
+                    }
+
+                    if (!binding.hasVariable('UseCommonNpmModules')) {
+                        env.UseCommonNpmModules = true
+                    }
+
+                    if (!binding.hasVariable('CommonNpmModules')) {
+                        env.CommonNpmModules = 'E:/Dev/npm/node_modules'
+                    }
+
                     def output = powershell(returnStdout: true, script: '''
                         ('./Server/thesis' | Resolve-Path).Path
                         ('./Client/thesis' | Resolve-Path).Path
@@ -47,7 +63,7 @@ pipeline {
                         -BackendAbsolutePath $env:BackendAbsolutePath `
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
                         -ProjectVersion $env:ProjectVersion `
-                        -UseCommonNpmModules $env:UseCommonNpmModules `
+                        -UseCommonNpmModules [boolean] $env:UseCommonNpmModules `
                         -CommonNpmModulesPath $env:CommonNpmModulesPath
                 '''
             }

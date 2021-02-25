@@ -49,7 +49,7 @@ try {
         Set-Location $FrontendAbsolutePath
         $packageJson = Get-Content -Path ".\package.json" | ConvertFrom-Json
         $packageJson.version = $ProjectVersion
-        $packageJson | ConvertTo-Json -Depth 5 | Set-Content -Path ".\package.json" -Force
+        $packageJson | ConvertTo-Json -Depth 5 | Set-Content -Path '.\package.json' -Force
         Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.xml')
 
         # Push changes to origin
