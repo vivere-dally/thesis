@@ -51,7 +51,7 @@ pipeline {
                             -Release $env:Release `
                             -Prerelease $env:Prerelease `
                             -BuildMetadata $env:BuildMetadata
-                    ''')
+                    ''').trim()
                 }
             }
         }
