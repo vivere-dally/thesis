@@ -64,7 +64,7 @@ try {
         throw "The SCM version $ProjectVersion does not precedes the new version $NewProjectVersion."
     }
 
-    $NewProjectVersion.ToString()
+    $NewProjectVersion.ToString().Trim()
     exit 0
 }
 catch {

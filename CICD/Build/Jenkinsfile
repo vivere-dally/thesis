@@ -15,7 +15,7 @@ pipeline {
         choice(choices: ['', 'Patch', 'Minor', 'Major'], description: 'Specifies the Release type.', name: 'Release')
         choice(choices: ['', 'alpha', 'beta', 'rc'], description: 'Specifies the Prerelease type.', name: 'Prerelease')
         booleanParam(defaultValue: true, description: 'Use the existing npm_modules.', name: 'UseCommonNpmModules')
-        string(defaultValue: 'E:/Dev/npm/node_modules', description: 'Path to the shared npm_modules.', name: 'CommonNpmModules', trim: true)
+        string(defaultValue: 'E:/Dev/npm/node_modules', description: 'Path to the shared npm_modules.', name: 'CommonNpmModulesPath', trim: true)
     }
 
     stages {
@@ -34,8 +34,8 @@ pipeline {
                         env.UseCommonNpmModules = true
                     }
 
-                    if (!binding.hasVariable('CommonNpmModules')) {
-                        env.CommonNpmModules = 'E:/Dev/npm/node_modules'
+                    if (!binding.hasVariable('CommonNpmModulesPath')) {
+                        env.CommonNpmModulesPath = 'E:/Dev/npm/node_modules'
                     }
 
                     def output = powershell(returnStdout: true, script: '''
