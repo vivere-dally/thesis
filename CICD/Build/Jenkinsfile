@@ -58,12 +58,16 @@ pipeline {
 
         stage ('Build') {
             steps {
+                script {
+                    env.UseCommonNpmModules = env.UseCommonNpmModules.toBoolean()
+                }
+
                 powershell '''
                     ./CICD/Build/Build.ps1 `
                         -BackendAbsolutePath $env:BackendAbsolutePath `
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
                         -ProjectVersion $env:ProjectVersion `
-                        -UseCommonNpmModules [boolean] $env:UseCommonNpmModules `
+                        -UseCommonNpmModules $env:UseCommonNpmModules `
                         -CommonNpmModulesPath $env:CommonNpmModulesPath
                 '''
             }
