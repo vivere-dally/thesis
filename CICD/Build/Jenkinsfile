@@ -64,7 +64,7 @@ pipeline {
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
                         -ProjectVersion $env:ProjectVersion `
                         -UseCommonNpmModules ([boolean] $env:UseCommonNpmModules) `
-                        -CommonNpmModulesPath $env:CommonNpmModulesPath
+                        -CommonNpmModulesPath ($env:CommonNpmModulesPath | Resolve-Path).Path
                 '''
             }
         }
