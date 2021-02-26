@@ -100,7 +100,7 @@ pipeline {
             }
 
             steps {
-                sshagent(['Thesis-Github-SSH']) {
+                sshagent(['github_vivere-dally']) {
                     powershell '''
                         ./CICD/Build/Tag.ps1 `
                             -BackendAbsolutePath $env:BackendAbsolutePath `
