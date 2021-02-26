@@ -24,15 +24,19 @@ function Invoke-NativeCommand {
         $NoLogs
     )
 
+    $stopWatch = [Diagnostics.Stopwatch]::StartNew()
     & $Command $CommandArgs
+    $stopWatch.Stop()
 
     $formattedCommandArgs = $commandArgs | ForEach-Object { "[$_]" }
     $formattedCommandArgs = $formattedCommandArgs -join ' '
     if (-not $NoLogs) {
+        $totalTime = "{0:n3}" -f $stopWatch.Elapsed.TotalSeconds
         Write-Host @"
 Command: [$command]
 CommandArgs: $formattedCommandArgs
 Exit Code: $LASTEXITCODE
+Total time: $totalTime s
 "@
     }
 

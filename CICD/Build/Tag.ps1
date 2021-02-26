@@ -36,31 +36,33 @@ try {
         throw "The $ProjectVersion is not following the SemVer guidelines."
     }
 
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('checkout', 'main')
     $currentGitBranch = Invoke-NativeCommand -Command 'git' -CommandArgs @('branch', '--show-current') -NoLogs
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('config', '--get', 'remote.origin.url')
-    if ('main' -eq $currentGitBranch) {
-        $version = $ProjectVersion | ConvertTo-SemVer
-        $version = $version.Change($version.Major, $version.Minor, $version.Patch, $version.Prerelease, '').ToString() # Discard build metadata
-
-        # Update Backend Version
-        Set-Location -Path $BackendAbsolutePath
-        Invoke-NativeCommand -Command 'mvn' -CommandArgs @('versions:set', "-DnewVersion=$version")
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\pom.xml')
-
-        # Update Frontend Version
-        Set-Location $FrontendAbsolutePath
-        Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
-
-        # Push changes to origin
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin')
-
-        # Create tag
-        $tagName = "v$($version.ToString())"
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
-        Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin', $tagName)
+    if ('main' -ne $currentGitBranch) {
+        throw "Cannot TAG any branch besides main."
     }
+    
+    $version = $ProjectVersion | ConvertTo-SemVer
+    $version = $version.Change($version.Major, $version.Minor, $version.Patch, $version.Prerelease, '').ToString() # Discard build metadata
+
+    # Update Backend Version
+    Set-Location -Path $BackendAbsolutePath
+    Invoke-NativeCommand -Command 'mvn' -CommandArgs @('versions:set', "-DnewVersion=$version")
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\pom.xml')
+
+    # Update Frontend Version
+    Set-Location $FrontendAbsolutePath
+    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
+
+    # Push changes to origin
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin')
+
+    # Create tag
+    $tagName = "v$($version.ToString())"
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin', $tagName)
 
     exit 0
 }
