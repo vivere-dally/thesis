@@ -38,6 +38,7 @@ param (
 #Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $pythonUtilsPath = "$PSScriptRoot\Utils.py"
+$ErrorActionPreference = 'Stop'
 
 try {
     Set-Location -Path $BackendAbsolutePath

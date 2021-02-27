@@ -44,7 +44,9 @@ pipeline {
                     ''').tokenize('\n')
 
                     env.BackendAbsolutePath = output[0].trim()
+                    echo "Backend Path: ${env.BackendAbsolutePath}"
                     env.FrontendAbsolutePath = output[1].trim()
+                    echo "Frontend Path: ${env.FrontendAbsolutePath}"
                     env.ProjectVersion = powershell(returnStdout: true, script: '''
                         ./CICD/Build/Init.ps1 `
                             -BackendAbsolutePath $env:BackendAbsolutePath `
@@ -52,6 +54,7 @@ pipeline {
                             -Prerelease $env:Prerelease `
                             -BuildMetadata $env:BuildMetadata
                     ''').trim()
+                    echo "Project version: ${env.ProjectVersion}"
                 }
             }
         }

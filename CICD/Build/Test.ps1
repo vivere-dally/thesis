@@ -24,6 +24,7 @@ param (
 )
 
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
+$ErrorActionPreference = 'Stop'
 
 try {
     Set-Location -Path $BackendAbsolutePath

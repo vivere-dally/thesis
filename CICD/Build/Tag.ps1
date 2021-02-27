@@ -30,6 +30,7 @@ param (
 #Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $pythonUtilsPath = "$PSScriptRoot\Utils.py"
+$ErrorActionPreference = 'Stop'
 
 try {
     if (-not (Test-SemVer -InputObject $ProjectVersion)) {
@@ -54,6 +55,7 @@ try {
     Set-Location $FrontendAbsolutePath
     Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
     Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
+    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package-lock.json')
 
     # Push changes to origin
     Invoke-NativeCommand -Command 'git' -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
