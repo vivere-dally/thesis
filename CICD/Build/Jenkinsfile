@@ -26,18 +26,22 @@ pipeline {
                         env.Release = ''
                     }
 
+                    echo "Release: ${env.Release}"
                     if (!binding.hasVariable('Prerelease')) {
                         env.Prerelease = ''
                     }
 
+                    echo "Prerelease: ${env.Prerelease}"
                     if (!binding.hasVariable('UseCommonNpmModules')) {
                         env.UseCommonNpmModules = true
                     }
 
+                    echo "UseCommonNpmModules: ${env.UseCommonNpmModules}"
                     if (!binding.hasVariable('CommonNpmModulesPath')) {
                         env.CommonNpmModulesPath = 'E:/Dev/npm/node_modules'
                     }
 
+                    echo "CommonNpmModulesPath: ${env.CommonNpmModulesPath}"
                     def output = powershell(returnStdout: true, script: '''
                         ('./Server/thesis' | Resolve-Path).Path
                         ('./Client/thesis' | Resolve-Path).Path

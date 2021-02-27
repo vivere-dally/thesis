@@ -54,6 +54,7 @@ try {
     # Update Frontend Version
     Set-Location $FrontendAbsolutePath
     Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
+    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package-lock.json' | Resolve-Path).Path, $version)
     Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
     Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package-lock.json')
 

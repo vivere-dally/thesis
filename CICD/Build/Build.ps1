@@ -54,6 +54,7 @@ try {
     # Update Frontend's Version
     if ($ProjectVersion) {
         Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $ProjectVersion)
+        Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package-lock.json' | Resolve-Path).Path, $ProjectVersion)
     }
 
     # Create junction for node_modules. Improve lifetime of my SSD since Jenkins is running on it.
