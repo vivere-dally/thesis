@@ -1,6 +1,6 @@
 {
   "name": "thesis",
-  "version": "0.1.0-SNAPSHOT",
+  "version": "0.1.1-alpha",
   "private": true,
   "dependencies": {
     "@capacitor/core": "2.4.6",
