@@ -40,7 +40,7 @@ pipeline {
                             -Release $psRelease `
                             -Prerelease $psPrerelease `
                             -BuildMetadata $psBuildMetadata
-                    ''').trim()
+                    ''').strip()
                     echo "Project Version: ${env.ProjectVersion}"
                 }
             }
@@ -54,7 +54,7 @@ pipeline {
                     ./CICD/Build/Build.ps1 `
                         -BackendAbsolutePath $env:BackendAbsolutePath `
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
-                        -ProjectVersion $env:ProjectVersion`
+                        -ProjectVersion $env:ProjectVersion `
                         -UseCommonNpmModules ([boolean] $psUseCommonNpmModules) `
                         -CommonNpmModulesPath ($psCommonNpmModulesPath | Resolve-Path).Path
                 '''
