@@ -49,13 +49,12 @@ pipeline {
         stage ('Build') {
             steps {
                 powershell '''
-                    $psProjectVersion = if (Test-Path env:ProjectVersion) { $env:ProjectVersion } else { '' }
                     $psUseCommonNpmModules = if (Test-Path env:UseCommonNpmModules) { $env:UseCommonNpmModules } else { $true }
                     $psCommonNpmModulesPath = if (Test-Path env:CommonNpmModulesPath) { $env:CommonNpmModulesPath } else { 'E:/Dev/npm/node_modules' }
                     ./CICD/Build/Build.ps1 `
                         -BackendAbsolutePath $env:BackendAbsolutePath `
                         -FrontendAbsolutePath $env:FrontendAbsolutePath `
-                        -ProjectVersion $psProjectVersion`
+                        -ProjectVersion $env:ProjectVersion`
                         -UseCommonNpmModules ([boolean] $psUseCommonNpmModules) `
                         -CommonNpmModulesPath ($psCommonNpmModulesPath | Resolve-Path).Path
                 '''
@@ -95,11 +94,10 @@ pipeline {
             steps {
                 sshagent(['github_vivere-dally']) {
                     powershell '''
-                        $psProjectVersion = if (Test-Path env:ProjectVersion) { $env:ProjectVersion } else { '' }
                         ./CICD/Build/Tag.ps1 `
                             -BackendAbsolutePath $env:BackendAbsolutePath `
                             -FrontendAbsolutePath $env:FrontendAbsolutePath `
-                            -ProjectVersion $psProjectVersion
+                            -ProjectVersion $env:ProjectVersion
                     '''
                 }
 
