@@ -23,6 +23,7 @@ param (
     $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path,
 
     [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
     [string]
     $ProjectVersion
 )

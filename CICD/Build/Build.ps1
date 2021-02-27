@@ -23,6 +23,7 @@ param (
     $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path,
 
     [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
     [string]
     $ProjectVersion,
 
@@ -31,6 +32,7 @@ param (
     $UseCommonNpmModules = $true,
 
     [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
     [string]
     $CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
 )

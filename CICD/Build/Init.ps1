@@ -31,6 +31,7 @@ param (
     $Prerelease,
 
     [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
     [string]
     $BuildMetadata
 )
