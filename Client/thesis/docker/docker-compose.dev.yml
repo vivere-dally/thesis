@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  thesis:
+    image: thesis:local
+    build:
+      context: ./../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 5002:5000

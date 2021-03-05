@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  thesis:
+    # [production-tag] will be replaced in the Jenkins Build Job
+    image: thesis:[production-tag]
+    build:
+      context: ./../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      # Azure Web App exposes port 80
+      - 80:5000
