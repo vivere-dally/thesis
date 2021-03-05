@@ -3,6 +3,7 @@ services:
   thesisapi:
     image: thesisapi:local
     container_name: thesisapi
+    restart: always
     build:
       context: ./../
       dockerfile: ./docker/Dockerfile
@@ -18,8 +19,6 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL5InnoDBDialect
-    volumes:
-      - mysql-data:/var/lib/mysql
 
   mysql:
     image: mysql:8
@@ -32,6 +31,8 @@ services:
       - MYSQL_USER=admindev
       - MYSQL_PASSWORD=admindev
       - MYSQL_DATABASE=thesis
+    volumes:
+      - mysql-data:/var/lib/mysql
 
 volumes:
   mysql-data:

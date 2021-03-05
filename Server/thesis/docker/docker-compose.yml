@@ -4,6 +4,7 @@ services:
     # [production-tag] will be replaced in the Jenkins Build Job
     image: thesisapi:[production-tag]
     container_name: thesisapi
+    restart: always
     build:
       context: ./../
       dockerfile: ./docker/Dockerfile
