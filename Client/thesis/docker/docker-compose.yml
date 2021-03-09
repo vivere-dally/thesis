@@ -1,8 +1,7 @@
 version: '3.8'
 services:
   thesis:
-    # [production-tag] will be replaced in the Jenkins Build Job
-    image: thesis:[production-tag]
+    image: thesis:${DC_PROJECT_VERSION:?Project version missing}
     container_name: thesis
     restart: always
     build:

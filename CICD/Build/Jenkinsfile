@@ -8,7 +8,9 @@ pipeline {
     }
 
     options {
-        copyArtifactPermission 'thesis-deploy'
+        copyArtifactPermission('thesis-deploy')
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        skipStagesAfterUnstable()
     }
 
     parameters {
@@ -105,6 +107,18 @@ pipeline {
                     // Keep this build forever
                     currentBuild.keepLog = true
                 }
+            }
+        }
+
+        stage ('Deploy') {
+            environment {
+                ACR_CRED = credentials('azure_container_registry')
+            }
+
+            steps {
+                powershell '''
+                    
+                '''
             }
         }
     }
