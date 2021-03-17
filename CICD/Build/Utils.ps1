@@ -11,15 +11,15 @@ function Invoke-NativeCommand {
     [CmdletBinding()]
     [OutputType()]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [string]
         $Command,
         
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, Position = 1)]
         [array]
         $CommandArgs = @(),
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, Position = 2)]
         [switch]
         $NoLogs
     )
@@ -42,5 +42,42 @@ Total time: $totalTime s
 
     if ($LASTEXITCODE -ne 0) {
         throw 'Failure'
+    }
+}
+
+function Edit-JsonField {
+    [CmdletBinding()]
+    [OutputType()]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [string]
+        $Path,
+
+        [Parameter(Mandatory = $true, Position = 1)]
+        [string[]]
+        $Name,
+
+        [Parameter(Mandatory = $true, Position = 2)]
+        [PSCustomObject[]]
+        $Value
+    )
+
+    begin {
+        if ($Name.Count -ne $Value.Count) {
+            throw 'Name and Value must have the same cardinality.'
+        }
+    }
+
+    process {
+        if (-not (Test-Path -Path $Path)) {
+            throw 'Invalid path'
+        }
+
+        $content = Get-Content -Path $Path | ConvertFrom-Json
+        for ($i = 0; $i -lt $Name.Count; $i++) {
+            $content.($Name[$i]) = $Value[$i]
+        }
+
+        $content | ConvertTo-Json -Depth 10 | Set-Content -Path $Path -Force | Out-Null
     }
 }

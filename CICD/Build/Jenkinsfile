@@ -24,21 +24,11 @@ pipeline {
         stage ('Init') {
             steps {
                 script {
-                    def output = powershell(returnStdout: true, script: '''
-                        ('./Server/thesis' | Resolve-Path).Path
-                        ('./Client/thesis' | Resolve-Path).Path
-                    ''').tokenize('\n')
-
-                    env.BackendAbsolutePath = output[0].trim()
-                    echo "Backend Path: ${env.BackendAbsolutePath}"
-                    env.FrontendAbsolutePath = output[1].trim()
-                    echo "Frontend Path: ${env.FrontendAbsolutePath}"
                     env.ProjectVersion = powershell(returnStdout: true, script: '''
                         $psRelease = if (Test-Path env:Release) { $env:Release } else { '' }
                         $psPrerelease = if (Test-Path env:Prerelease) { $env:Prerelease } else { '' }
                         $psBuildMetadata = if (Test-Path env:BuildMetadata) { $env:BuildMetadata } else { '' }
                         ./CICD/Build/Init.ps1 `
-                            -BackendAbsolutePath $env:BackendAbsolutePath `
                             -Release $psRelease `
                             -Prerelease $psPrerelease `
                             -BuildMetadata $psBuildMetadata
@@ -51,14 +41,10 @@ pipeline {
         stage ('Build') {
             steps {
                 powershell '''
-                    $psUseCommonNpmModules = if (Test-Path env:UseCommonNpmModules) { $env:UseCommonNpmModules } else { $true }
-                    $psCommonNpmModulesPath = if (Test-Path env:CommonNpmModulesPath) { $env:CommonNpmModulesPath } else { 'E:/Dev/npm/node_modules' }
+                    $psFreshNpmModules = if (Test-Path env:FreshNpmModules) { $env:FreshNpmModules } else { $false }
                     ./CICD/Build/Build.ps1 `
-                        -BackendAbsolutePath $env:BackendAbsolutePath `
-                        -FrontendAbsolutePath $env:FrontendAbsolutePath `
                         -ProjectVersion $env:ProjectVersion `
-                        -UseCommonNpmModules ([boolean] $psUseCommonNpmModules) `
-                        -CommonNpmModulesPath ($psCommonNpmModulesPath | Resolve-Path).Path
+                        -FreshNpmModules ([boolean] $psFreshNpmModules)
                 '''
             }
         }
@@ -66,9 +52,7 @@ pipeline {
         stage ('Test') {
             steps {
                 powershell '''
-                    ./CICD/Build/Test.ps1 `
-                        -BackendAbsolutePath $env:BackendAbsolutePath `
-                        -FrontendAbsolutePath $env:FrontendAbsolutePath
+                    ./CICD/Build/Test.ps1
                 '''
             }
 
@@ -96,10 +80,7 @@ pipeline {
             steps {
                 sshagent(['github_vivere-dally']) {
                     powershell '''
-                        ./CICD/Build/Tag.ps1 `
-                            -BackendAbsolutePath $env:BackendAbsolutePath `
-                            -FrontendAbsolutePath $env:FrontendAbsolutePath `
-                            -ProjectVersion $env:ProjectVersion
+                        ./CICD/Build/Tag.ps1 -ProjectVersion $env:ProjectVersion
                     '''
                 }
 
@@ -117,7 +98,7 @@ pipeline {
 
             steps {
                 powershell '''
-                    
+
                 '''
             }
         }

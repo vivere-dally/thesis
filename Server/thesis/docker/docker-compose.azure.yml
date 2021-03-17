@@ -7,9 +7,6 @@ services:
     build:
       context: ./../
       dockerfile: ./docker/Dockerfile
-    ports:
-      # Azure Web App exposes port 80
-      - 80:5000
     depends_on:
       - mysql
     environment:
@@ -30,9 +27,3 @@ services:
       - MYSQL_USER=admindev
       - MYSQL_PASSWORD=admindev
       - MYSQL_DATABASE=thesis
-    volumes:
-      - mysql-data:/var/lib/mysql
-
-volumes:
-  mysql-data:
-    driver: local

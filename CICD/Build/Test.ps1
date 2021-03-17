@@ -1,36 +1,23 @@
-<#
-.SYNOPSIS
-    Short description
-.DESCRIPTION
-    Long description
-.PARAMETER example
-    Explanation of the parameter
-.EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 [CmdletBinding()]
 [OutputType()]
-param (
-    [Parameter(Mandatory = $false)]
-    [string]
-    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
+param ()
 
-    [Parameter(Mandatory = $false)]
-    [string]
-    $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path
-)
+#Requires -RunAsAdministrator
+#Requires -Version 7.1.3
+#Requires -PSEdition Core
 
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $ErrorActionPreference = 'Stop'
+Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
+
+$Private:CurrentDir = $PSScriptRoot
+$Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
+$Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
 try {
-    Set-Location -Path $BackendAbsolutePath
-    Invoke-NativeCommand -Command "mvn" -CommandArgs @('test')
+    Set-Location -Path $Private:BEPath
+    'mvn' | Invoke-NativeCommand -CommandArgs @('test')
 
-    Set-Location -Path $FrontendAbsolutePath
+    Set-Location -Path $Private:FEPath
     # TODO npm tests
     
     exit 0
@@ -38,5 +25,8 @@ try {
 catch {
     $_
     exit 1
+}
+finally {
+    Set-Location -Path $Private:CurrentDir
 }
 

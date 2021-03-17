@@ -1,76 +1,63 @@
-<#
-.SYNOPSIS
-    Short description
-.DESCRIPTION
-    Long description
-.PARAMETER example
-    Explanation of the parameter
-.EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 [CmdletBinding()]
 [OutputType()]
 param (
-    [Parameter(Mandatory = $false)]
-    [string]
-    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
-
-    [Parameter(Mandatory = $false)]
-    [string]
-    $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path,
-
-    [Parameter(Mandatory = $false)]
-    [AllowEmptyString()]
+    [Parameter(Mandatory = $true)]
     [string]
     $ProjectVersion
 )
 
-#Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
-$pythonUtilsPath = "$PSScriptRoot\Utils.py"
+#Requires -RunAsAdministrator
+#Requires -Version 7.1.3
+#Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
+
 $ErrorActionPreference = 'Stop'
+Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
+
+$Private:CurrentDir = $PSScriptRoot
+$Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
+$Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
 try {
-    if (-not (Test-SemVer -InputObject $ProjectVersion)) {
+    if (-not ($ProjectVersion | Test-GooSemVer)) {
         throw "The $ProjectVersion is not following the SemVer guidelines."
     }
 
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('checkout', 'main')
-    $currentGitBranch = Invoke-NativeCommand -Command 'git' -CommandArgs @('branch', '--show-current') -NoLogs
+    'git' | Invoke-NativeCommand -CommandArgs @('checkout', 'main')
+    $currentGitBranch = 'git' | Invoke-NativeCommand -CommandArgs @('branch', '--show-current') -NoLogs
     if ('main' -ne $currentGitBranch) {
         throw "Cannot TAG any branch besides main."
     }
-    
-    $version = $ProjectVersion | ConvertTo-SemVer
-    $version = $version.Change($version.Major, $version.Minor, $version.Patch, $version.Prerelease, '').ToString() # Discard build metadata
 
-    # Update Backend Version
-    Set-Location -Path $BackendAbsolutePath
-    Invoke-NativeCommand -Command 'mvn' -CommandArgs @('versions:set', "-DnewVersion=$version")
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\pom.xml')
+    # Discard build metadata
+    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata
 
-    # Update Frontend Version
-    Set-Location $FrontendAbsolutePath
-    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
-    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package-lock.json' | Resolve-Path).Path, $version)
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package-lock.json')
+    # Update Backend's Version and stage
+    Set-Location -Path $Private:BEPath
+    'mvn' | Invoke-NativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
+    'git' | Invoke-NativeCommand -CommandArgs @('add', '.\pom.xml')
 
-    # Push changes to origin
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin')
+    # Update Frontend's Version and stage
+    Set-Location -Path $Private:FEPath
+    @('.\package.json', '.\packageAfter.json') | Edit-JsonField -Name 'version' -Value $ProjectVersion
+    'git' | Invoke-NativeCommand -CommandArgs @('add', '.\package.json')
+    'git' | Invoke-NativeCommand -CommandArgs @('add', '.\package-lock.json')
+
+    # Commit & Push changes to origin
+    'git' | Invoke-NativeCommand -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
+    'git' | Invoke-NativeCommand -CommandArgs @('push', 'origin')
 
     # Create tag
-    $tagName = "v$($version.ToString())"
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin', $tagName)
+    $tagName = "v$ProjectVersion"
+    'git' | Invoke-NativeCommand -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
+    'git' | Invoke-NativeCommand -CommandArgs @('push', 'origin', $tagName)
 
     exit 0
 }
 catch {
     $_
     exit 1
+}
+finally {
+    Set-Location -Path $Private:CurrentDir
 }

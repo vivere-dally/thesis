@@ -1,23 +1,6 @@
-<#
-.SYNOPSIS
-    Short description
-.DESCRIPTION
-    Long description
-.PARAMETER example
-    Explanation of the parameter
-.EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 [CmdletBinding()]
-[OutputType()]
+[OutputType([string])]
 param (
-    [Parameter(Mandatory = $false)]
-    [string]
-    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
-
     [Parameter(Mandatory = $false)]
     [AllowEmptyString()]
     [ValidateSet('', 'Patch', 'Minor', 'Major')]
@@ -33,43 +16,65 @@ param (
     [Parameter(Mandatory = $false)]
     [AllowEmptyString()]
     [string]
-    $BuildMetadata
+    $Buildmetadata
 )
 
-#Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
+#Requires -RunAsAdministrator
+#Requires -Version 7.1.3
+#Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
+
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $ErrorActionPreference = 'Stop'
 
+$Private:CurrentDir = $PSScriptRoot
+$Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
+
 try {
-    Set-Location -Path $BackendAbsolutePath
-    $ProjectVersion = Invoke-NativeCommand -Command 'mvn' -CommandArgs @('help:evaluate', '-Dexpression=project.version') -NoLogs | Where-Object { -not $_.StartsWith('[') }
-    if (-not (Test-SemVer -InputObject $ProjectVersion)) {
+    Set-Location $Private:FEPath
+    # Get the Project Version from package.json
+    $ProjectVersion = (Get-Content '.\package.json' | ConvertFrom-Json).version
+    if (-not ($ProjectVersion | Test-GooSemVer)) {
         throw "The $ProjectVersion found in the SCM is not following the SemVer guidelines."
     }
 
-    $ProjectVersion = $ProjectVersion | ConvertTo-SemVer
-    switch ($Release) {
-        'Patch' { $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch + 1, $Prerelease, $BuildMetadata); break; }
-        'Minor' { $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor + 1, 0, $Prerelease, $BuildMetadata); break; }
-        'Major' { $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major + 1, 0, 0, $Prerelease, $BuildMetadata); break; }
-        Default {
-            if (-not $Prerelease) {
-                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $ProjectVersion.Prerelease, $BuildMetadata);
-            }
-            else {
-                $NewProjectVersion = $ProjectVersion.Change($ProjectVersion.Major, $ProjectVersion.Minor, $ProjectVersion.Patch, $Prerelease, $BuildMetadata);
-            }
+    $NewProjectVersion = $ProjectVersion
+    # Increment based on release
+    if ($Release) {
+        $NewProjectVersion = $NewProjectVersion | Step-GooSemVer -Identifier $Release
+    }
+
+    # Increment based on prerelease
+    if ($Prerelease) {
+        $scmPrerelease = ($ProjectVersion | ConvertFrom-GooSemVer).prerelease
+        $scmPrereleaseMajor = $scmPrerelease.Split('.')[0]
+        if ($Prerelease -eq $scmPrereleaseMajor) {
+            $NewProjectVersion = $NewProjectVersion | Set-GooSemVer -Identifier Prerelease -Value $scmPrerelease
+            $NewProjectVersion = $NewProjectVersion | Step-GooSemVer -Identifier Prerelease
+        }
+        else {
+            $NewProjectVersion = $NewProjectVersion | Set-GooSemVer -Identifier Prerelease -Value $Prerelease
         }
     }
 
-    if ($ProjectVersion.CompareByPrecedence($NewProjectVersion) -gt 0) {
-        throw "The SCM version $ProjectVersion does not precedes the new version $NewProjectVersion."
+    # Set build metadata
+    if ($Buildmetadata) {
+        $NewProjectVersion = $NewProjectVersion | Set-GooSemVer -Identifier Buildmetadata -Value $Buildmetadata
     }
 
-    $NewProjectVersion.ToString().Trim()
+    # Test if ProjectVersion precedes the NewPorjectVersion
+    if (($NewProjectVersion | Compare-GooSemVer -ReferenceVersion $ProjectVersion) -eq '<') {
+        throw "The SCM version $ProjectVersion do not precede the new version $NewProjectVersion."
+    }
+
+    # Out
+    $NewProjectVersion
     exit 0
 }
 catch {
     $_
     exit 1
+}
+finally {
+    Set-Location $Private:CurrentDir
 }

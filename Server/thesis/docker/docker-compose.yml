@@ -9,12 +9,12 @@ services:
       dockerfile: ./docker/Dockerfile
     ports:
       # Azure Web App exposes port 80
-      - 80:5000
+      - ${DC_THESISAPI_HOST_PORT:?thesisapi host port missing}:5000
     depends_on:
       - mysql
     environment:
       - SERVER_PORT=5000
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/thesis
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${DC_MYSQL_DATABASE:?Mysql database missing}
       - SPRING_DATASOURCE_USERNAME=${DC_MYSQL_USERNAME:?Mysql username missing}
       - SPRING_DATASOURCE_PASSWORD=${DC_MYSQL_PASSWORD:?Mysql password missing}
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
@@ -29,7 +29,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${DC_MYSQL_ROOT_PASSWORD:?Mysql root password missing}
       - MYSQL_USER=${DC_MYSQL_USERNAME:?Mysql username missing}
       - MYSQL_PASSWORD=${DC_MYSQL_PASSWORD:?Mysql password missing}
-      - MYSQL_DATABASE=thesis
+      - MYSQL_DATABASE=${DC_MYSQL_DATABASE:?Mysql database missing}
     volumes:
       - mysql-data:/var/lib/mysql
 
