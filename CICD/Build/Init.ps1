@@ -27,7 +27,6 @@ param (
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $ErrorActionPreference = 'Stop'
 
-$Private:CurrentDir = $PSScriptRoot
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
 try {
@@ -76,5 +75,5 @@ catch {
     exit 1
 }
 finally {
-    Set-Location $Private:CurrentDir
+    Set-Location $PSScriptRoot
 }

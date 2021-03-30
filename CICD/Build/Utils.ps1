@@ -11,15 +11,15 @@ function Invoke-NativeCommand {
     [CmdletBinding()]
     [OutputType()]
     param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string]
         $Command,
         
-        [Parameter(Mandatory = $false, Position = 1)]
+        [Parameter(Mandatory = $false, Position = 0)]
         [array]
         $CommandArgs = @(),
 
-        [Parameter(Mandatory = $false, Position = 2)]
+        [Parameter(Mandatory = $false, Position = 1)]
         [switch]
         $NoLogs
     )

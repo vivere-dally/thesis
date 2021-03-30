@@ -14,7 +14,6 @@ param (
 $ErrorActionPreference = 'Stop'
 Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 
-$Private:CurrentDir = $PSScriptRoot
 $Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
@@ -59,5 +58,5 @@ catch {
     exit 1
 }
 finally {
-    Set-Location -Path $Private:CurrentDir
+    Set-Location -Path $PSScriptRoot
 }

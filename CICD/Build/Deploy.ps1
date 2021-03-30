@@ -1,5 +1,6 @@
 [CmdletBinding()]
 [OutputType()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
 param (
     [Parameter(Mandatory = $true)]
     [string]
@@ -24,9 +25,8 @@ param (
 #Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
 
 $ErrorActionPreference = 'Stop'
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
+Import-Module -Name "$PSScriptRoot/Utils.ps1" -Global -Force
 
-$Private:CurrentDir = $PSScriptRoot
 $Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
@@ -37,14 +37,22 @@ try {
 
     $Buildmetadata = ($ProjectVersion | ConvertFrom-GooSemVer).buildmetadata
     $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata
-
-    'docker' | Invoke-NativeCommand -CommandArgs @('login')
+    'docker' | Invoke-NativeCommand -CommandArgs @('login', "$ACRUsername.azurecr.io", '-u', $ACRUsername, '-p', $ACRPassword)
 
     # Docker Build backend image
     Set-Location -Path $Private:BEPath
+    $tag = "$ACRUsername.azurecr.io/$BranchName/thesisapi:$ProjectVersion"
+    'docker' | Invoke-NativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
+    'docker' | Invoke-NativeCommand -CommandArgs @('push', $tag)
+    'docker' | Invoke-NativeCommand -CommandArgs @('rmi', $tag)
 
+    # Docker Build frontend image
+    Set-Location -Path $Private:FEPath
+    $tag = "$ACRUsername.azurecr.io/$BranchName/thesis:$ProjectVersion"
+    'docker' | Invoke-NativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
+    'docker' | Invoke-NativeCommand -CommandArgs @('push', $tag)
+    'docker' | Invoke-NativeCommand -CommandArgs @('rmi', $tag)
 
-    # docker login bsir2465.azurecr.io -u bsir2465 -p pass
     exit 0
 }
 catch {
@@ -52,5 +60,5 @@ catch {
     exit 1
 }
 finally {
-    Set-Location -Path $Private:CurrentDir
+    Set-Location -Path $PSScriptRoot
 }

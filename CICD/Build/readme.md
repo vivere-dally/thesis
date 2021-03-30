@@ -5,3 +5,6 @@ docker tag thesisapi:local bsir2465.azurecr.io/thesisapi:local
 docker push bsir2465.azurecr.io/thesisapi:local
 
 docker build -f .\docker\Dockerfile -t aaatest .
+
+
+az acr repository list -n bsir2465
