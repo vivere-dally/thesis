@@ -1,10 +1,9 @@
 pipeline {
-    agent {
-        label "master"
-    }
+    agent any
 
     options {
-        copyArtifactPermission '*'
+        buildDiscarder logRotator(numToKeepStr: '10')
+        skipStagesAfterUnstable()
     }
 
     stages {
