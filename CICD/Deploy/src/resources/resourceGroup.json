@@ -1,0 +1,9 @@
+{
+  "Property": {
+    "Tag": {
+      "DeploymentType": "PowerShell w/ Az",
+      "Az": "5.7.0",
+      "Az.Resources": "3.4.0"
+    }
+  }
+}

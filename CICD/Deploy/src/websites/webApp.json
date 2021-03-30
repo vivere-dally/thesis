@@ -1,0 +1,10 @@
+[
+  {
+    "Name": "fe",
+    "Property": {
+      "Tag": {
+        "Az.Websites": "2.5.0"
+      }
+    }
+  }
+]

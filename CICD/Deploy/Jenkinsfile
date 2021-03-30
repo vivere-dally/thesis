@@ -1,16 +1,16 @@
 pipeline {
-    agent any
+  agent any
 
-    options {
-        buildDiscarder logRotator(numToKeepStr: '10')
-        skipStagesAfterUnstable()
-    }
+  options {
+    buildDiscarder logRotator(numToKeepStr: '10')
+    skipStagesAfterUnstable()
+  }
 
-    stages {
-        stage("Test") {
-            steps {
-                echo "Hello world"
-            }
-        }
+  stages {
+    stage("Test") {
+      steps {
+        echo "Hello world"
+      }
     }
+  }
 }

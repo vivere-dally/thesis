@@ -1,36 +1,38 @@
 function Mount-bsAppServicePlan {
   [CmdletBinding()]
   [OutputType([Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan])]
-  param ()
-    
-  New-GooLogMessage -Stage | Write-GooLog
-}
-
-function New-bsAppServicePlan {
-  [CmdletBinding()]
-  [OutputType([Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan])]
   param (
-    [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
     [hashtable]
-    $ASPConfig
+    $ASPConfig,
+
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]
+    $Location,
+
+    [Parameter(Mandatory = $true, Position = 1)]
+    [string]
+    $ResourceGroupName
   )
 
-  New-GooLogMessage -Stage | Write-GooLog
-  $aspName = "$Script:ResourceGroupName$($ASPConfig.Suffix)"
-  $asp = Get-AzAppServicePlan -ResourceGroupName $Script:ResourceGroupName -Name $aspName -ErrorAction SilentlyContinue
+  New-GooLogMessage 'AppServicePlan Management' -Step| Write-GooLog
+
+  $aspName = "$ResourceGroupName$($ASPConfig.Suffix)"
+  $asp = Get-AzAppServicePlan -ResourceGroupName $ResourceGroupName -Name $aspName -ErrorAction SilentlyContinue
   if (-not $asp) {
     $params = @{
-      Location          = $Script:Location;
-      ResourceGroupName = $Script:ResourceGroupName;
+      Location          = $Location;
+      ResourceGroupName = $ResourceGroupName;
       Name              = $aspName;
-    }
-
-    $params += $ASPConfig
+    } + $ASPConfig.Property;
     $asp = New-AzAppServicePlan @params
-    "Created the AppServicePlan named $($asp.Name)" | Write-GooLog -ForegroundColor Green
+    "Created $($asp.Name)" | Write-GooLog -ForegroundColor Green
+  }
+  else {
+
   }
 
+  $asp = $asp | Set-AzAppServicePlan 
+  "Mounted $($asp.Name)" | Write-GooLog
   return $asp
 }
-
-Export-ModuleMember -Function 'Mount-bsAppServicePlan'

@@ -1,7 +1,12 @@
 {
-  "Suffix": "ASP",
-  "Tier": "Basic",
-  "NumberOfWorkers": 1,
-  "WorkerSize": "Small",
-  "Linux": true
+  "Suffix": "asp",
+  "Property": {
+    "Tier": "Free",
+    "NumberOfWorkers": 1,
+    "WorkerSize": "Small",
+    "Linux": true,
+    "Tag": {
+      "Az.Websites": "2.5.0"
+    }
+  }
 }
