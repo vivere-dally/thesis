@@ -1,10 +1,26 @@
 [
   {
-    "Name": "fe",
+    "Suffix": "api",
     "Property": {
-      "Tag": {
-        "Az.Websites": "2.5.0"
-      }
+      "AlwaysOn": true,
+      "HttpsOnly": true,
+      "MinTlsVersion": "1.2",
+      "FtpsState": "Disabled",
+      "Use32BitWorkerProcess": false,
+      "Http20Enabled": true,
+      "WebSocketsEnabled": true
+    }
+  },
+  {
+    "Suffix": "",
+    "Property": {
+      "AlwaysOn": true,
+      "HttpsOnly": true,
+      "MinTlsVersion": "1.2",
+      "FtpsState": "Disabled",
+      "Use32BitWorkerProcess": false,
+      "Http20Enabled": true,
+      "WebSocketsEnabled": true
     }
   }
 ]

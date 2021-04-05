@@ -4,9 +4,6 @@
     "Tier": "Free",
     "NumberOfWorkers": 1,
     "WorkerSize": "Small",
-    "Linux": true,
-    "Tag": {
-      "Az.Websites": "2.5.0"
-    }
+    "Linux": true
   }
 }
