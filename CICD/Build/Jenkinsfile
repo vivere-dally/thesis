@@ -62,13 +62,6 @@ ProjectVersion: ${env.ProjectVersion}"""
             }
         }
 
-        stage('Artifacts') {
-            steps {
-                archiveArtifacts artifacts: "Server/thesis/target/*.jar", fingerprint: true
-                archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
-            }
-        }
-
         stage('Deploy') {
             environment {
                 ACR_CRED = credentials('azure_container_registry')
@@ -78,6 +71,13 @@ ProjectVersion: ${env.ProjectVersion}"""
                 pwsh label: 'Run deploy script', script: '''
                     ./CICD/Build/Deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
                 '''
+            }
+        }
+
+        stage('Artifacts') {
+            steps {
+                archiveArtifacts artifacts: "Server/thesis/target/*.jar", fingerprint: true
+                archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
             }
         }
 

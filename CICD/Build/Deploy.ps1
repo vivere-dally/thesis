@@ -36,7 +36,7 @@ try {
     }
 
     $Buildmetadata = ($ProjectVersion | ConvertFrom-GooSemVer).buildmetadata
-    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata
+    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
     'docker' | Invoke-GooNativeCommand -CommandArgs @('login', "$ACRUsername.azurecr.io", '-u', $ACRUsername, '-p', $ACRPassword)
 
     # Docker Build backend image
