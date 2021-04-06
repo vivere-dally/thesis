@@ -28,7 +28,7 @@ pipeline {
                 
                     env.ProjectVersion = pwsh returnStdout: true, encoding: 'UTF-8', label: 'Get Project Version', script: '''
                         ./CICD/Build/Init.ps1 -Release $env:Release -Prerelease $env:Prerelease -Buildmetadata $env:Buildmetadata
-                    '''
+                    '''.strip()
 
                     println "Project Version: ${env.ProjectVersion}"
                     currentBuild.description = """Release: ${env.Release ? env.Release : 'not set'}
