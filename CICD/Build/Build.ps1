@@ -38,7 +38,7 @@ try {
         @('.\package.json', '.\packageAfter.json') | ForEach-Object {
             $content = Get-Content -Path $_ | ConvertFrom-Json
             $content.version = $ProjectVersion
-            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $Path -Force | Out-Null
+            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
         }
     }
 

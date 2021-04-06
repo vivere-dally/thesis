@@ -9,6 +9,7 @@ pipeline {
         copyArtifactPermission 'thesis-deploy'
         buildDiscarder logRotator(numToKeepStr: '10')
         skipStagesAfterUnstable()
+        ansiColor('xterm')
     }
 
     parameters {
