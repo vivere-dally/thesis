@@ -35,7 +35,7 @@ try {
     Set-Location $Private:FEPath
     # Update Frontend's Version
     if ($ProjectVersion) {
-        @('.\package.json', '.\packageAfter.json') | ForEach-Object {
+        @('.\package.json', '.\package-lock.json') | ForEach-Object {
             $content = Get-Content -Path $_ | ConvertFrom-Json
             $content.version = $ProjectVersion
             $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
