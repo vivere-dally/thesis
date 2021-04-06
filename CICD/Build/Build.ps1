@@ -18,7 +18,7 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:CommonNpmModulesPath = 'E:/Dev/npm/node_modules'
+$Private:CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
 $Private:BEPath = ("$PSScriptRoot/../../Server/thesis" | Resolve-Path).Path
 $Private:FEPath = ("$PSScriptRoot/../../Client/thesis" | Resolve-Path).Path
 
