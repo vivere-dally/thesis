@@ -1,76 +1,66 @@
-<#
-.SYNOPSIS
-    Short description
-.DESCRIPTION
-    Long description
-.PARAMETER example
-    Explanation of the parameter
-.EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 [CmdletBinding()]
 [OutputType()]
 param (
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     [string]
-    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
+    $ProjectVersion,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     [string]
-    $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path,
-
-    [Parameter(Mandatory = $false)]
-    [AllowEmptyString()]
-    [string]
-    $ProjectVersion
+    $BranchName
 )
 
-#Requires -Module @{ ModuleName = 'SemVerPs'; RequiredVersion = '1.0' }
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
-$pythonUtilsPath = "$PSScriptRoot\Utils.py"
+#Requires -RunAsAdministrator
+#Requires -Version 7.1.3
+#Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
+
 $ErrorActionPreference = 'Stop'
 
+$Private:BEPath = ("$PSScriptRoot/../../Server/thesis" | Resolve-Path).Path
+$Private:FEPath = ("$PSScriptRoot/../../Client/thesis" | Resolve-Path).Path
+
 try {
-    if (-not (Test-SemVer -InputObject $ProjectVersion)) {
-        throw "The $ProjectVersion is not following the SemVer guidelines."
+    if (-not ($ProjectVersion | Test-GooSemVer)) {
+        throw "The Project Version $ProjectVersion is not following the SemVer guidelines."
     }
 
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('checkout', 'main')
-    $currentGitBranch = Invoke-NativeCommand -Command 'git' -CommandArgs @('branch', '--show-current') -NoLogs
-    if ('main' -ne $currentGitBranch) {
-        throw "Cannot TAG any branch besides main."
+    'git' | Invoke-GooNativeCommand -CommandArgs @('checkout', $BranchName)
+
+    # Discard build metadata
+    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata
+
+    # Update Backend's Version and stage
+    Set-Location -Path $Private:BEPath
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
+    'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\pom.xml')
+
+    # Update Frontend's Version and stage
+    Set-Location -Path $Private:FEPath
+    @('.\package.json', '.\package-lock.json') | ForEach-Object {
+        $content = Get-Content -Path $_ | ConvertFrom-Json
+        $content.version = $ProjectVersion
+        $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
     }
-    
-    $version = $ProjectVersion | ConvertTo-SemVer
-    $version = $version.Change($version.Major, $version.Minor, $version.Patch, $version.Prerelease, '').ToString() # Discard build metadata
+    'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package.json')
+    'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package-lock.json')
 
-    # Update Backend Version
-    Set-Location -Path $BackendAbsolutePath
-    Invoke-NativeCommand -Command 'mvn' -CommandArgs @('versions:set', "-DnewVersion=$version")
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\pom.xml')
-
-    # Update Frontend Version
-    Set-Location $FrontendAbsolutePath
-    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package.json' | Resolve-Path).Path, $version)
-    Invoke-NativeCommand -Command 'python' -CommandArgs @($pythonUtilsPath, 'update_package_json_file', ('.\package-lock.json' | Resolve-Path).Path, $version)
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package.json')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('add', '.\package-lock.json')
-
-    # Push changes to origin
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin')
+    # Commit & Push changes to origin
+    'git' | Invoke-GooNativeCommand -CommandArgs @('commit', '-m', 'JENKINS: Updated the versions after the release.')
+    'git' | Invoke-GooNativeCommand -CommandArgs @('push', 'origin') -Verbose
 
     # Create tag
-    $tagName = "v$($version.ToString())"
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
-    Invoke-NativeCommand -Command 'git' -CommandArgs @('push', 'origin', $tagName)
+    $tagName = "v$ProjectVersion"
+    'git' | Invoke-GooNativeCommand -CommandArgs @('tag', '-a', $tagName, '-m', 'JENKINS: Created a new tag after the release.')
+    'git' | Invoke-GooNativeCommand -CommandArgs @('push', 'origin', $tagName) -Verbose
 
     exit 0
 }
 catch {
     $_
+    $_.ScriptStackTrace
     exit 1
+}
+finally {
+    Set-Location -Path $PSScriptRoot
 }

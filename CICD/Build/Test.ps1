@@ -1,42 +1,32 @@
-<#
-.SYNOPSIS
-    Short description
-.DESCRIPTION
-    Long description
-.PARAMETER example
-    Explanation of the parameter
-.EXAMPLE
-    PS C:\> <example usage>
-    Explanation of what the example does
-.NOTES
-    General notes
-#>
 [CmdletBinding()]
 [OutputType()]
-param (
-    [Parameter(Mandatory = $false)]
-    [string]
-    $BackendAbsolutePath = ("../../Server/thesis" | Resolve-Path).Path,
+param ()
 
-    [Parameter(Mandatory = $false)]
-    [string]
-    $FrontendAbsolutePath = ("../../Client/thesis" | Resolve-Path).Path
-)
+#Requires -RunAsAdministrator
+#Requires -Version 7.1.3
+#Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
 
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $ErrorActionPreference = 'Stop'
 
-try {
-    Set-Location -Path $BackendAbsolutePath
-    Invoke-NativeCommand -Command "mvn" -CommandArgs @('test')
+$Private:BEPath = ("$PSScriptRoot/../../Server/thesis" | Resolve-Path).Path
+$Private:FEPath = ("$PSScriptRoot/../../Client/thesis" | Resolve-Path).Path
 
-    Set-Location -Path $FrontendAbsolutePath
+try {
+    Set-Location -Path $Private:BEPath
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
+
+    Set-Location -Path $Private:FEPath
     # TODO npm tests
     
     exit 0
 }
 catch {
     $_
+    $_.ScriptStackTrace
     exit 1
+}
+finally {
+    Set-Location -Path $PSScriptRoot
 }
 
