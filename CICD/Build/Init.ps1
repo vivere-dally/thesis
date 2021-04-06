@@ -71,6 +71,7 @@ try {
 }
 catch {
     $_
+    $_.ScriptStackTrace
     exit 1
 }
 finally {
