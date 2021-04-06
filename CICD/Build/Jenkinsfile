@@ -67,6 +67,18 @@ ProjectVersion: ${env.ProjectVersion}"""
             }
         }
 
+        stage('Deploy') {
+            environment {
+                ACR_CRED = credentials('azure_container_registry')
+            }
+
+            steps {
+                pwsh label: 'Run deploy script', script: '''
+                    ./CICD/Build/Deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
+                '''
+            }
+        }
+
         stage('Tag') {
             when {
                 expression {
@@ -77,7 +89,7 @@ ProjectVersion: ${env.ProjectVersion}"""
             steps {
                 sshagent(['github_vivere-dally']) {
                     pwsh label: 'Run tag script', script: '''
-                        ./CICD/Build/Tag.ps1 -ProjectVersion $env:ProjectVersion
+                        ./CICD/Build/Tag.ps1 -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
                     '''
                 }
 
@@ -85,18 +97,6 @@ ProjectVersion: ${env.ProjectVersion}"""
                     // Keep this build forever
                     currentBuild.keepLog = true
                 }
-            }
-        }
-
-        stage('Deploy') {
-            environment {
-                ACR_CRED = credentials('azure_container_registry')
-            }
-
-            steps {
-                pwsh label: 'Run deploy script', script: '''
-                    ./CICD/Build/Deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
-                '''
             }
         }
     }

@@ -5,7 +5,7 @@ param (
     [AllowEmptyString()]
     [ValidateSet('', 'Patch', 'Minor', 'Major')]
     [string]
-    $Release = '',
+    $Release,
 
     [Parameter(Mandatory = $false)]
     [AllowEmptyString()]
@@ -24,7 +24,6 @@ param (
 #Requires -PSEdition Core
 #Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
 
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 $ErrorActionPreference = 'Stop'
 
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
@@ -34,7 +33,7 @@ try {
     # Get the Project Version from package.json
     $ProjectVersion = (Get-Content '.\package.json' | ConvertFrom-Json).version
     if (-not ($ProjectVersion | Test-GooSemVer)) {
-        throw "The $ProjectVersion found in the SCM is not following the SemVer guidelines."
+        throw "The Project Version $ProjectVersion found in the SCM is not following the SemVer guidelines."
     }
 
     $NewProjectVersion = $ProjectVersion

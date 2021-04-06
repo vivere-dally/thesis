@@ -14,11 +14,11 @@ param (
 #Requires -RunAsAdministrator
 #Requires -Version 7.1.3
 #Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
 
 $ErrorActionPreference = 'Stop'
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 
-$Private:CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
+$Private:CommonNpmModulesPath = 'E:/Dev/npm/node_modules'
 $Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
@@ -26,16 +26,20 @@ try {
     Set-Location -Path $Private:BEPath
     # Update Backend's Version
     if ($ProjectVersion) {
-        'mvn' | Invoke-NativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
+        'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
     }
 
     # Build Backend
-    'mvn' | Invoke-NativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package')
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package') -Verbose
 
     Set-Location $Private:FEPath
     # Update Frontend's Version
     if ($ProjectVersion) {
-        @('.\package.json', '.\packageAfter.json') | Edit-JsonField -Name 'version' -Value $ProjectVersion
+        @('.\package.json', '.\packageAfter.json') | ForEach-Object {
+            $content = Get-Content -Path $_ | ConvertFrom-Json
+            $content.version = $ProjectVersion
+            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $Path -Force | Out-Null
+        }
     }
 
     # Create junction for node_modules.
@@ -44,15 +48,15 @@ try {
     if (-not $FreshNpmModules -and
         -not (Test-Path '.\node_modules') -and
         (Test-Path $Private:CommonNpmModulesPath)) {
-        'cmd.exe' | Invoke-NativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Private:CommonNpmModulesPath)
+        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Private:CommonNpmModulesPath)
     }
 
     # Build Frontend
-    'npm' | Invoke-NativeCommand -CommandArgs @('install')
-    'npm' | Invoke-NativeCommand -CommandArgs @('run', 'build')
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build') -Verbose
 
     # Zip Frontend's Artifacts
-    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesis-$ProjectVersion.zip" -CompressionLevel Fastest
+    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesis-$ProjectVersion.zip" -CompressionLevel Fastest -Force
     exit 0
 }
 catch {

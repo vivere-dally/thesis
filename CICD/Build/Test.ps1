@@ -5,16 +5,16 @@ param ()
 #Requires -RunAsAdministrator
 #Requires -Version 7.1.3
 #Requires -PSEdition Core
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
 
 $ErrorActionPreference = 'Stop'
-Import-Module -Name "$PSScriptRoot\Utils.ps1" -Global -Force
 
 $Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
 $Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
 
 try {
     Set-Location -Path $Private:BEPath
-    'mvn' | Invoke-NativeCommand -CommandArgs @('test')
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
 
     Set-Location -Path $Private:FEPath
     # TODO npm tests
