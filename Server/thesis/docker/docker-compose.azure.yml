@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  thesis:
+    image: bsir2465.azurecr.io/main/thesisapi:local
+    container_name: thesisapi
+    restart: always
+    build:
+      context: ./../
+      dockerfile: ./docker/Dockerfile
+    depends_on:
+      - mysql
+    environment:
+      - SERVER_PORT=5000
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/thesis
+      - SPRING_DATASOURCE_USERNAME=admindev
+      - SPRING_DATASOURCE_PASSWORD=admindev
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL5InnoDBDialect
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=admindev
+      - MYSQL_PASSWORD=admindev
+      - MYSQL_DATABASE=thesis
