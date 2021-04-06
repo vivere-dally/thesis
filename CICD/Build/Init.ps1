@@ -44,10 +44,15 @@ try {
 
     # Increment based on prerelease
     if ($Prerelease) {
-        $scmPrerelease = ($ProjectVersion | ConvertFrom-GooSemVer).prerelease
-        $scmPrereleaseMajor = $scmPrerelease.Split('.')[0]
-        if ($Prerelease -eq $scmPrereleaseMajor) {
-            $NewProjectVersion = $NewProjectVersion | Set-GooSemVer -Identifier Prerelease -Value $scmPrerelease
+        $projectVersionPrerelease = ($ProjectVersion | ConvertFrom-GooSemVer).prerelease
+        $newProjectVersionPrerelease = ($NewProjectVersion | ConvertFrom-GooSemVer).prerelease 
+        if (
+            $projectVersionPrerelease -and
+            $newProjectVersionPrerelease -and 
+            $Prerelease -eq ($projectVersionPrerelease.split('.')[0]) -and
+            $Prerelease -eq ($newProjectVersionPrerelease.split('.')[0])
+        ) {
+            $NewProjectVersion = $NewProjectVersion | Set-GooSemVer -Identifier Prerelease -Value $projectVersionPrerelease
             $NewProjectVersion = $NewProjectVersion | Step-GooSemVer -Identifier Prerelease
         }
         else {
