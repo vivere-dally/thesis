@@ -26,9 +26,10 @@ pipeline {
                     env.Prerelease = params.Prerelease ? params.Prerelease : ''
                     env.FreshNpmModules = params.FreshNpmModules ? params.FreshNpmModules : false
                 
-                    env.ProjectVersion = pwsh returnStdout: true, encoding: 'UTF-8', label: 'Get Project Version', script: '''
+                    def pv = pwsh returnStdout: true, encoding: 'UTF-8', label: 'Get Project Version', script: '''
                         ./CICD/Build/Init.ps1 -Release $env:Release -Prerelease $env:Prerelease -Buildmetadata $env:Buildmetadata
                     '''.strip()
+                    env.ProjectVersion = pv.trim()
 
                     println "Project Version: ${env.ProjectVersion}"
                     currentBuild.description = """Release: ${env.Release ? env.Release : 'not set'}
