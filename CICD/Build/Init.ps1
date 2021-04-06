@@ -26,7 +26,7 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
+$Private:FEPath = ("$PSScriptRoot/../../Client/thesis" | Resolve-Path).Path
 
 try {
     Set-Location $Private:FEPath

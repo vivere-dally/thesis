@@ -17,8 +17,8 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:BEPath = ("../../Server/thesis" | Resolve-Path).Path
-$Private:FEPath = ("../../Client/thesis" | Resolve-Path).Path
+$Private:BEPath = ("$PSScriptRoot/../../Server/thesis" | Resolve-Path).Path
+$Private:FEPath = ("$PSScriptRoot/../../Client/thesis" | Resolve-Path).Path
 
 try {
     if (-not ($ProjectVersion | Test-GooSemVer)) {
