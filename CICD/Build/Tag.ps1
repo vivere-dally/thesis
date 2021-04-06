@@ -28,7 +28,7 @@ try {
     'git' | Invoke-GooNativeCommand -CommandArgs @('checkout', $BranchName)
 
     # Discard build metadata
-    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata
+    $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
 
     # Update Backend's Version and stage
     Set-Location -Path $Private:BEPath
