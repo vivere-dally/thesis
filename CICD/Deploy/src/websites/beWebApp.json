@@ -13,42 +13,57 @@
     "Path": "./../.resx/be/docker-compose.yml",
     "Placeholders": [
       {
-        "Name": "[P[H[IMAGE_NAME]]]",
+        "Name": "${__dc__IMAGE}",
         "Value": null,
         "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesisapi:${Tag}\""
+      },
+      {
+        "Name": "__dc__SPRING_SERVER_PORT",
+        "Value": "5000",
+        "Expression": null
+      },
+      {
+        "Name": "__dc__MYSQL_ROOT_PASSWORD",
+        "Value": null,
+        "Expression": "$MySqlRootPassword"
+      },
+      {
+        "Name": "__dc__MYSQL_USERNAME",
+        "Value": null,
+        "Expression": "$MySqlUsername"
+      },
+      {
+        "Name": "__dc__MYSQL_PASSWORD",
+        "Value": null,
+        "Expression": "$MySqlPassword"
+      },
+      {
+        "Name": "__dc__MYSQL_DATABASE",
+        "Value": "thesis",
+        "Expression": null
       }
     ]
   },
   "AppSettings": [
     {
       "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-      "Value": "true",
+      "Value": "TRUE",
       "Expression": null
     },
     {
-      "Name": "__dc__SPRING_SERVER_PORT",
-      "Value": "5000",
-      "Expression": null
-    },
-    {
-      "Name": "__dc__MYSQL_ROOT_PASSWORD",
+      "Name": "DOCKER_REGISTRY_SERVER_URL",
       "Value": null,
-      "Expression": "$MySqlRootPassword"
+      "Expression": "\"https://${ACRUsername}.azurecr.io\""
     },
     {
-      "Name": "__dc__MYSQL_USERNAME",
+      "Name": "DOCKER_REGISTRY_SERVER_USERNAME",
       "Value": null,
-      "Expression": "$MySqlUsername"
+      "Expression": "$ACRUsername"
     },
     {
-      "Name": "__dc__MYSQL_PASSWORD",
+      "Name": "DOCKER_REGISTRY_SERVER_PASSWORD",
       "Value": null,
-      "Expression": "$MySqlPassword"
-    },
-    {
-      "Name": "__dc__MYSQL_DATABASE",
-      "Value": "thesis",
-      "Expression": null
+      "Expression": "$ACRPassword"
     }
   ],
   "ConnectionStrings": []

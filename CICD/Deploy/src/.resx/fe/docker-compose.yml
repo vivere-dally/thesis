@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   thesis:
-    image: [P[H[IMAGE_NAME]]]
+    image: ${__dc__IMAGE}
     container_name: thesis
     restart: always
     ports:

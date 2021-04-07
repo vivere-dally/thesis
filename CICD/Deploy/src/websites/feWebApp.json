@@ -13,13 +13,23 @@
     "Path": "./../.resx/fe/docker-compose.yml",
     "Placeholders": [
       {
-        "Name": "[P[H[IMAGE_NAME]]]",
+        "Name": "${__dc__IMAGE}",
         "Value": null,
         "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesis:${Tag}\""
+      },
+      {
+        "Name": "${__dc__CLIENT_PORT}",
+        "Value": "5000",
+        "Expression": null
       }
     ]
   },
   "AppSettings": [
+    {
+      "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+      "Value": "TRUE",
+      "Expression": null
+    },
     {
       "Name": "DOCKER_REGISTRY_SERVER_URL",
       "Value": null,
@@ -34,11 +44,6 @@
       "Name": "DOCKER_REGISTRY_SERVER_PASSWORD",
       "Value": null,
       "Expression": "$ACRPassword"
-    },
-    {
-      "Name": "__dc__CLIENT_PORT",
-      "Value": "5000",
-      "Expression": null
     }
   ],
   "ConnectionStrings": []
