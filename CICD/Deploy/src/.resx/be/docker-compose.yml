@@ -11,7 +11,7 @@ services:
       - mysql
     environment:
       - SERVER_PORT=${__dc__SERVER_PORT}
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${__dc__MYSQL_ROOT_PASSWORD}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${__dc__MYSQL_DATABASE}
       - SPRING_DATASOURCE_USERNAME=${__dc__MYSQL_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${__dc__MYSQL_PASSWORD}
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver

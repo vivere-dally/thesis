@@ -90,27 +90,16 @@ function Start-Deployment {
 
         # Az.Websites
         $appServicePlan = $config.appServicePlan | Mount-bsAppServicePlan -ResourceGroup $resourceGroup
-
-        # $beWebApp = $config.beWebApp | Mount-bsBackendWebApp `
-        #     -ResourceGroup $resourceGroup `
-        #     -AppServicePlan $appServicePlan `
-        #     -ACRUsername $ACRUsername `
-        #     -ACRPassword $ACRPassword `
-        #     -BranchName $BranchName `
-        #     -Tag $Tag `
-        #     -MySqlRootPassword $MySqlRootPassword `
-        #     -MySqlUsername $MySqlUsername `
-        #     -MySqlPassword $MySqlPassword
-
-        $feWebApp = $config.feWebApp | Mount-bsFrontendWebApp `
+        $beWebApp, $feWebApp = $config.webApp | Mount-bsWebApp `
             -ResourceGroup $resourceGroup `
             -AppServicePlan $appServicePlan `
             -ACRUsername $ACRUsername `
             -ACRPassword $ACRPassword `
             -BranchName $BranchName `
-            -Tag $Tag
-
-        # $beWebApp, $feWebApp = $config.webApp | Mount-bsWebApp -ResourceGroup $resourceGroup -AppServicePlan $appServicePlan
+            -Tag $Tag `
+            -MySqlRootPassword $MySqlRootPassword `
+            -MySqlUsername $MySqlUsername `
+            -MySqlPassword $MySqlPassword
 
         'Deployment succeeded' | Write-GooLog -ForegroundColor Green
     }

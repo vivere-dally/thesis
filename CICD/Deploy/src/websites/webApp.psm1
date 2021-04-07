@@ -14,110 +14,149 @@ function Mount-bsWebApp {
         
         [Parameter(Mandatory = $true)]
         [Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan]
-        $AppServicePlan
+        $AppServicePlan,
 
-        # [Parameter(Mandatory = $true)]
-        # [string]
-        # $ACRUsername,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $ACRUsername,
     
-        # [Parameter(Mandatory = $true)]
-        # [string]
-        # $ACRPassword
+        [Parameter(Mandatory = $true)]
+        [string]
+        $ACRPassword,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $BranchName,
+    
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Tag,
+    
+        [Parameter(Mandatory = $true)]
+        [string]
+        $MySqlRootPassword,
+    
+        [Parameter(Mandatory = $true)]
+        [string]
+        $MySqlUsername,
+    
+        [Parameter(Mandatory = $true)]
+        [string]
+        $MySqlPassword
     )
 
-    New-GooLogMessage 'WebApp Management' -Step | Write-GooLog
+    process {
+        New-GooLogMessage 'WebApp Management' -Step | Write-GooLog
 
-    $waName = "$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)"
-    $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName -ErrorAction SilentlyContinue
-    if (-not $wa) {
-        'az' | Invoke-GooNativeCommand -CommandArgs @(
-            'webapp',
-            'create',
-            '--resource-group', $ResourceGroup.ResourceGroupName,
-            '--plan', $AppServicePlan.Name
-            '--name', $waName,
-            # '--docker-registry-server-url', "${ACRUsername}.azurecr.io",
-            # '--docker-registry-server-user', $ACRUsername,
-            # '--docker-registry-server-password', $ACRPassword,
-            '--multicontainer-config-type', 'COMPOSE',
-            '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
-        ) -Verbose
-        $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
+        'Initializing App Settings, Connection Strings and Docker-Compose Placeholders' | Write-GooLog
+        @($WAConfig.AppSettings, $WAConfig.ConnectionStrings, $WAConfig.DockerCompose.Placeholders) | ForEach-Object {
+            $_ | ForEach-Object {
+                if (-not $_.Value) {
+                    $_.Value = $_.Expression | Invoke-Expression
+                }
+            }
+        }
 
-        $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
-    }
+        'Replacing placeholders in the docker-compose file' | Write-GooLog
+        $dockerComposePath = ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
+        $content = (Get-Content -Path $dockerComposePath) -join [System.Environment]::NewLine
+        $WAConfig.DockerCompose.Placeholders | ForEach-Object {
+            $content = $content.Replace($_.Name, $_.Value)
+        }
 
-    # Update after creation as well
-    $params = @{}
-    if ($WAConfig.Property.AlwaysOn -ne $wa.SiteConfig.AlwaysOn) {
-        $params['AlwaysOn'] = $WAConfig.Property.AlwaysOn
-    }
+        $content | Set-Content -Path $dockerComposePath -Force | Out-Null
 
-    if ($WAConfig.Property.HttpsOnly -ne $wa.HttpsOnly) {
-        $params['HttpsOnly'] = $WAConfig.Property.HttpsOnly
-    }
+        $waName = "$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)"
+        $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName -ErrorAction SilentlyContinue
+        if (-not $wa) {
+            'az' | Invoke-GooNativeCommand -CommandArgs @(
+                'webapp',
+                'create',
+                '--resource-group', $ResourceGroup.ResourceGroupName,
+                '--plan', $AppServicePlan.Name
+                '--name', $waName,
+                '--multicontainer-config-type', 'COMPOSE',
+                '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
+            ) | Out-Null
+            $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
 
-    if ($WAConfig.Property.MinTlsVersion -ne $wa.SiteConfig.MinTlsVersion) {
-        $params['MinTlsVersion'] = $WAConfig.Property.MinTlsVersion
-    }
+            $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        }
 
-    if ($WAConfig.Property.FtpsState -ne $wa.SiteConfig.FtpsState) {
-        $params['FtpsState'] = $WAConfig.Property.FtpsState
-    }
+        # Update after creation as well
+        $params = @{}
+        if ($WAConfig.Property.AlwaysOn -ne $wa.SiteConfig.AlwaysOn) {
+            $params['AlwaysOn'] = $WAConfig.Property.AlwaysOn
+        }
 
-    if ($WAConfig.Property.Use32BitWorkerProcess -ne $wa.SiteConfig.Use32BitWorkerProcess) {
-        $params['Use32BitWorkerProcess'] = $WAConfig.Property.Use32BitWorkerProcess
-    }
+        if ($WAConfig.Property.HttpsOnly -ne $wa.HttpsOnly) {
+            $params['HttpsOnly'] = $WAConfig.Property.HttpsOnly
+        }
 
-    if ($WAConfig.Property.Http20Enabled -ne $wa.SiteConfig.Http20Enabled) {
-        $params['Http20Enabled'] = $WAConfig.Property.Http20Enabled
-    }
+        if ($WAConfig.Property.MinTlsVersion -ne $wa.SiteConfig.MinTlsVersion) {
+            $params['MinTlsVersion'] = $WAConfig.Property.MinTlsVersion
+        }
 
-    if ($WAConfig.Property.WebSocketsEnabled -ne $wa.SiteConfig.WebSocketsEnabled) {
-        $params['WebSocketsEnabled'] = $WAConfig.Property.WebSocketsEnabled
-    }
+        if ($WAConfig.Property.FtpsState -ne $wa.SiteConfig.FtpsState) {
+            $params['FtpsState'] = $WAConfig.Property.FtpsState
+        }
 
-    if (0 -lt $params.Keys.Count) {
-        $params += @{
+        if ($WAConfig.Property.Use32BitWorkerProcess -ne $wa.SiteConfig.Use32BitWorkerProcess) {
+            $params['Use32BitWorkerProcess'] = $WAConfig.Property.Use32BitWorkerProcess
+        }
+
+        if ($WAConfig.Property.Http20Enabled -ne $wa.SiteConfig.Http20Enabled) {
+            $params['Http20Enabled'] = $WAConfig.Property.Http20Enabled
+        }
+
+        if ($WAConfig.Property.WebSocketsEnabled -ne $wa.SiteConfig.WebSocketsEnabled) {
+            $params['WebSocketsEnabled'] = $WAConfig.Property.WebSocketsEnabled
+        }
+
+        if (0 -lt $params.Keys.Count) {
+            $params += @{
+                ResourceGroupName = $ResourceGroup.ResourceGroupName;
+                Name              = $wa.Name;
+            }
+
+            $updatedWa = Set-AzWebApp @params
+
+            $updatedWa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            Format-bsAzResourceUpdate $wa $updatedWa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+
+            $wa = $updatedWa
+        }
+
+        'Configuring app settings & connection strings...' | Write-GooLog
+        $appSettings = @{}
+        $WAConfig.AppSettings | ForEach-Object {
+            $appSettings[$_.Name] = $_.Value
+        }
+
+        $connectionStrings = @{} 
+        $WAConfig.ConnectionStrings | ForEach-Object {
+            $connectionStrings[$_.Name] = $_.Value
+        }
+
+        $params = @{
             ResourceGroupName = $ResourceGroup.ResourceGroupName;
             Name              = $wa.Name;
         }
 
-        $updatedWa = Set-AzWebApp @params
+        if (0 -lt $appSettings.Count) {
+            $params['AppSettings'] = $appSettings
+        }
 
-        $updatedWa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-        Format-bsAzResourceUpdate $wa $updatedWa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        if (0 -lt $connectionStrings.Count) {
+            $params['ConnectionStrings'] = $connectionStrings
+        }
 
-        $wa = $updatedWa
+        $wa = Set-AzWebApp @params
+
+        "$($wa.Name) App Settings & Connection Strings" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        $wa.Name | Write-GooLog -Level MOUNT
+        New-GooLogMessage -Separator | Write-GooLog
+
+        return $wa
     }
-
-    'Configuring app settings & connection strings...' | Write-GooLog
-    $appSettings = @{}
-    $WAConfig.AppSettings | ForEach-Object {
-        $appSettings[$_.Name] = $_.Value
-    }
-
-    $connectionStrings = @{} 
-    $WAConfig.ConnectionStrings | ForEach-Object {
-        $connectionStrings[$_.Name] = $_.Value
-    }
-
-    $params = @{
-        ResourceGroupName = $ResourceGroup.ResourceGroupName;
-        Name              = $wa.Name;
-    }
-
-    if (0 -lt $appSettings.Count) {
-        $params['AppSettings'] = $appSettings
-    }
-
-    if (0 -lt $connectionStrings.Count) {
-        $params['ConnectionStrings'] = $connectionStrings
-    }
-
-    $wa = Set-AzWebApp @params
-
-    "$($wa.Name) App Settings & Connection Strings" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-    $wa.Name | Write-GooLog -Level MOUNT
-    New-GooLogMessage -Separator | Write-GooLog
 }
