@@ -27,8 +27,20 @@ param (
     $Location,
 
     [Parameter(Mandatory = $true)]
-    [string[]]
-    $ACRImages
+    [string]
+    $BranchName,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $MySqlRootPassword,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $MySqlUsername,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $MySqlPassword
 )
 
 $Global:ErrorActionPreference = 'Stop'
@@ -60,6 +72,9 @@ function Start-Deployment {
 
         # Az.Resources
         $resourceGroup = $config.resourceGroup | Mount-bsResourceGroup -Location $Location -ResourceGroupName $ResourceGroupName
+
+        # Az.Storage
+        $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
 
         # Az.Websites
         $appServicePlan = $config.appServicePlan | Mount-bsAppServicePlan -ResourceGroup $resourceGroup

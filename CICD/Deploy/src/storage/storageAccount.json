@@ -1,0 +1,10 @@
+{
+  "Suffix": "sa",
+  "Property": {
+    "SkuName": "Standard_RAGRS",
+    "Kind": "StorageV2",
+    "AccessTier": "Cool",
+    "MinimumTlsVersion": "TLS1_2",
+    "EnableHttpsTrafficOnly": true
+  }
+}

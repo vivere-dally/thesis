@@ -1,0 +1,13 @@
+{
+  "Suffix": "",
+  "Property": {
+    "AlwaysOn": true,
+    "HttpsOnly": true,
+    "MinTlsVersion": "1.2",
+    "FtpsState": "Disabled",
+    "Use32BitWorkerProcess": false,
+    "Http20Enabled": true,
+    "WebSocketsEnabled": true
+  },
+  "DockerComposePath": ".resx/fe/docker-compose.yml"
+}

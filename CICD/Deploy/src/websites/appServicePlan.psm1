@@ -52,7 +52,7 @@ function Mount-bsAppServicePlan {
 
         if (0 -lt $params.Keys.Count) {
             $params += @{
-                ResourceGroupName = $ResourceGroupName;
+                ResourceGroupName = $ResourceGroup.ResourceGroupName;
                 Name              = $asp.Name; 
             }
 
