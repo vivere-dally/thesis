@@ -64,5 +64,5 @@ function Mount-bsStorageAccount {
     $sa.StorageAccountName | Write-GooLog -Level MOUNT
     New-GooLogMessage -Separator | Write-GooLog
 
-    return $asp
+    return $sa
 }

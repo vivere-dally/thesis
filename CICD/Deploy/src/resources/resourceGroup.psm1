@@ -31,7 +31,7 @@ function Mount-bsResourceGroup {
         $updateResourceGroup = Set-AzResourceGroup -Name $ResourceGroupName -Tag $RGConfig.Property.Tag
 
         $updateResourceGroup.ResourceGroupName | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-        Format-bsAzResourceUpdate $resourceGroup $updateResourceGroup -Ignore TagsTable | Write-GooLog -ForegroundColor Yellow
+        Format-bsAzResourceUpdate $resourceGroup $updateResourceGroup -Ignore TagsTable | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
         $resourceGroup = $updateResourceGroup
     }

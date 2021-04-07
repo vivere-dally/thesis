@@ -17,6 +17,10 @@ function Mount-bsWebApp {
         $AppServicePlan,
 
         [Parameter(Mandatory = $true)]
+        [Microsoft.Azure.Commands.Management.Storage.Models.PSStorageAccount]
+        $StorageAccount,
+
+        [Parameter(Mandatory = $true)]
         [string]
         $ACRUsername,
     
@@ -127,20 +131,35 @@ function Mount-bsWebApp {
             $wa = $updatedWa
         }
 
-        'Configuring app settings & connection strings...' | Write-GooLog
+        'Configuring app settings...' | Write-GooLog
         $appSettings = @{}
         $WAConfig.AppSettings | ForEach-Object {
             $appSettings[$_.Name] = $_.Value
         }
 
+        'Configuring connection strings...' | Write-GooLog
         $connectionStrings = @{} 
         $WAConfig.ConnectionStrings | ForEach-Object {
             $connectionStrings[$_.Name] = $_.Value
         }
 
+        'Configuring storage account file share...' | Write-GooLog
+        $saPath = New-AzWebAppAzureStoragePath `
+            -Name "$($wa.Name)storagepath" `
+            -AccountName $StorageAccount.Context.FileEndPoint `
+            -Type AzureFiles `
+            -ShareName "$($wa.Name)storagepath" `
+            -AccessKey (Get-AzStorageAccountKey `
+                -ResourceGroupName $ResourceGroup.ResourceGroupName `
+                -Name $StorageAccount.StorageAccountName `
+            | Where-Object { 'Full' -eq $_.Permissions } `
+            | Select-Object -ExpandProperty Value -First 1) `
+            -MountPath "/$($wa.Name)/"
+
         $params = @{
             ResourceGroupName = $ResourceGroup.ResourceGroupName;
             Name              = $wa.Name;
+            AzureStoragePath  = @($saPath);
         }
 
         if (0 -lt $appSettings.Count) {
@@ -153,7 +172,11 @@ function Mount-bsWebApp {
 
         $wa = Set-AzWebApp @params
 
-        "$($wa.Name) App Settings & Connection Strings" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        "$($wa.Name) app settings, connection strings & storage account file share" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+
+        "Restarting to apply the latest changes" | Write-GooLog
+        $wa | Restart-AzWebApp | Out-Null
+
         $wa.Name | Write-GooLog -Level MOUNT
         New-GooLogMessage -Separator | Write-GooLog
 

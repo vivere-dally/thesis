@@ -86,13 +86,14 @@ function Start-Deployment {
         $resourceGroup = $config.resourceGroup | Mount-bsResourceGroup -Location $Location -ResourceGroupName $ResourceGroupName
 
         # Az.Storage
-        # $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
+        $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
 
         # Az.Websites
         $appServicePlan = $config.appServicePlan | Mount-bsAppServicePlan -ResourceGroup $resourceGroup
         $beWebApp, $feWebApp = $config.webApp | Mount-bsWebApp `
             -ResourceGroup $resourceGroup `
             -AppServicePlan $appServicePlan `
+            -StorageAccount $storageAccount `
             -ACRUsername $ACRUsername `
             -ACRPassword $ACRPassword `
             -BranchName $BranchName `
