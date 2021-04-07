@@ -28,7 +28,19 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string]
+    $ACRUsername,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $ACRPassword,
+
+    [Parameter(Mandatory = $true)]
+    [string]
     $BranchName,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $Tag,
 
     [Parameter(Mandatory = $true)]
     [string]
@@ -74,11 +86,31 @@ function Start-Deployment {
         $resourceGroup = $config.resourceGroup | Mount-bsResourceGroup -Location $Location -ResourceGroupName $ResourceGroupName
 
         # Az.Storage
-        $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
+        # $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
 
         # Az.Websites
         $appServicePlan = $config.appServicePlan | Mount-bsAppServicePlan -ResourceGroup $resourceGroup
-        $beWebApp, $feWebApp = $config.webApp | Mount-bsWebApp -ResourceGroup $resourceGroup -AppServicePlan $appServicePlan
+
+        # $beWebApp = $config.beWebApp | Mount-bsBackendWebApp `
+        #     -ResourceGroup $resourceGroup `
+        #     -AppServicePlan $appServicePlan `
+        #     -ACRUsername $ACRUsername `
+        #     -ACRPassword $ACRPassword `
+        #     -BranchName $BranchName `
+        #     -Tag $Tag `
+        #     -MySqlRootPassword $MySqlRootPassword `
+        #     -MySqlUsername $MySqlUsername `
+        #     -MySqlPassword $MySqlPassword
+
+        $feWebApp = $config.feWebApp | Mount-bsFrontendWebApp `
+            -ResourceGroup $resourceGroup `
+            -AppServicePlan $appServicePlan `
+            -ACRUsername $ACRUsername `
+            -ACRPassword $ACRPassword `
+            -BranchName $BranchName `
+            -Tag $Tag
+
+        # $beWebApp, $feWebApp = $config.webApp | Mount-bsWebApp -ResourceGroup $resourceGroup -AppServicePlan $appServicePlan
 
         'Deployment succeeded' | Write-GooLog -ForegroundColor Green
     }

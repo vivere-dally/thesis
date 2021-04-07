@@ -15,7 +15,7 @@
       {
         "Name": "[P[H[IMAGE_NAME]]]",
         "Value": null,
-        "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}:${Tag}\""
+        "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesisapi:${Tag}\""
       }
     ]
   },

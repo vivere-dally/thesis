@@ -9,5 +9,37 @@
     "Http20Enabled": true,
     "WebSocketsEnabled": true
   },
-  "DockerComposePath": ".resx/fe/docker-compose.yml"
+  "DockerCompose": {
+    "Path": "./../.resx/fe/docker-compose.yml",
+    "Placeholders": [
+      {
+        "Name": "[P[H[IMAGE_NAME]]]",
+        "Value": null,
+        "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesis:${Tag}\""
+      }
+    ]
+  },
+  "AppSettings": [
+    {
+      "Name": "DOCKER_REGISTRY_SERVER_URL",
+      "Value": null,
+      "Expression": "\"https://${ACRUsername}.azurecr.io\""
+    },
+    {
+      "Name": "DOCKER_REGISTRY_SERVER_USERNAME",
+      "Value": null,
+      "Expression": "$ACRUsername"
+    },
+    {
+      "Name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+      "Value": null,
+      "Expression": "$ACRPassword"
+    },
+    {
+      "Name": "__dc__CLIENT_PORT",
+      "Value": "5000",
+      "Expression": null
+    }
+  ],
+  "ConnectionStrings": []
 }

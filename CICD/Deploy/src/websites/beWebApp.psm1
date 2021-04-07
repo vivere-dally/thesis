@@ -6,7 +6,7 @@ function Mount-bsBackendWebApp {
     param (
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [hashtable]
-        $BEWebAppConfig,
+        $WAConfig,
 
         [Parameter(Mandatory = $true)]
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup]
@@ -19,6 +19,10 @@ function Mount-bsBackendWebApp {
         [Parameter(Mandatory = $true)]
         [string]
         $ACRUsername,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $ACRPassword,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -44,7 +48,7 @@ function Mount-bsBackendWebApp {
     New-GooLogMessage 'Backend WebApp Management' -Step | Write-GooLog
 
     'Initializing App Settings, Connection Strings and Docker-Compose Placeholders' | Write-GooLog
-    @($BEWebAppConfig.AppSettings, $BEWebAppConfig.ConnectionStrings, $BEWebAppConfig.DockerCompose.Placeholders) | ForEach-Object {
+    @($WAConfig.AppSettings, $WAConfig.ConnectionStrings, $WAConfig.DockerCompose.Placeholders) | ForEach-Object {
         $_ | ForEach-Object {
             if (-not $_.Value) {
                 $_.Value = $_.Expression | Invoke-Expression
@@ -53,13 +57,13 @@ function Mount-bsBackendWebApp {
     }
 
     'Replacing placeholders in the docker-compose file' | Write-GooLog
-    $dockerComposePath = ("$PSScriptRoot$($BEWebAppConfig.DockerCompose.Path)" | Resolve-Path).Path
+    $dockerComposePath = ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
     $content = (Get-Content -Path $dockerComposePath) -join [System.Environment]::NewLine
-    $BEWebAppConfig.DockerCompose.Placeholders | ForEach-Object {
-        $content.Replace($_.Name, $_.Value)
+    $WAConfig.DockerCompose.Placeholders | ForEach-Object {
+        $content = $content.Replace($_.Name, $_.Value)
     }
 
     $content | Set-Content -Path $dockerComposePath -Force | Out-Null
 
-    return $BEWebAppConfig | Mount-bsWebApp -ResourceGroup $ResourceGroup -AppServicePlan $AppServicePlan
+    return $WAConfig | Mount-bsWebApp -ResourceGroup $ResourceGroup -AppServicePlan $AppServicePlan -ACRUsername $ACRUsername -ACRPassword $ACRPassword
 }

@@ -2,6 +2,7 @@
 function Mount-bsWebApp {
     [CmdletBinding()]
     [OutputType([Microsoft.Azure.Commands.WebApps.Models.PSSite])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
     param (
         [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
         [hashtable]
@@ -14,6 +15,14 @@ function Mount-bsWebApp {
         [Parameter(Mandatory = $true)]
         [Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan]
         $AppServicePlan
+
+        # [Parameter(Mandatory = $true)]
+        # [string]
+        # $ACRUsername,
+    
+        # [Parameter(Mandatory = $true)]
+        # [string]
+        # $ACRPassword
     )
 
     New-GooLogMessage 'WebApp Management' -Step | Write-GooLog
@@ -27,9 +36,12 @@ function Mount-bsWebApp {
             '--resource-group', $ResourceGroup.ResourceGroupName,
             '--plan', $AppServicePlan.Name
             '--name', $waName,
+            # '--docker-registry-server-url', "${ACRUsername}.azurecr.io",
+            # '--docker-registry-server-user', $ACRUsername,
+            # '--docker-registry-server-password', $ACRPassword,
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
-        ) | Out-Null
+        ) -Verbose
         $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
 
         $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
@@ -80,21 +92,32 @@ function Mount-bsWebApp {
     }
 
     'Configuring app settings & connection strings...' | Write-GooLog
-    $appSettings = $WAConfig.AppSettings | ForEach-Object {
-        @{ $_.Name = $_.Value }
+    $appSettings = @{}
+    $WAConfig.AppSettings | ForEach-Object {
+        $appSettings[$_.Name] = $_.Value
     }
 
-    $connectionStrings = $WAConfig.ConnectionStrings | ForEach-Object {
-        @{ $_.Name = $_.Value }
+    $connectionStrings = @{} 
+    $WAConfig.ConnectionStrings | ForEach-Object {
+        $connectionStrings[$_.Name] = $_.Value
     }
 
-    $wa = Set-AzWebApp `
-        -ResourceGroupName $ResourceGroup.ResourceGroupName `
-        -Name $wa.Name `
-        -AppSettings $appSettings `
-        -ConnectionStrings $connectionStrings
+    $params = @{
+        ResourceGroupName = $ResourceGroup.ResourceGroupName;
+        Name              = $wa.Name;
+    }
 
-    $wa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+    if (0 -lt $appSettings.Count) {
+        $params['AppSettings'] = $appSettings
+    }
+
+    if (0 -lt $connectionStrings.Count) {
+        $params['ConnectionStrings'] = $connectionStrings
+    }
+
+    $wa = Set-AzWebApp @params
+
+    "$($wa.Name) App Settings & Connection Strings" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
     $wa.Name | Write-GooLog -Level MOUNT
     New-GooLogMessage -Separator | Write-GooLog
 }

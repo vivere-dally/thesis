@@ -24,10 +24,10 @@ function Mount-bsStorageAccount {
         } + $SAConfig.Property;
         $sa = New-AzStorageAccount @params
 
-        $sa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        $sa.StorageAccountName | Write-GooLog -Level CREATE -ForegroundColor Green
     }
     else {
-        "Fetched $($sa.Name). Verifying properties..." | Write-GooLog
+        "Fetched $($sa.StorageAccountName). Verifying properties..." | Write-GooLog
         
         $params = @{}
         if ($SAConfig.Property.SkuName -ne $sa.Sku.Name) {
@@ -54,14 +54,14 @@ function Mount-bsStorageAccount {
 
             $updatedSa = Set-AzStorageAccount @params
 
-            $updatedAsp.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            $updatedSa.StorageAccountName | Write-GooLog -Level UPDATE -ForegroundColor Yellow
             Format-bsAzResourceUpdate $sa $updatedSa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
             $sa = $updatedSa
         }
     }
 
-    $sa.Name | Write-GooLog -Level MOUNT
+    $sa.StorageAccountName | Write-GooLog -Level MOUNT
     New-GooLogMessage -Separator | Write-GooLog
 
     return $asp
