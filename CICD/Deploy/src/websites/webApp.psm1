@@ -86,6 +86,22 @@ function Mount-bsWebApp {
 
             $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
         }
+        else {
+            "Fetched $($wa.Name). Verifying properties..." | Write-GooLog
+            'az' | Invoke-GooNativeCommand -CommandArgs @(
+                'webapp',
+                'config',
+                'container',
+                'set',
+                '--resource-group', $ResourceGroup.ResourceGroupName,
+                '--plan', $AppServicePlan.Name
+                '--name', $wa.Name,
+                '--multicontainer-config-type', 'COMPOSE',
+                '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
+            )
+            
+            "$($wa.Name) image to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Green
+        }
 
         # Update after creation as well
         $params = @{}
@@ -144,17 +160,18 @@ function Mount-bsWebApp {
         }
 
         'Configuring storage account file share...' | Write-GooLog
+        $asPathName = "$($wa.Name)$($WAConfig.AzureStoragePath.Suffix)"
         $saPath = New-AzWebAppAzureStoragePath `
-            -Name "$($wa.Name)storagepath" `
+            -Name $asPathName `
             -AccountName $StorageAccount.Context.FileEndPoint `
             -Type AzureFiles `
-            -ShareName "$($wa.Name)storagepath" `
+            -ShareName $asPathName `
             -AccessKey (Get-AzStorageAccountKey `
                 -ResourceGroupName $ResourceGroup.ResourceGroupName `
                 -Name $StorageAccount.StorageAccountName `
             | Where-Object { 'Full' -eq $_.Permissions } `
             | Select-Object -ExpandProperty Value -First 1) `
-            -MountPath "/$($wa.Name)/"
+            -MountPath "/$asPathName"
 
         $params = @{
             ResourceGroupName = $ResourceGroup.ResourceGroupName;

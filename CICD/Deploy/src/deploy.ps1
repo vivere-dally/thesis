@@ -83,6 +83,12 @@ function Start-Deployment {
         Connect-bsAzCLIAccount $SubscriptionId $TenantId $ClientId $ClientSecret
 
         # Az.Resources
+        $config.resourceGroup.Property.Tag += @{
+            DeploymentTime = (Get-Date -AsUTC).ToString();
+            BranchName     = $BranchName;
+            ImageTag       = $Tag;
+        }
+
         $resourceGroup = $config.resourceGroup | Mount-bsResourceGroup -Location $Location -ResourceGroupName $ResourceGroupName
 
         # Az.Storage

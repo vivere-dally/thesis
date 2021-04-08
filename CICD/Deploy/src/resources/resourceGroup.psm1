@@ -18,7 +18,6 @@ function Mount-bsResourceGroup {
 
     New-GooLogMessage 'ResourceGroup Management' -Step | Write-GooLog
 
-    $RGConfig.Property.Tag['DeploymentTime'] = (Get-Date -AsUTC).ToString()
     $resourceGroup = Get-AzResourceGroup -Location $Location -Name $ResourceGroupName -ErrorAction SilentlyContinue
     if (-not $resourceGroup) {
         $resourceGroup = New-AzResourceGroup -Location $Location -Name $ResourceGroupName -Tag $RGConfig.Property.Tag

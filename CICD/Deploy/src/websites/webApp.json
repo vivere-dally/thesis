@@ -19,6 +19,11 @@
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesisapi:${Tag}\""
         },
         {
+          "Name": "${__dc__VOLUME}",
+          "Value": null,
+          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)$($WAConfig.AzureStoragePath.Suffix)\""
+        },
+        {
           "Name": "${__dc__SERVER_PORT}",
           "Value": "5000",
           "Expression": null
@@ -48,7 +53,7 @@
     "AppSettings": [
       {
         "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-        "Value": "TRUE",
+        "Value": "true",
         "Expression": null
       },
       {
@@ -67,7 +72,10 @@
         "Expression": "$ACRPassword"
       }
     ],
-    "ConnectionStrings": []
+    "ConnectionStrings": [],
+    "AzureStoragePath": {
+      "Suffix": "vol"
+    }
   },
   {
     "Suffix": "",
@@ -89,6 +97,11 @@
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesis:${Tag}\""
         },
         {
+          "Name": "${__dc__VOLUME}",
+          "Value": null,
+          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)$($WAConfig.AzureStoragePath.Suffix)\""
+        },
+        {
           "Name": "${__dc__CLIENT_PORT}",
           "Value": "5000",
           "Expression": null
@@ -98,7 +111,7 @@
     "AppSettings": [
       {
         "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-        "Value": "TRUE",
+        "Value": "true",
         "Expression": null
       },
       {
@@ -117,6 +130,9 @@
         "Expression": "$ACRPassword"
       }
     ],
-    "ConnectionStrings": []
+    "ConnectionStrings": [],
+    "AzureStoragePath": {
+      "Suffix": "vol"
+    }
   }
 ]
