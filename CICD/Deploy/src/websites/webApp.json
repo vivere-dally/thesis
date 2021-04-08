@@ -19,9 +19,9 @@
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesisapi:${Tag}\""
         },
         {
-          "Name": "${__dc__VOLUME}",
+          "Name": "${__dc__MY_SQL_VOLUME}",
           "Value": null,
-          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)$($WAConfig.AzureStoragePath.Suffix)\""
+          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)mysql\""
         },
         {
           "Name": "${__dc__SERVER_PORT}",
@@ -73,9 +73,12 @@
       }
     ],
     "ConnectionStrings": [],
-    "AzureStoragePath": {
-      "Suffix": "vol"
-    }
+    "AzureStoragePath": [
+      {
+        "Name": "\"$($wa.Name)mysql\"",
+        "MountPath": "\"/usr/local/$($wa.Name)/mysql\""
+      }
+    ]
   },
   {
     "Suffix": "",
@@ -131,8 +134,6 @@
       }
     ],
     "ConnectionStrings": [],
-    "AzureStoragePath": {
-      "Suffix": "vol"
-    }
+    "AzureStoragePath": []
   }
 ]

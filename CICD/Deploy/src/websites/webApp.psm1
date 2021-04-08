@@ -94,13 +94,12 @@ function Mount-bsWebApp {
                 'container',
                 'set',
                 '--resource-group', $ResourceGroup.ResourceGroupName,
-                '--plan', $AppServicePlan.Name
                 '--name', $wa.Name,
                 '--multicontainer-config-type', 'COMPOSE',
                 '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
-            )
+            ) | Out-Null
             
-            "$($wa.Name) image to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Green
+            "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
         }
 
         # Update after creation as well
@@ -160,23 +159,33 @@ function Mount-bsWebApp {
         }
 
         'Configuring storage account file share...' | Write-GooLog
-        $asPathName = "$($wa.Name)$($WAConfig.AzureStoragePath.Suffix)"
-        $saPath = New-AzWebAppAzureStoragePath `
-            -Name $asPathName `
-            -AccountName $StorageAccount.Context.FileEndPoint `
-            -Type AzureFiles `
-            -ShareName $asPathName `
-            -AccessKey (Get-AzStorageAccountKey `
-                -ResourceGroupName $ResourceGroup.ResourceGroupName `
-                -Name $StorageAccount.StorageAccountName `
-            | Where-Object { 'Full' -eq $_.Permissions } `
-            | Select-Object -ExpandProperty Value -First 1) `
-            -MountPath "/$asPathName"
+        $azureStoragePath = @()
+        $WAConfig.AzureStoragePath | ForEach-Object {
+            $asPathName = $_.Name | Invoke-Expression
+
+            $storageShare = $StorageAccount.Context | Get-AzStorageShare -Name $asPathName -ErrorAction SilentlyContinue
+            if (-not $storageShare) {
+                $storageShare = $StorageAccount.Context | New-AzStorageShare -Name $asPathName
+
+                "$asPathName storage share" | Write-GooLog -Level CREATE -ForegroundColor Green
+            }
+
+            $azureStoragePath += New-AzWebAppAzureStoragePath `
+                -Name $asPathName `
+                -AccountName $StorageAccount.StorageAccountName `
+                -Type AzureFiles `
+                -ShareName $asPathName `
+                -AccessKey (Get-AzStorageAccountKey `
+                    -ResourceGroupName $ResourceGroup.ResourceGroupName `
+                    -Name $StorageAccount.StorageAccountName `
+                | Where-Object { 'Full' -eq $_.Permissions } `
+                | Select-Object -ExpandProperty Value -First 1) `
+                -MountPath ($_.MountPath | Invoke-Expression)
+        }
 
         $params = @{
             ResourceGroupName = $ResourceGroup.ResourceGroupName;
             Name              = $wa.Name;
-            AzureStoragePath  = @($saPath);
         }
 
         if (0 -lt $appSettings.Count) {
@@ -185,6 +194,10 @@ function Mount-bsWebApp {
 
         if (0 -lt $connectionStrings.Count) {
             $params['ConnectionStrings'] = $connectionStrings
+        }
+
+        if (0 -lt $azureStoragePath.Length) {
+            $params['AzureStoragePath'] = $azureStoragePath
         }
 
         $wa = Set-AzWebApp @params
