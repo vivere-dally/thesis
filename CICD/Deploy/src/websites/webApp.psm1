@@ -177,9 +177,6 @@ function Mount-bsWebApp {
 
         "$($wa.Name) app settings, connection strings & storage account file share" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
-        "Restarting to apply the latest changes" | Write-GooLog
-        $wa | Restart-AzWebApp | Out-Null
-
         'az' | Invoke-GooNativeCommand -CommandArgs @(
             'webapp',
             'config',
@@ -190,12 +187,23 @@ function Mount-bsWebApp {
             '--docker-registry-server-url', "https://${ACRUsername}.azurecr.io"
             '--docker-registry-server-user', $ACRUsername
             '--docker-registry-server-password', $ACRPassword
-            '--enable-app-service-storage', 'true'
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
         ) | Out-Null
 
+        'az' | Invoke-GooNativeCommand -CommandArgs @(
+            'webapp',
+            'deployment',
+            'container',
+            'config',
+            '--resource-group', $ResourceGroup.ResourceGroupName,
+            '--name', $wa.Name,
+            '--enable-cd', 'true'
+        ) | Out-Null
+
         "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        "Restarting to apply the latest changes" | Write-GooLog
+        $wa | Restart-AzWebApp | Out-Null
 
         $wa.Name | Write-GooLog -Level MOUNT
         New-GooLogMessage -Separator | Write-GooLog
