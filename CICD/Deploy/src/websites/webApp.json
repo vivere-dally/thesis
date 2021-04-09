@@ -63,25 +63,9 @@
     // Application settings used by our application
     "AppSettings": [
       {
-        // https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux
-        "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-        "Value": "true",
+        "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
+        "Value": "1",
         "Expression": null
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_URL",
-        "Value": null,
-        "Expression": "\"https://${ACRUsername}.azurecr.io\""
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_USERNAME",
-        "Value": null,
-        "Expression": "$ACRUsername"
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-        "Value": null,
-        "Expression": "$ACRPassword"
       }
     ],
 
@@ -143,25 +127,9 @@
     // Application settings used by our application
     "AppSettings": [
       {
-        // https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux
-        "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-        "Value": "true",
+        "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
+        "Value": "1",
         "Expression": null
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_URL",
-        "Value": null,
-        "Expression": "\"https://${ACRUsername}.azurecr.io\""
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_USERNAME",
-        "Value": null,
-        "Expression": "$ACRUsername"
-      },
-      {
-        "Name": "DOCKER_REGISTRY_SERVER_PASSWORD",
-        "Value": null,
-        "Expression": "$ACRPassword"
       }
     ],
 

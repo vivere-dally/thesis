@@ -85,47 +85,48 @@ function Mount-bsWebApp {
         "Fetched $($wa.Name). Verifying properties..." | Write-GooLog
 
         # Update after creation as well
-        $params = @{}
+        $oldWa = $wa | ConvertTo-GooFlattenHashtable -Depth 5
+        $shouldUpdate = $false
         if ($WAConfig.Property.AlwaysOn -ne $wa.SiteConfig.AlwaysOn) {
-            $params['AlwaysOn'] = $WAConfig.Property.AlwaysOn
+            $wa.SiteConfig.AlwaysOn = $WAConfig.Property.AlwaysOn
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.HttpsOnly -ne $wa.HttpsOnly) {
-            $params['HttpsOnly'] = $WAConfig.Property.HttpsOnly
+            $wa.HttpsOnly = $WAConfig.Property.HttpsOnly
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.MinTlsVersion -ne $wa.SiteConfig.MinTlsVersion) {
-            $params['MinTlsVersion'] = $WAConfig.Property.MinTlsVersion
+            $wa.SiteConfig.MinTlsVersion = $WAConfig.Property.MinTlsVersion
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.FtpsState -ne $wa.SiteConfig.FtpsState) {
-            $params['FtpsState'] = $WAConfig.Property.FtpsState
+            $wa.SiteConfig.FtpsState = $WAConfig.Property.FtpsState
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.Use32BitWorkerProcess -ne $wa.SiteConfig.Use32BitWorkerProcess) {
-            $params['Use32BitWorkerProcess'] = $WAConfig.Property.Use32BitWorkerProcess
+            $wa.SiteConfig.Use32BitWorkerProcess = $WAConfig.Property.Use32BitWorkerProcess
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.Http20Enabled -ne $wa.SiteConfig.Http20Enabled) {
-            $params['Http20Enabled'] = $WAConfig.Property.Http20Enabled
+            $wa.SiteConfig.Http20Enabled = $WAConfig.Property.Http20Enabled
+            $shouldUpdate = $true
         }
 
         if ($WAConfig.Property.WebSocketsEnabled -ne $wa.SiteConfig.WebSocketsEnabled) {
-            $params['WebSocketsEnabled'] = $WAConfig.Property.WebSocketsEnabled
+            $wa.SiteConfig.WebSocketsEnabled = $WAConfig.Property.WebSocketsEnabled
+            $shouldUpdate = $true
         }
 
-        if (0 -lt $params.Keys.Count) {
-            $params += @{
-                ResourceGroupName = $ResourceGroup.ResourceGroupName;
-                Name              = $wa.Name;
-            }
+        if ($shouldUpdate) {
+            $wa = $wa | Set-AzWebApp
 
-            $updatedWa = Set-AzWebApp @params
-
-            $updatedWa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-            Format-bsAzResourceUpdate $wa $updatedWa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-
-            $wa = $updatedWa
+            $wa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            Format-bsAzResourceUpdate $oldWa $wa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
         }
 
         'Configuring app settings...' | Write-GooLog
@@ -186,6 +187,10 @@ function Mount-bsWebApp {
             'set',
             '--resource-group', $ResourceGroup.ResourceGroupName,
             '--name', $wa.Name,
+            '--docker-registry-server-url', "https://${ACRUsername}.azurecr.io"
+            '--docker-registry-server-user', $ACRUsername
+            '--docker-registry-server-password', $ACRPassword
+            '--enable-app-service-storage', 'true'
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
         ) | Out-Null
