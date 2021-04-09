@@ -189,7 +189,7 @@ function Mount-bsWebApp {
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
         ) | Out-Null
-   
+
         "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
         $wa.Name | Write-GooLog -Level MOUNT

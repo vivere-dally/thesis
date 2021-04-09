@@ -15,7 +15,7 @@
   "Shares": [
     {
       //! Used by the Backed Web App for a MySQL container
-      "Name": "ApiMySQL"
+      "Name": "api-my-sql"
     }
   ]
 }

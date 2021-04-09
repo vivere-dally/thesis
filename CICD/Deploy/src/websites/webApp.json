@@ -29,8 +29,8 @@
         },
         {
           "Name": "${__dc__MY_SQL_VOLUME}",
-          "Value": null,
-          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)mysql\""
+          "Value": "MySQLVolume",
+          "Expression": null
         },
         {
           "Name": "${__dc__SERVER_PORT}",
@@ -93,8 +93,8 @@
       {
         "Name": "MySQLVolume",
 
-        // ! Defined in storageAccount.json
-        "ShareName": "ApiMySQL",
+        //! Defined in storageAccount.json
+        "ShareName": "api-my-sql",
         "MountPath": "/var/lib/bsmyapp/mysql"
       }
     ]
