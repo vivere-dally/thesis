@@ -1,5 +1,8 @@
 {
+  // Suffix added to the resource group name
   "Suffix": "asp",
+
+  // Properties needed when creating an application service plan
   "Property": {
     "Tier": "Basic",
     "NumberOfWorkers": 1,

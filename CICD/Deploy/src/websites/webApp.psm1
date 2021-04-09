@@ -73,34 +73,16 @@ function Mount-bsWebApp {
         $waName = "$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)"
         $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName -ErrorAction SilentlyContinue
         if (-not $wa) {
-            'az' | Invoke-GooNativeCommand -CommandArgs @(
-                'webapp',
-                'create',
-                '--resource-group', $ResourceGroup.ResourceGroupName,
-                '--plan', $AppServicePlan.Name
-                '--name', $waName,
-                '--multicontainer-config-type', 'COMPOSE',
-                '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
-            ) | Out-Null
-            $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
+            $wa = New-AzWebApp `
+                -Location $ResourceGroup.Location `
+                -ResourceGroupName $ResourceGroup.ResourceGroupName `
+                -Name $waName `
+                -AppServicePlan $AppServicePlan.Name
 
             $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
         }
-        else {
-            "Fetched $($wa.Name). Verifying properties..." | Write-GooLog
-            'az' | Invoke-GooNativeCommand -CommandArgs @(
-                'webapp',
-                'config',
-                'container',
-                'set',
-                '--resource-group', $ResourceGroup.ResourceGroupName,
-                '--name', $wa.Name,
-                '--multicontainer-config-type', 'COMPOSE',
-                '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
-            ) | Out-Null
-            
-            "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-        }
+
+        "Fetched $($wa.Name). Verifying properties..." | Write-GooLog
 
         # Update after creation as well
         $params = @{}
@@ -160,27 +142,17 @@ function Mount-bsWebApp {
 
         'Configuring storage account file share...' | Write-GooLog
         $azureStoragePath = @()
+        $accessKey = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $StorageAccount.StorageAccountName `
+        | Where-Object { 'Full' -eq $_.Permissions } `
+        | Select-Object -ExpandProperty Value -First 1
         $WAConfig.AzureStoragePath | ForEach-Object {
-            $asPathName = $_.Name | Invoke-Expression
-
-            $storageShare = $StorageAccount.Context | Get-AzStorageShare -Name $asPathName -ErrorAction SilentlyContinue
-            if (-not $storageShare) {
-                $storageShare = $StorageAccount.Context | New-AzStorageShare -Name $asPathName
-
-                "$asPathName storage share" | Write-GooLog -Level CREATE -ForegroundColor Green
-            }
-
             $azureStoragePath += New-AzWebAppAzureStoragePath `
-                -Name $asPathName `
+                -Name $_.Name `
                 -AccountName $StorageAccount.StorageAccountName `
                 -Type AzureFiles `
-                -ShareName $asPathName `
-                -AccessKey (Get-AzStorageAccountKey `
-                    -ResourceGroupName $ResourceGroup.ResourceGroupName `
-                    -Name $StorageAccount.StorageAccountName `
-                | Where-Object { 'Full' -eq $_.Permissions } `
-                | Select-Object -ExpandProperty Value -First 1) `
-                -MountPath ($_.MountPath | Invoke-Expression)
+                -ShareName $_.ShareName `
+                -AccessKey $accessKey `
+                -MountPath $_.MountPath
         }
 
         $params = @{
@@ -206,6 +178,19 @@ function Mount-bsWebApp {
 
         "Restarting to apply the latest changes" | Write-GooLog
         $wa | Restart-AzWebApp | Out-Null
+
+        'az' | Invoke-GooNativeCommand -CommandArgs @(
+            'webapp',
+            'config',
+            'container',
+            'set',
+            '--resource-group', $ResourceGroup.ResourceGroupName,
+            '--name', $wa.Name,
+            '--multicontainer-config-type', 'COMPOSE',
+            '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
+        ) | Out-Null
+   
+        "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
         $wa.Name | Write-GooLog -Level MOUNT
         New-GooLogMessage -Separator | Write-GooLog

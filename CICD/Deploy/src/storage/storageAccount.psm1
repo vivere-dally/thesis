@@ -61,8 +61,47 @@ function Mount-bsStorageAccount {
         }
     }
 
+    $SAConfig.Shares | Mount-bsStorageAccountShare -StorageAccount $sa | Out-Null
+    "$($SAConfig.Shares.Length) shares" | Write-GooLog -Level MOUNT
+
     $sa.StorageAccountName | Write-GooLog -Level MOUNT
     New-GooLogMessage -Separator | Write-GooLog
 
     return $sa
+}
+
+function Mount-bsStorageAccountShare {
+    [CmdletBinding()]
+    [OutputType([Microsoft.WindowsAzure.Commands.Common.Storage.ResourceModel.AzureStorageFileShare])]
+    param (
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+        [hashtable]
+        $ShareConfig,
+
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Azure.Commands.Management.Storage.Models.PSStorageAccount]
+        $StorageAccount
+    )
+
+    process {
+        New-GooLogMessage 'StorageAccount File Share Management' -Step | Write-GooLog
+        
+        $share = $StorageAccount.Context | Get-AzStorageShare -Name $ShareConfig.Name -ErrorAction SilentlyContinue
+        if (-not $share) {
+            $share = $StorageAccount.Context | New-AzStorageShare -Name $ShareConfig.Name
+
+            $share.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        }
+        else {
+            "Fetched $($share.Name). Verifying properties..." | Write-GooLog
+
+            # Nothing to verify at the moment. Using default settings
+        }
+
+        $share.Name | Write-GooLog -Level MOUNT
+        New-GooLogMessage -Separator -Length 10 | Write-GooLog
+
+        return $share
+    }
+
 }

@@ -28,4 +28,8 @@ services:
       - MYSQL_PASSWORD=${__dc__MYSQL_PASSWORD}
       - MYSQL_DATABASE=${__dc__MYSQL_DATABASE}
     volumes:
-      - ${__dc__MY_SQL_VOLUME}:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
+    driver: local

@@ -1,6 +1,9 @@
 [
   {
+    // Suffix added to the resource group name
     "Suffix": "api",
+
+    // Properties needed when creating an application service
     "Property": {
       "AlwaysOn": true,
       "HttpsOnly": true,
@@ -10,8 +13,14 @@
       "Http20Enabled": true,
       "WebSocketsEnabled": true
     },
+
+    // Docker Compose properties
     "DockerCompose": {
+      // Relative path to the docker compose used by this application service
       "Path": "./../.resx/be/docker-compose.yml",
+
+      // Because of the fact that Azure does not support environment variables placeholders, neither a .env config file we need to upload
+      // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
           "Name": "${__dc__IMAGE}",
@@ -50,8 +59,11 @@
         }
       ]
     },
+
+    // Application settings used by our application
     "AppSettings": [
       {
+        // https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux
         "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
         "Value": "true",
         "Expression": null
@@ -72,16 +84,26 @@
         "Expression": "$ACRPassword"
       }
     ],
+
+    // Connection strings used by our application
     "ConnectionStrings": [],
+
+    // Storage Paths used by the containers
     "AzureStoragePath": [
       {
-        "Name": "\"$($wa.Name)mysql\"",
-        "MountPath": "\"/usr/local/$($wa.Name)/mysql\""
+        "Name": "MySQLVolume",
+
+        // ! Defined in storageAccount.json
+        "ShareName": "ApiMySQL",
+        "MountPath": "/var/lib/bsmyapp/mysql"
       }
     ]
   },
   {
+    // Suffix added to the resource group name
     "Suffix": "",
+
+    // Properties needed when creating an application service
     "Property": {
       "AlwaysOn": true,
       "HttpsOnly": true,
@@ -91,8 +113,14 @@
       "Http20Enabled": true,
       "WebSocketsEnabled": true
     },
+
+    // Docker Compose properties
     "DockerCompose": {
+      // Relative path to the docker compose used by this application service
       "Path": "./../.resx/fe/docker-compose.yml",
+
+      // Because of the fact that Azure does not support environment variables placeholders, neither a .env config file we need to upload
+      // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
           "Name": "${__dc__IMAGE}",
@@ -111,8 +139,11 @@
         }
       ]
     },
+
+    // Application settings used by our application
     "AppSettings": [
       {
+        // https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux
         "Name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
         "Value": "true",
         "Expression": null
@@ -133,7 +164,11 @@
         "Expression": "$ACRPassword"
       }
     ],
+
+    // Connection strings used by our application
     "ConnectionStrings": [],
+
+    // Storage Paths used by the containers
     "AzureStoragePath": []
   }
 ]
