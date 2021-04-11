@@ -1,0 +1,14 @@
+{
+  // Suffix added to the resource group name
+  "Suffix": "mysql",
+
+  // Properties needed when creating a my sql
+  "Property": {
+    "SkuName": "B_Gen5_1",
+    "BackupRetentionDay": 7,
+    "GeoRedundantBackup": true,
+    "MinimalTlsVersion": "TLS1_2",
+    "StorageInMb": 5120,
+    "Version": "8.0"
+  }
+}
