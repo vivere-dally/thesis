@@ -73,11 +73,21 @@ function Mount-bsWebApp {
         $waName = "$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)"
         $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName -ErrorAction SilentlyContinue
         if (-not $wa) {
-            $wa = New-AzWebApp `
-                -Location $ResourceGroup.Location `
-                -ResourceGroupName $ResourceGroup.ResourceGroupName `
-                -Name $waName `
-                -AppServicePlan $AppServicePlan.Name
+            # $wa = New-AzWebApp `
+            #     -Location $ResourceGroup.Location `
+            #     -ResourceGroupName $ResourceGroup.ResourceGroupName `
+            #     -Name $waName `
+            #     -AppServicePlan $AppServicePlan.Name
+            'az' | Invoke-GooNativeCommand -CommandArgs @(
+                'webapp',
+                'create',
+                '--resource-group', $ResourceGroup.ResourceGroupName,
+                '--plan', $AppServicePlan.Name
+                '--name', $waName,
+                '--multicontainer-config-type', 'COMPOSE',
+                '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
+            ) | Out-Null
+            $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
 
             $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
         }
