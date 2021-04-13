@@ -44,10 +44,6 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string]
-    $MySqlRootPassword,
-
-    [Parameter(Mandatory = $true)]
-    [string]
     $MySqlUsername,
 
     [Parameter(Mandatory = $true)]
@@ -64,6 +60,7 @@ $Global:GooLogAnsiPreference = 'Set'
 #Requires -PSEdition Core
 
 #Requires -Module @{ ModuleName = 'Az'; RequiredVersion = '5.7.0' }
+#Requires -Module @{ ModuleName = 'Az.MySql'; RequiredVersion = '0.6.0' }
 #Requires -Module @{ ModuleName = 'LogGoodies'; RequiredVersion = '0.1.1' }
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
 
@@ -91,6 +88,12 @@ function Start-Deployment {
 
         $resourceGroup = $config.resourceGroup | Mount-bsResourceGroup -Location $Location -ResourceGroupName $ResourceGroupName
 
+        # Az.MySql
+        $mySqlServer = $config.mySql | Mount-bsMySqlServer `
+            -ResourceGroup $resourceGroup `
+            -MySqlUsername $MySqlUsername `
+            -MySqlPassword $MySqlPassword
+
         # Az.Storage
         $storageAccount = $config.storageAccount | Mount-bsStorageAccount -ResourceGroup $resourceGroup
 
@@ -104,7 +107,6 @@ function Start-Deployment {
             -ACRPassword $ACRPassword `
             -BranchName $BranchName `
             -Tag $Tag `
-            -MySqlRootPassword $MySqlRootPassword `
             -MySqlUsername $MySqlUsername `
             -MySqlPassword $MySqlPassword
 

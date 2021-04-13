@@ -38,10 +38,6 @@ function Mount-bsWebApp {
     
         [Parameter(Mandatory = $true)]
         [string]
-        $MySqlRootPassword,
-    
-        [Parameter(Mandatory = $true)]
-        [string]
         $MySqlUsername,
     
         [Parameter(Mandatory = $true)]
@@ -73,16 +69,11 @@ function Mount-bsWebApp {
         $waName = "$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)"
         $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName -ErrorAction SilentlyContinue
         if (-not $wa) {
-            # $wa = New-AzWebApp `
-            #     -Location $ResourceGroup.Location `
-            #     -ResourceGroupName $ResourceGroup.ResourceGroupName `
-            #     -Name $waName `
-            #     -AppServicePlan $AppServicePlan.Name
             'az' | Invoke-GooNativeCommand -CommandArgs @(
                 'webapp',
                 'create',
                 '--resource-group', $ResourceGroup.ResourceGroupName,
-                '--plan', $AppServicePlan.Name
+                '--plan', $AppServicePlan.Name,
                 '--name', $waName,
                 '--multicontainer-config-type', 'COMPOSE',
                 '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
@@ -187,6 +178,7 @@ function Mount-bsWebApp {
 
         "$($wa.Name) app settings, connection strings & storage account file share" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
+        'Updating the image tag' | Write-GooLog
         'az' | Invoke-GooNativeCommand -CommandArgs @(
             'webapp',
             'config',
@@ -200,7 +192,9 @@ function Mount-bsWebApp {
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
         ) | Out-Null
+        "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
 
+        "$($WAConfig.DockerCompose.EnableCD ? 'Enabling' : 'Disabling') continous delivery..." | Write-GooLog
         'az' | Invoke-GooNativeCommand -CommandArgs @(
             'webapp',
             'deployment',
@@ -208,10 +202,10 @@ function Mount-bsWebApp {
             'config',
             '--resource-group', $ResourceGroup.ResourceGroupName,
             '--name', $wa.Name,
-            '--enable-cd', 'true'
+            '--enable-cd', $WAConfig.DockerCompose.EnableCD
         ) | Out-Null
+        'Done' | Write-GooLog
 
-        "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
         "Restarting to apply the latest changes" | Write-GooLog
         $wa | Restart-AzWebApp | Out-Null
 

@@ -1,17 +1,5 @@
 version: '3.8'
 services:
-  mysql:
-    image: mysql:8
-    container_name: mysql
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${__dc__MYSQL_ROOT_PASSWORD}
-      - MYSQL_USER=${__dc__MYSQL_USERNAME}
-      - MYSQL_PASSWORD=${__dc__MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${__dc__MYSQL_DATABASE}
-    volumes:
-      - ${__dc__MY_SQL_VOLUME}:/var/lib/mysql
-
   thesisapi:
     image: ${__dc__IMAGE}
     container_name: thesisapi
@@ -19,11 +7,9 @@ services:
     ports:
       # Azure Web App exposes port 80
       - 80:${__dc__SERVER_PORT}
-    depends_on:
-      - mysql
     environment:
       - SERVER_PORT=${__dc__SERVER_PORT}
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${__dc__MYSQL_DATABASE}
+      - SPRING_DATASOURCE_URL=${__dc__MYSQL_CONN_STR}
       - SPRING_DATASOURCE_USERNAME=${__dc__MYSQL_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${__dc__MYSQL_PASSWORD}
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver

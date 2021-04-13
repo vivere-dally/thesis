@@ -21,7 +21,7 @@ function Mount-bsStorageAccount {
             Location          = $ResourceGroup.Location;
             ResourceGroupName = $ResourceGroup.ResourceGroupName;
             Name              = $saName;
-        } + $SAConfig.Property;
+        } + $SAConfig.Property
         $sa = New-AzStorageAccount @params
 
         $sa.StorageAccountName | Write-GooLog -Level CREATE -ForegroundColor Green

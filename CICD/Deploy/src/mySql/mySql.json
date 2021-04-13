@@ -4,11 +4,12 @@
 
   // Properties needed when creating a my sql
   "Property": {
-    "SkuName": "B_Gen5_1",
+    "Sku": "B_Gen5_1",
     "BackupRetentionDay": 7,
-    "GeoRedundantBackup": true,
+    "GeoRedundantBackup": false,
     "MinimalTlsVersion": "TLS1_2",
     "StorageInMb": 5120,
-    "Version": "8.0"
+    "Version": "8.0",
+    "AllowAccessToAzureServices": true
   }
 }

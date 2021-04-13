@@ -38,14 +38,9 @@
           "Expression": null
         },
         {
-          "Name": "${__dc__MYSQL_ROOT_PASSWORD}",
-          "Value": null,
-          "Expression": "$MySqlRootPassword"
-        },
-        {
           "Name": "${__dc__MYSQL_USERNAME}",
           "Value": null,
-          "Expression": "$MySqlUsername"
+          "Expression": "\"${MySqlUsername}@$($MySqlServer.Name)\""
         },
         {
           "Name": "${__dc__MYSQL_PASSWORD}",
@@ -53,11 +48,13 @@
           "Expression": "$MySqlPassword"
         },
         {
-          "Name": "${__dc__MYSQL_DATABASE}",
-          "Value": "thesis",
-          "Expression": null
+          "Name": "${__dc__MYSQL_CONN_STR}",
+          "Value": null,
+          "Expression": "\"jdbc:mysql://$($MySqlServer.Name).mysql.database.azure.com:3306/thesis?useSSL=true\""
         }
-      ]
+      ],
+
+      "EnableCD": true
     },
 
     // Application settings used by our application
@@ -121,7 +118,9 @@
           "Value": "5000",
           "Expression": null
         }
-      ]
+      ],
+
+      "EnableCD": true
     },
 
     // Application settings used by our application
@@ -130,6 +129,16 @@
         "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
         "Value": "1",
         "Expression": null
+      },
+      {
+        "Name": "WEB_API_URL",
+        "Value": null,
+        "Expression": "\"https://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
+      },
+      {
+        "Name": "WEB_API_WS_URL",
+        "Value": null,
+        "Expression": "\"wss://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
       }
     ],
 
