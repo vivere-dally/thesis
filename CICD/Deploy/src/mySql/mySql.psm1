@@ -95,12 +95,14 @@ function Mount-bsMySqlServer {
     }
 
     if ($MSConfig.Property.AllowAccessToAzureServices) {
-        Update-AzMySqlFirewallRule `
+        'Creating firewall rule to allow access to all Azure Services' | Write-GooLog
+        $firewallRule = Update-AzMySqlFirewallRule `
             -ResourceGroupName $ResourceGroup.ResourceGroupName `
             -ServerName $mss.Name `
             -Name 'AllowAccessToAzureServices' `
             -StartIPAddress '0.0.0.0' `
             -EndIPAddress '0.0.0.0'
+        "Firewall Rule $($firewallRule.Name)" | Write-GooLog -Level CREATE -ForegroundColor Green
     }
 
     $MSConfig.Databases | Mount-bsMySqlDatabase -ResourceGroup $ResourceGroup -MySqlServer $mss | Out-Null
@@ -132,14 +134,18 @@ function Mount-bsMySqlDatabase {
     process {
         New-GooLogMessage 'MySql Database Management' -Step | Write-GooLog
 
-        $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
-            'mysql',
-            'db',
-            'show',
-            '--resource-group', $ResourceGroup.ResourceGroupName,
-            '--server-name', $MySqlServer.Name,
-            '--name', $DatabaseConfig.Name
-        ) -ErrorAction SilentlyContinue
+        try {
+            # TODO This prints error when it doesn't exist
+            $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
+                'mysql',
+                'db',
+                'show',
+                '--resource-group', $ResourceGroup.ResourceGroupName,
+                '--server-name', $MySqlServer.Name,
+                '--name', $DatabaseConfig.Name
+            )
+        }
+        catch {}
         if (-not $msd) {
             $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
                 'mysql',
