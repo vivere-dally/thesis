@@ -11,5 +11,14 @@
     "StorageInMb": 5120,
     "Version": "8.0",
     "AllowAccessToAzureServices": true
-  }
+  },
+
+  // Custom databases
+  "Databases": [
+    {
+      "Name": "thesis",
+      "Charset": "utf8mb4",
+      "Collation": "utf8mb4_0900_ai_ci"
+    }
+  ]
 }

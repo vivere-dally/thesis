@@ -21,7 +21,7 @@ function Mount-bsMySqlServer {
         $MySqlPassword
     )
 
-    New-GooLogMessage 'MySqlServer Management' -Step | Write-GooLog
+    New-GooLogMessage 'MySql Server Management' -Step | Write-GooLog
 
     $MySqlSecurePassword = ($MySqlPassword | ConvertTo-SecureString -AsPlainText -Force)
     $__config = @{
@@ -103,8 +103,59 @@ function Mount-bsMySqlServer {
             -EndIPAddress '0.0.0.0'
     }
 
+    $MSConfig.Databases | Mount-bsMySqlDatabase -ResourceGroup $ResourceGroup -MySqlServer $mss | Out-Null
+    "$($MSConfig.Databases.Length) databases" | Write-GooLog -Level MOUNT
+
     $mss.Name | Write-GooLog -Level MOUNT
     New-GooLogMessage -Separator | Write-GooLog
 
     return $mss
+}
+
+function Mount-bsMySqlDatabase {
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
+        [hashtable]
+        $DatabaseConfig,
+
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup]
+        $ResourceGroup,
+
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Azure.PowerShell.Cmdlets.MySql.Models.Api20171201.IServer]
+        $MySqlServer
+    )
+
+    process {
+        New-GooLogMessage 'MySql Database Management' -Step | Write-GooLog
+
+        $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
+            'mysql',
+            'db',
+            'show',
+            '--resource-group', $ResourceGroup.ResourceGroupName,
+            '--server-name', $MySqlServer.Name,
+            '--name', $DatabaseConfig.Name
+        ) -ErrorAction SilentlyContinue
+        if (-not $msd) {
+            $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
+                'mysql',
+                'db',
+                'create',
+                '--resource-group', $ResourceGroup.ResourceGroupName,
+                '--server-name', $MySqlServer.Name,
+                '--name', $DatabaseConfig.Name,
+                '--charset', $DatabaseConfig.Charset,
+                '--collation', $DatabaseConfig.Collation
+            ) | ConvertFrom-Json -AsHashtable
+
+            $msd.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        }
+
+        $msd.Name | Write-GooLog -Level MOUNT
+        New-GooLogMessage -Separator -Length 10 | Write-GooLog
+    }
 }

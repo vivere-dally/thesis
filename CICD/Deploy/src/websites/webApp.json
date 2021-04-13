@@ -50,7 +50,7 @@
         {
           "Name": "${__dc__MYSQL_CONN_STR}",
           "Value": null,
-          "Expression": "\"jdbc:mysql://$($MySqlServer.Name).mysql.database.azure.com:3306/thesis?useSSL=true\""
+          "Expression": "\"jdbc:mysql://$($MySqlServer.Name).mysql.database.azure.com:3306/thesis?useSSL=true&requireSSL=false&serverTimezone=UTC\""
         }
       ],
 

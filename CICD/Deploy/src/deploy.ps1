@@ -108,7 +108,8 @@ function Start-Deployment {
             -BranchName $BranchName `
             -Tag $Tag `
             -MySqlUsername $MySqlUsername `
-            -MySqlPassword $MySqlPassword
+            -MySqlPassword $MySqlPassword `
+            -MySqlServer $mySqlServer
 
         'Deployment succeeded' | Write-GooLog -ForegroundColor Green
     }

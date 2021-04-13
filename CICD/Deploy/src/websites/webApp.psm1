@@ -42,7 +42,11 @@ function Mount-bsWebApp {
     
         [Parameter(Mandatory = $true)]
         [string]
-        $MySqlPassword
+        $MySqlPassword,
+
+        [Parameter(Mandatory = $true)]
+        [Microsoft.Azure.PowerShell.Cmdlets.MySql.Models.Api20171201.IServer]
+        $MySqlServer
     )
 
     process {
