@@ -123,6 +123,36 @@ properties([
                     '''
                 ]
             ]
+        ],
+        [
+            $class: 'DynamicReferenceParameter',
+            choiceType: 'ET_FORMATTED_HTML',
+            name: 'TestParam',
+            omitValueField: true,
+            description: 'Select the tag to be deployed.',
+            script: [
+                $class: 'GroovyScript',
+                fallbackScript: [
+                    classpath: [],
+                    sandbox: false,
+                    script: '''
+                        return """
+                            <label for='value'>Error: The script failed or it is not allowed by Jenkins. Check Script approval from General Settings. Enter the value manually:</label><br>
+                            <input type='text' name='value'>
+                        """
+                    '''
+                ], 
+                script: [
+                    classpath: [],
+                    sandbox: false,
+                    script: '''
+                        String threadName = Thread.currentThread().toString()
+                        return """
+                            <p>${threadName}</p>
+                        """
+                    '''
+                ]
+            ]
         ]
     ])
 ])
