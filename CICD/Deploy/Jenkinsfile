@@ -128,50 +128,54 @@ properties([
 ])
 
 pipeline {
-  agent any
+    agent any
 
-  options {
-    buildDiscarder logRotator(numToKeepStr: '10')
-    skipStagesAfterUnstable()
-  }
-
-  stages {
-    stage('Deploy') {
-      when {
-          triggeredBy cause: 'UserIdCause'
-      }
-
-      steps {
-        withCredentials([
-            string(credentialsId: 'azure_secrets', variable: 'azureSecrets'), 
-            usernamePassword(credentialsId: 'azure_container_registry', passwordVariable: 'acrPassword', usernameVariable: 'acrUsername')
-        ]) {
-          ansiColor('xterm') {
-            pwsh label: 'Deploy to Azure', script: '''
-              $ErrorActionPreference = 'Stop'
-              Set-Item Env:\\SuppressAzurePowerShellBreakingChangeWarnings 'true'
-
-              $params = @{}
-              $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
-
-              ./CICD/Deploy/deploy.ps1 `
-                -SubscriptionId `
-                -TenantId `
-                -ClientId `
-                -ClientSecret `
-                -ResourceGroupName `
-                -Location 'westeurope' `
-                -ACRUsername `
-                -ACRPassword `
-                -BranchName `
-                -Tag `
-                -MySqlRootPassword `
-                -MySqlUsername `
-                -MySqlPassword
-            '''
-          }
-        }
-      }
+    options {
+        buildDiscarder logRotator(numToKeepStr: '10')
+        skipStagesAfterUnstable()
     }
-  }
+
+    stages {
+        stage('Deploy') {
+            when {
+                triggeredBy cause: 'UserIdCause'
+            }
+
+            steps {
+                withCredentials([
+                    string(credentialsId: 'azure_secrets', variable: 'azureSecrets'), 
+                    usernamePassword(credentialsId: 'azure_container_registry', passwordVariable: 'acrPassword', usernameVariable: 'acrUsername'),
+                    usernamePassword(credentialsId: 'azure_my_sql_credentials', passwordVariable: 'mySqlPassword', usernameVariable: 'mySqlUsername')
+                ]) {
+                ansiColor('xterm') {
+                    pwsh label: 'Deploy to Azure', script: '''
+                        $ErrorActionPreference = 'Stop'
+                        Set-Item Env:\\SuppressAzurePowerShellBreakingChangeWarnings 'true'
+
+                        $params = @{}
+                        $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
+
+                        Write-Host $params
+                        Write-Host $env:acrPassword
+                        Write-Host $env:acrUsername
+
+                        #./CICD/Deploy/deploy.ps1 `
+                        #  -SubscriptionId $params.subscriptionId `
+                        #  -TenantId $params.tenantId `
+                        #  -ClientId $params.clientId `
+                        #  -ClientSecret $params.clientSecret `
+                        #  -ResourceGroupName $env:ResourceGroupName `
+                        #  -Location 'westeurope' `
+                        #  -ACRUsername $env:acrUsername `
+                        #  -ACRPassword $env:acrPassword `
+                        #  -BranchName $env:BRANCH_NAME `
+                        #  -Tag $env:Tag `
+                        #  -MySqlUsername $env:mySqlUsername `
+                        #  -MySqlPassword $env:mySqlPassword
+                    '''
+                    }
+                }
+            }
+        }
+    }
 }
