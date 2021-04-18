@@ -2,6 +2,32 @@ properties([
     parameters([
         [
             $class: 'DynamicReferenceParameter',
+            choiceType: 'ET_FORMATTED_HIDDEN_HTML',
+            name: 'BranchName',
+            omitValueField: true,
+            script: [
+                $class: 'GroovyScript',
+                fallbackScript: [
+                    classpath: [],
+                    sandbox: true,
+                    script: '''
+                        return """
+                            <label for='value'>Error: The script failed or it is not allowed by Jenkins. Check Script approval from General Settings. Enter the value manually:</label><br>
+                            <input type='text' name='value'>
+                        """
+                    '''
+                ], 
+                script: [
+                    classpath: [],
+                    sandbox: true,
+                    script: """
+                        return '<input name="value" value="${env.BRANCH_NAME}" type="text">'
+                    """
+                ]
+            ]
+        ],
+        [
+            $class: 'DynamicReferenceParameter',
             choiceType: 'ET_FORMATTED_HTML',
             name: 'ResourceGroupName',
             omitValueField: true,
@@ -78,6 +104,7 @@ properties([
             name: 'Tag',
             omitValueField: true,
             description: 'Select the tag to be deployed.',
+            referenceParameters: 'BranchName',
             script: [
                 $class: 'GroovyScript',
                 fallbackScript: [
@@ -94,7 +121,6 @@ properties([
                     classpath: [],
                     sandbox: false,
                     script: '''
-                        def branchName = (Thread.currentThread().toString() =~ ".+?/job/.+?/job/([^/]+)/.*")[0][1]
                         def jsonSlurper = new groovy.json.JsonSlurper()
                         def acrCred = jenkins.model.Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].credentials.find { it ->
                           it.getId() == 'azure_container_registry'
@@ -105,7 +131,7 @@ properties([
                         
                         def auth = "${acrUsername}:${acrPassword}".bytes.encodeBase64().toString()
                         def tags = ['thesis', 'thesisapi'].collect { name ->
-                            def req = (HttpURLConnection) new URL("https://${acrUsername}.azurecr.io/acr/v1/${branchName}/${name}/_tags").openConnection()
+                            def req = (HttpURLConnection) new URL("https://${acrUsername}.azurecr.io/acr/v1/${BranchName}/${name}/_tags").openConnection()
                             req.setRequestProperty('Authorization', "Basic ${auth}")
                             def result = jsonSlurper.parseText(req.inputStream.text)
                             result.tags.sort { a, b -> b.createdTime <=> a.createdTime }.collect { it.name }
@@ -120,36 +146,6 @@ properties([
                         html += "</select>"
 
                         return html
-                    '''
-                ]
-            ]
-        ],
-        [
-            $class: 'DynamicReferenceParameter',
-            choiceType: 'ET_FORMATTED_HTML',
-            name: 'TestParam',
-            omitValueField: true,
-            description: 'Select the tag to be deployed.',
-            script: [
-                $class: 'GroovyScript',
-                fallbackScript: [
-                    classpath: [],
-                    sandbox: false,
-                    script: '''
-                        return """
-                            <label for='value'>Error: The script failed or it is not allowed by Jenkins. Check Script approval from General Settings. Enter the value manually:</label><br>
-                            <input type='text' name='value'>
-                        """
-                    '''
-                ], 
-                script: [
-                    classpath: [],
-                    sandbox: false,
-                    script: '''
-                        String threadName = Thread.currentThread().toString()
-                        return """
-                            <p>${threadName}</p>
-                        """
                     '''
                 ]
             ]
