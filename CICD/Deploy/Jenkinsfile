@@ -181,7 +181,7 @@ pipeline {
                         $params = @{}
                         $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
 
-                        ./CICD/Deploy/deploy.ps1 `
+                        ./CICD/Deploy/src/deploy.ps1 `
                             -SubscriptionId $params.subscriptionId `
                             -TenantId $params.tenantId `
                             -ClientId $params.clientId `
