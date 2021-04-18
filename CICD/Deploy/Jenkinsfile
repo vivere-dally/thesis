@@ -104,7 +104,7 @@ properties([
             name: 'Tag',
             omitValueField: true,
             description: 'Select the tag to be deployed.',
-            referenceParameters: 'BranchName',
+            referencedParameters: 'BranchName',
             script: [
                 $class: 'GroovyScript',
                 fallbackScript: [
@@ -138,7 +138,7 @@ properties([
                         }
                         
                         tags = tags[0].intersect(tags[1])
-                        def html = "<select>"
+                        def html = "<select name='value'>"
                         tags.forEach { tagName ->
                             html += "<option value='${tagName}'>${tagName}</option>"
                         }
@@ -181,23 +181,19 @@ pipeline {
                         $params = @{}
                         $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
 
-                        Write-Host $params
-                        Write-Host $env:acrPassword
-                        Write-Host $env:acrUsername
-
-                        #./CICD/Deploy/deploy.ps1 `
-                        #  -SubscriptionId $params.subscriptionId `
-                        #  -TenantId $params.tenantId `
-                        #  -ClientId $params.clientId `
-                        #  -ClientSecret $params.clientSecret `
-                        #  -ResourceGroupName $env:ResourceGroupName `
-                        #  -Location 'westeurope' `
-                        #  -ACRUsername $env:acrUsername `
-                        #  -ACRPassword $env:acrPassword `
-                        #  -BranchName $env:BRANCH_NAME `
-                        #  -Tag $env:Tag `
-                        #  -MySqlUsername $env:mySqlUsername `
-                        #  -MySqlPassword $env:mySqlPassword
+                        ./CICD/Deploy/deploy.ps1 `
+                            -SubscriptionId $params.subscriptionId `
+                            -TenantId $params.tenantId `
+                            -ClientId $params.clientId `
+                            -ClientSecret $params.clientSecret `
+                            -ResourceGroupName $env:ResourceGroupName `
+                            -Location 'westeurope' `
+                            -ACRUsername $env:acrUsername `
+                            -ACRPassword $env:acrPassword `
+                            -BranchName $env:BRANCH_NAME `
+                            -Tag $env:Tag `
+                            -MySqlUsername $env:mySqlUsername `
+                            -MySqlPassword $env:mySqlPassword
                     '''
                     }
                 }
