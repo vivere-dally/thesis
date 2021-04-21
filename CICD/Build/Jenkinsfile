@@ -102,7 +102,7 @@ ProjectVersion: ${env.ProjectVersion}"""
             archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
         }
 
-        always {
+        cleanup {
             deleteDir()
         }
     }
