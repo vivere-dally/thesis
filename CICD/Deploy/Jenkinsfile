@@ -205,5 +205,9 @@ pipeline {
         always {
             deleteDir()
         }
+
+        success {
+            archiveArtifacts artifacts: "CICD/Deploy/src/*.log", fingerprint: true
+        }
     }
 }
