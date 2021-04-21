@@ -1,0 +1,9 @@
+{
+  // Properties needed when creating a resource group
+  "Property": {
+    "Tag": {
+      "DeploymentType": "PowerShell w/ Az",
+      "Az": "5.7.0"
+    }
+  }
+}

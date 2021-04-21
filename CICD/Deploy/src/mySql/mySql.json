@@ -1,0 +1,24 @@
+{
+  // Suffix added to the resource group name
+  "Suffix": "mysql",
+
+  // Properties needed when creating a my sql
+  "Property": {
+    "Sku": "B_Gen5_1",
+    "BackupRetentionDay": 7,
+    "GeoRedundantBackup": false,
+    "MinimalTlsVersion": "TLS1_2",
+    "StorageInMb": 5120,
+    "Version": "8.0",
+    "AllowAccessToAzureServices": true
+  },
+
+  // Custom databases
+  "Databases": [
+    {
+      "Name": "thesis",
+      "Charset": "utf8mb4",
+      "Collation": "utf8mb4_0900_ai_ci"
+    }
+  ]
+}
