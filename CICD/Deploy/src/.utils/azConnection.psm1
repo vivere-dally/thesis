@@ -22,7 +22,7 @@ function Connect-bsAzAccount {
     $credential = [System.Management.Automation.PSCredential]::new($ClientId, $ClientSecret)
     $contextName = (New-Guid).Guid.ToString()
     $result = Connect-AzAccount -SubscriptionId $SubscriptionId -TenantId $TenantId -Credential $credential -ContextName $contextName -Scope Process -ServicePrincipal
-    "User $($result.Context.Account.Id) connected to the subscription $($result.Context.Subscription.Name) - $($result.Context.Subscription.Id)" | Write-GooLog -ForegroundColor Blue
+    "User $($result.Context.Account.Id) connected to the subscription $($result.Context.Subscription.Name) - $($result.Context.Subscription.Id)" | Write-GooLog -ForegroundColor DarkBlue
     return $contextName
 }
 
@@ -35,7 +35,7 @@ function Disconnect-bsAzAccount {
     )
 
     $result = Disconnect-AzAccount -ContextName $ContextName
-    "User $($result.Id) disconnected" | Write-GooLog -ForegroundColor Blue
+    "User $($result.Id) disconnected" | Write-GooLog -ForegroundColor DarkBlue
 }
 
 function Connect-bsAzCLIAccount {
@@ -68,7 +68,7 @@ function Connect-bsAzCLIAccount {
     ) | ConvertFrom-Json -AsHashtable | Select-Object -First 1
 
     'az' | Invoke-GooNativeCommand -CommandArgs @('account', 'set', '-s', $SubscriptionId)
-    "User $($result.user.name) connected to the subscription $($result.name) via az cli" | Write-GooLog -ForegroundColor Blue
+    "User $($result.user.name) connected to the subscription $($result.name) via az cli" | Write-GooLog -ForegroundColor DarkBlue
 }
 
 function Disconnect-bsAzCLIAccount {
@@ -80,5 +80,5 @@ function Disconnect-bsAzCLIAccount {
     )
 
     'az' | Invoke-GooNativeCommand -CommandArgs @('logout', '--username', $ClientId)
-    "User $($ClientId) disconnected via az cli" | Write-GooLog -ForegroundColor Blue
+    "User $($ClientId) disconnected via az cli" | Write-GooLog -ForegroundColor DarkBlue
 }

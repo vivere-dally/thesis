@@ -48,7 +48,7 @@ function Mount-bsMySqlServer {
 
         $mss = New-AzMySqlServer @params
 
-        $mss.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        $mss.Name | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
     }
     else {
         "Fetched $($mss.Name). Verifying properties..." | Write-GooLog
@@ -87,8 +87,8 @@ function Mount-bsMySqlServer {
 
             $updatedMss = Update-AzMySqlServer @params
 
-            $updatedMss.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-            Format-bsAzResourceUpdate $mss $updatedMss | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            $updatedMss.Name | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
+            Format-bsAzResourceUpdate $mss $updatedMss | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
             $mss = $updatedMss
         }
@@ -102,7 +102,7 @@ function Mount-bsMySqlServer {
             -Name 'AllowAccessToAzureServices' `
             -StartIPAddress '0.0.0.0' `
             -EndIPAddress '0.0.0.0'
-        "Firewall Rule $($firewallRule.Name)" | Write-GooLog -Level CREATE -ForegroundColor Green
+        "Firewall Rule $($firewallRule.Name)" | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
     }
 
     $MSConfig.Databases | Mount-bsMySqlDatabase -ResourceGroup $ResourceGroup -MySqlServer $mss | Out-Null
@@ -134,18 +134,15 @@ function Mount-bsMySqlDatabase {
     process {
         New-GooLogMessage 'MySql Database Management' -Step | Write-GooLog
 
-        try {
-            # TODO This prints error when it doesn't exist
-            $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
-                'mysql',
-                'db',
-                'show',
-                '--resource-group', $ResourceGroup.ResourceGroupName,
-                '--server-name', $MySqlServer.Name,
-                '--name', $DatabaseConfig.Name
-            )
-        }
-        catch {}
+        # TODO This prints error when it doesn't exist
+        $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
+            'mysql',
+            'db',
+            'show',
+            '--resource-group', $ResourceGroup.ResourceGroupName,
+            '--server-name', $MySqlServer.Name,
+            '--name', $DatabaseConfig.Name
+        ) -ErrorAction SilentlyContinue 2>$null
         if (-not $msd) {
             $msd = 'az' | Invoke-GooNativeCommand -CommandArgs @(
                 'mysql',
@@ -158,10 +155,13 @@ function Mount-bsMySqlDatabase {
                 '--collation', $DatabaseConfig.Collation
             ) | ConvertFrom-Json -AsHashtable
 
-            $msd.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+            $msd.name | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
+        }
+        else {
+            $msd = $msd | ConvertFrom-Json -AsHashtable
         }
 
-        $msd.Name | Write-GooLog -Level MOUNT
+        $msd.name | Write-GooLog -Level MOUNT
         New-GooLogMessage -Separator -Length 10 | Write-GooLog
     }
 }

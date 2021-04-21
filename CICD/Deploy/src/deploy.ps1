@@ -62,7 +62,7 @@ $Global:GooLogAnsiPreference = 'Set'
 #Requires -Module @{ ModuleName = 'Az'; RequiredVersion = '5.7.0' }
 #Requires -Module @{ ModuleName = 'Az.MySql'; RequiredVersion = '0.6.0' }
 #Requires -Module @{ ModuleName = 'LogGoodies'; RequiredVersion = '0.1.1' }
-#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
 
 Import-Module -Name (Get-ChildItem -Path $PSScriptRoot -Filter '*.psm1' -Recurse | Select-Object -ExpandProperty FullName) -Global -Force
 $config = Get-ChildItem -Path $PSScriptRoot -Filter '*.json' -Recurse | ForEach-Object { @{$_.BaseName = Get-Content -Path $_.FullName | ConvertFrom-Json -AsHashtable } }
@@ -111,12 +111,12 @@ function Start-Deployment {
             -MySqlPassword $MySqlPassword `
             -MySqlServer $mySqlServer
 
-        'Deployment succeeded' | Write-GooLog -ForegroundColor Green
+        'Deployment succeeded' | Write-GooLog -ForegroundColor DarkGreen
     }
     catch {
         $_
-        $_.FullyQualifiedErrorId | Write-GooLog -Level ERROR -ForegroundColor Red
-        $_.ScriptStackTrace | Write-GooLog -Level ERROR -ForegroundColor Red
+        $_.FullyQualifiedErrorId | Write-GooLog -Level ERROR -ForegroundColor DarkRed
+        $_.ScriptStackTrace | Write-GooLog -Level ERROR -ForegroundColor DarkRed
     }
     finally {
         if ($contextName) {

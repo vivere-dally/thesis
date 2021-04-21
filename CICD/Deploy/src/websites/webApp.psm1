@@ -84,7 +84,7 @@ function Mount-bsWebApp {
             ) | Out-Null
             $wa = Get-AzWebApp -ResourceGroupName $ResourceGroup.ResourceGroupName -Name $waName
 
-            $wa.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+            $wa.Name | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
         }
 
         "Fetched $($wa.Name). Verifying properties..." | Write-GooLog
@@ -130,8 +130,8 @@ function Mount-bsWebApp {
         if ($shouldUpdate) {
             $wa = $wa | Set-AzWebApp
 
-            $wa.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-            Format-bsAzResourceUpdate $oldWa $wa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            $wa.Name | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
+            Format-bsAzResourceUpdate $oldWa $wa | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
         }
 
         'Configuring app settings...' | Write-GooLog
@@ -180,7 +180,7 @@ function Mount-bsWebApp {
 
         $wa = Set-AzWebApp @params
 
-        "$($wa.Name) app settings, connection strings & storage account file share" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        "$($wa.Name) app settings, connection strings & storage account file share" | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
         'Updating the image tag' | Write-GooLog
         'az' | Invoke-GooNativeCommand -CommandArgs @(
@@ -196,7 +196,7 @@ function Mount-bsWebApp {
             '--multicontainer-config-type', 'COMPOSE',
             '--multicontainer-config-file', ("$PSScriptRoot$($WAConfig.DockerCompose.Path)" | Resolve-Path).Path
         ) | Out-Null
-        "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        "$($wa.Name) image tag to $Tag" | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
         "$($WAConfig.DockerCompose.EnableCD ? 'Enabling' : 'Disabling') continous delivery..." | Write-GooLog
         'az' | Invoke-GooNativeCommand -CommandArgs @(

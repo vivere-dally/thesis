@@ -24,7 +24,7 @@ function Mount-bsAppServicePlan {
         } + $ASPConfig.Property;
         $asp = New-AzAppServicePlan @params
 
-        $asp.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+        $asp.Name | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
     }
     else {
         "Fetched $($asp.Name). Verifying properties..." | Write-GooLog
@@ -58,8 +58,8 @@ function Mount-bsAppServicePlan {
 
             $updatedAsp = Set-AzWebApp @params
 
-            $updatedAsp.Name | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-            Format-bsAzResourceUpdate $asp $updatedAsp | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            $updatedAsp.Name | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
+            Format-bsAzResourceUpdate $asp $updatedAsp | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
             $asp = $updatedAsp
         }

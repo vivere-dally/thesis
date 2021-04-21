@@ -22,15 +22,15 @@ function Mount-bsResourceGroup {
     if (-not $resourceGroup) {
         $resourceGroup = New-AzResourceGroup -Location $Location -Name $ResourceGroupName -Tag $RGConfig.Property.Tag
 
-        $resourceGroup.ResourceGroupName | Write-GooLog -Level CREATE -ForegroundColor Green
+        $resourceGroup.ResourceGroupName | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
     }
     else {
         "Fetched $($resourceGroup.ResourceGroupName). Verifying properties..." | Write-GooLog
 
         $updateResourceGroup = Set-AzResourceGroup -Name $ResourceGroupName -Tag $RGConfig.Property.Tag
 
-        $updateResourceGroup.ResourceGroupName | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-        Format-bsAzResourceUpdate $resourceGroup $updateResourceGroup -Ignore TagsTable | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+        $updateResourceGroup.ResourceGroupName | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
+        Format-bsAzResourceUpdate $resourceGroup $updateResourceGroup -Ignore TagsTable | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
         $resourceGroup = $updateResourceGroup
     }

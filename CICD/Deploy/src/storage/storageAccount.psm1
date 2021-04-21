@@ -24,7 +24,7 @@ function Mount-bsStorageAccount {
         } + $SAConfig.Property
         $sa = New-AzStorageAccount @params
 
-        $sa.StorageAccountName | Write-GooLog -Level CREATE -ForegroundColor Green
+        $sa.StorageAccountName | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
     }
     else {
         "Fetched $($sa.StorageAccountName). Verifying properties..." | Write-GooLog
@@ -54,8 +54,8 @@ function Mount-bsStorageAccount {
 
             $updatedSa = Set-AzStorageAccount @params
 
-            $updatedSa.StorageAccountName | Write-GooLog -Level UPDATE -ForegroundColor Yellow
-            Format-bsAzResourceUpdate $sa $updatedSa | Write-GooLog -Level UPDATE -ForegroundColor Yellow
+            $updatedSa.StorageAccountName | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
+            Format-bsAzResourceUpdate $sa $updatedSa | Write-GooLog -Level UPDATE -ForegroundColor DarkYellow
 
             $sa = $updatedSa
         }
@@ -90,7 +90,7 @@ function Mount-bsStorageAccountShare {
         if (-not $share) {
             $share = $StorageAccount.Context | New-AzStorageShare -Name $ShareConfig.Name
 
-            $share.Name | Write-GooLog -Level CREATE -ForegroundColor Green
+            $share.Name | Write-GooLog -Level CREATE -ForegroundColor DarkGreen
         }
         else {
             "Fetched $($share.Name). Verifying properties..." | Write-GooLog

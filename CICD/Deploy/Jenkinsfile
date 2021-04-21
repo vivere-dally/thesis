@@ -200,4 +200,10 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            deleteDir()
+        }
+    }
 }
