@@ -197,6 +197,8 @@ pipeline {
                     '''
                     }
                 }
+
+                archiveArtifacts artifacts: "CICD/Deploy/src/*.log", fingerprint: true
             }
         }
     }
@@ -204,10 +206,6 @@ pipeline {
     post {
         always {
             deleteDir()
-        }
-
-        success {
-            archiveArtifacts artifacts: "CICD/Deploy/src/*.log", fingerprint: true
         }
     }
 }

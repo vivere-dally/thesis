@@ -97,13 +97,13 @@ ProjectVersion: ${env.ProjectVersion}"""
     }
 
     post {
-        always {
-            deleteDir()
-        }
-
         success {
             archiveArtifacts artifacts: "Server/thesis/target/*.jar", fingerprint: true
             archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
+        }
+
+        always {
+            deleteDir()
         }
     }
 }
