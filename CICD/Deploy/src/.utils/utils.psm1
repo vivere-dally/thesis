@@ -1,4 +1,23 @@
 
+Set-Variable `
+    -Name 'PropertyWidth' `
+    -Scope Script `
+    -Option Constant `
+    -Value ([int][Math]::Floor(((Get-Host).ui.RawUI.WindowSize.Width - 4) / 3))
+
+Set-Variable `
+    -Name 'PropertyFormat' `
+    -Scope Script `
+    -Option Constant `
+    -Value (
+    @(
+        @{ Expression = 'Property'; Width = $Script:PropertyWidth; },
+        @{ Expression = '-|'; Width = 2; },
+        @{ Expression = 'OldValue'; Width = $Script:PropertyWidth; },
+        @{ Expression = '|-'; Width = 2; },
+        @{ Expression = 'NewValue'; Width = $Script:PropertyWidth; }
+    ))
+
 function Format-bsAzResourceUpdate {
     [CmdletBinding()]
     [OutputType([string])]
@@ -33,5 +52,5 @@ function Format-bsAzResourceUpdate {
         }
     }
 
-    return $output | Format-Table -AutoSize -Wrap | Out-String
+    return $output | Format-Table -Property $Script:PropertyFormat -Wrap | Out-String
 }
