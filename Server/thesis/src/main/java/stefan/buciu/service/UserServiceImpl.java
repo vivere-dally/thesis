@@ -14,9 +14,8 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository, @Value("${test.test2}") String test) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        System.out.println(test);
     }
 
     @Override
