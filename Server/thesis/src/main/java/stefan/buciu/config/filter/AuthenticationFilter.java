@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import stefan.buciu.domain.model.SecurityUser;
 import stefan.buciu.domain.model.dto.UserLoginDTO;
-import stefan.buciu.environment.SecurityConstants;
+import stefan.buciu.environment.AppSettings;
 import stefan.buciu.service.UserService;
 
 import javax.servlet.FilterChain;
@@ -33,20 +33,23 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final AppSettings appSettings;
 
     public AuthenticationFilter(@Qualifier("authenticationManagerBean") AuthenticationManager authenticationManager,
-                                UserService userService) {
+                                UserService userService,
+                                AppSettings appSettings) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.appSettings = appSettings;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            String refreshToken = request.getHeader(SecurityConstants.REFRESH_TOKEN_HEADER);
+            String refreshToken = request.getHeader(appSettings.getSecurityRefreshTokenHeaderName());
             if (refreshToken != null) {
                 Claims claims = Jwts.parser()
-                        .setSigningKey(Keys.hmacShaKeyFor(SecurityConstants.KEY.getBytes()))
+                        .setSigningKey(Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes()))
                         .parseClaimsJws(refreshToken)
                         .getBody();
                 if (claims != null) {
@@ -78,28 +81,28 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-        Key key = Keys.hmacShaKeyFor(SecurityConstants.KEY.getBytes());
+        Key key = Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes());
 
         SecurityUser securityUser = (SecurityUser) authResult.getPrincipal();
 
         Claims accessTokenClaims = Jwts.claims().setSubject(securityUser.getUsername());
         accessTokenClaims.put("authorities", securityUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray());
-        Date accessTokenExpirationDate = new Date(System.currentTimeMillis() + SecurityConstants.ACCESS_TOKEN_EXPIRATION_TIME);
+        Date accessTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityAccessTokenExpirationTimeInMilliseconds());
         String accessToken = getToken(accessTokenClaims, key, accessTokenExpirationDate);
 
         Claims refreshTokenClaims = Jwts.claims().setSubject(securityUser.getUsername());
-        Date refreshTokenExpirationDate = new Date(System.currentTimeMillis() + SecurityConstants.REFRESH_TOKEN_EXPIRATION_TIME);
+        Date refreshTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityRefreshTokenExpirationTimeInMilliseconds());
         String refreshToken = getToken(refreshTokenClaims, key, refreshTokenExpirationDate);
 
-        response.setHeader(SecurityConstants.ACCESS_TOKEN_TYPE_HEADER, SecurityConstants.ACCESS_TOKEN_TYPE_HEADER_VALUE);
-        response.setHeader(SecurityConstants.ACCESS_TOKEN_HEADER, accessToken);
-        response.setHeader(SecurityConstants.REFRESH_TOKEN_HEADER, refreshToken);
+        response.setHeader(appSettings.getSecurityAccessTokenTypeHeaderName(), appSettings.getSecurityAccessTokenTypeHeaderValue());
+        response.setHeader(appSettings.getSecurityAccessTokenHeaderName(), accessToken);
+        response.setHeader(appSettings.getSecurityRefreshTokenHeaderName(), refreshToken);
 
         response.setHeader("Access-Control-Expose-Headers",
                 String.join(",",
-                        SecurityConstants.ACCESS_TOKEN_TYPE_HEADER,
-                        SecurityConstants.ACCESS_TOKEN_HEADER,
-                        SecurityConstants.REFRESH_TOKEN_HEADER));
+                        appSettings.getSecurityAccessTokenTypeHeaderName(),
+                        appSettings.getSecurityAccessTokenHeaderName(),
+                        appSettings.getSecurityRefreshTokenHeaderName()));
 
         request.setAttribute("username", securityUser.getUsername()); // Used in UserController @ login method to find the user by username.
 
