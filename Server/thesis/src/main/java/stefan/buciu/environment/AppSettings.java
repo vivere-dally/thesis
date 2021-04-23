@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import java.util.Map;
-
 @Configuration
 @PropertySource(value = "classpath:/dev.appSettings.properties")
 @Getter
