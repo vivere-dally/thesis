@@ -63,6 +63,46 @@
         "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
         "Value": "1",
         "Expression": null
+      },
+      {
+        "Name": "SECURITY_KEY",
+        "Value": null,
+        "Expression": "(New-Guid).Guid.ToString()"
+      },
+      {
+        "Name": "SECURITY_REQUIRED_AUTHORIZATION_HEADER",
+        "Value": "Authorization",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_ACCESS_TOKEN_TYPE_HEADER_NAME",
+        "Value": "tokenType",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_ACCESS_TOKEN_TYPE_HEADER_VALUE",
+        "Value": "Bearer",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_ACCESS_TOKEN_HEADER_NAME",
+        "Value": "accessToken",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_ACCESS_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Value": "300000",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_REFRESH_TOKEN_HEADER_NAME",
+        "Value": "refreshToken",
+        "Expression": null
+      },
+      {
+        "Name": "SECURITY_REFRESH_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Value": "900000",
+        "Expression": null
       }
     ],
 
