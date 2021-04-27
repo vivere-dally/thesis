@@ -1,6 +1,5 @@
 package stefan.buciu.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import stefan.buciu.domain.exception.UserAlreadyExistsException;
 import stefan.buciu.domain.model.User;
@@ -12,6 +11,7 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
