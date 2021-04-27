@@ -15,6 +15,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import stefan.buciu.config.filter.AuthenticationFilter;
 import stefan.buciu.config.filter.AuthorizationFilter;
+import stefan.buciu.environment.AppSettings;
 import stefan.buciu.service.SecurityUserService;
 import stefan.buciu.service.UserService;
 
@@ -26,10 +27,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final SecurityUserService securityUserService;
     private final UserService userService;
+    private final AppSettings appSettings;
 
-    public WebSecurityConfig(SecurityUserService securityUserService, UserService userService) {
+    public WebSecurityConfig(SecurityUserService securityUserService, UserService userService, AppSettings appSettings) {
         this.securityUserService = securityUserService;
         this.userService = userService;
+        this.appSettings = appSettings;
     }
 
     @Bean
@@ -53,8 +56,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .cors()
                 .and()
-                .addFilter(new AuthenticationFilter(authenticationManager(), userService))
-                .addFilter(new AuthorizationFilter(authenticationManager()))
+                .addFilter(new AuthenticationFilter(authenticationManager(), userService, appSettings))
+                .addFilter(new AuthorizationFilter(authenticationManager(), appSettings))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

@@ -5,7 +5,7 @@ param ()
 #Requires -RunAsAdministrator
 #Requires -Version 7.1.3
 #Requires -PSEdition Core
-#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.2' }
+#Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
 
 $ErrorActionPreference = 'Stop'
 

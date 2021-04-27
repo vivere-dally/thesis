@@ -10,10 +10,18 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import stefan.buciu.environment.AppDetails;
 
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
+
+    private final AppDetails appDetails;
+
+    public SwaggerConfig(AppDetails appDetails) {
+        this.appDetails = appDetails;
+    }
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -25,16 +33,11 @@ public class SwaggerConfig {
     }
 
     private ApiInfo getApiInfo() {
-        /* TODO
-            - In the title specify the name of the thesis
-            - Find a description
-            - Find a way to inject the version from some Configuration (should come from Jenkins)
-         */
         return new ApiInfoBuilder()
-                .title("TODO API")
-                .description("Stefan Buciu Thesis TODO")
-                .version("1.0.0.0")
-                .contact(new Contact("Stefan Buciu", "https://github.com/vivere-dally/thesis", "stefanbuciujr@gmail.com"))
+                .title(appDetails.getProjectArtifactId())
+                .description(appDetails.getProjectDescription())
+                .version(appDetails.getProjectVersion())
+                .contact(new Contact(appDetails.getProjectOwner(), appDetails.getProjectUrl(), appDetails.getProjectOwnerEmail()))
                 .build();
     }
 }

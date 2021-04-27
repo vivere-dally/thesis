@@ -74,13 +74,6 @@ ProjectVersion: ${env.ProjectVersion}"""
             }
         }
 
-        stage('Artifacts') {
-            steps {
-                archiveArtifacts artifacts: "Server/thesis/target/*.jar", fingerprint: true
-                archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
-            }
-        }
-
         stage('Tag') {
             when {
                 expression {
@@ -100,6 +93,17 @@ ProjectVersion: ${env.ProjectVersion}"""
                     currentBuild.keepLog = true
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: "Server/thesis/target/*.jar", fingerprint: true
+            archiveArtifacts artifacts: "Client/thesis/*.zip", fingerprint: true
+        }
+
+        cleanup {
+            deleteDir()
         }
     }
 }

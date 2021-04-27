@@ -9,7 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import stefan.buciu.environment.SecurityConstants;
+import stefan.buciu.environment.AppSettings;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,19 +19,22 @@ import java.io.IOException;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager) {
+    private final AppSettings appSettings;
+
+    public AuthorizationFilter(AuthenticationManager authenticationManager, AppSettings appSettings) {
         super(authenticationManager);
+        this.appSettings = appSettings;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
-        String authorizationToken = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER);
+        String authorizationToken = request.getHeader(appSettings.getSecurityRequiredAuthorizationHeader());
         if (authorizationToken != null) {
             try {
                 Claims claims = Jwts.parser()
-                        .setSigningKey(Keys.hmacShaKeyFor(SecurityConstants.KEY.getBytes()))
+                        .setSigningKey(Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes()))
                         .parseClaimsJws(authorizationToken)
                         .getBody();
 
