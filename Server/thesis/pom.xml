@@ -6,7 +6,7 @@
 
     <groupId>stefan.buciu</groupId>
     <artifactId>thesis</artifactId>
-    <version>0.3.0-alpha</version>
+    <version>0.4.0-alpha</version>
     <description>Server side of the thesis.</description>
     <properties>
         <java.version>11</java.version>
