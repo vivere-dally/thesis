@@ -27,3 +27,5 @@ reportWebVitals();
 if (['development', 'test'].includes(process.env.NODE_ENV)) {
   // LOAD CONFIG
 }
+
+console.log(process.env)
