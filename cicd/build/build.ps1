@@ -53,7 +53,7 @@ try {
 
     # Build Client
     'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build') -Verbose
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
 
     # Zip Client's Artifacts
     Compress-Archive -Path ".\build\*" -DestinationPath ".\client-$ProjectVersion.zip" -CompressionLevel Fastest -Force
