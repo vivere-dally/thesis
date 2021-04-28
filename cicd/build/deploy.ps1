@@ -27,8 +27,8 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:BEPath = ("$PSScriptRoot/../../backend/thesis" | Resolve-Path).Path
-$Private:FEPath = ("$PSScriptRoot/../../frontend" | Resolve-Path).Path
+$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
+$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
 
 try {
     if (-not ($ProjectVersion | Test-GooSemVer)) {
@@ -40,15 +40,15 @@ try {
     'docker' | Invoke-GooNativeCommand -CommandArgs @('login', "$ACRUsername.azurecr.io", '-u', $ACRUsername, '-p', $ACRPassword)
 
     # Docker Build backend image
-    Set-Location -Path $Private:BEPath
-    $tag = "$ACRUsername.azurecr.io/$BranchName/thesisapi:$ProjectVersion"
+    Set-Location -Path $Private:ServerPath
+    $tag = "$ACRUsername.azurecr.io/$BranchName/server:$ProjectVersion"
     'docker' | Invoke-GooNativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
     'docker' | Invoke-GooNativeCommand -CommandArgs @('push', $tag)
     'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $tag)
 
     # Docker Build frontend image
-    Set-Location -Path $Private:FEPath
-    $tag = "$ACRUsername.azurecr.io/$BranchName/thesis:$ProjectVersion"
+    Set-Location -Path $Private:ClientPath
+    $tag = "$ACRUsername.azurecr.io/$BranchName/client:$ProjectVersion"
     'docker' | Invoke-GooNativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
     'docker' | Invoke-GooNativeCommand -CommandArgs @('push', $tag)
     'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $tag)

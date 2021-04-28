@@ -19,21 +19,21 @@ param (
 $ErrorActionPreference = 'Stop'
 
 $Private:CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
-$Private:BEPath = ("$PSScriptRoot/../../backend/thesis" | Resolve-Path).Path
-$Private:FEPath = ("$PSScriptRoot/../../frontend" | Resolve-Path).Path
+$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
+$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
 
 try {
-    Set-Location -Path $Private:BEPath
-    # Update Backend's Version
+    Set-Location -Path $Private:ServerPath
+    # Update Server's Version
     if ($ProjectVersion) {
         'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
     }
 
-    # Build Backend
+    # Build Server
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package') -Verbose
 
-    Set-Location $Private:FEPath
-    # Update Frontend's Version
+    Set-Location $Private:ClientPath
+    # Update Client's Version
     if ($ProjectVersion) {
         @('.\package.json', '.\package-lock.json') | ForEach-Object {
             $content = Get-Content -Path $_ | ConvertFrom-Json
@@ -51,12 +51,12 @@ try {
         'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Private:CommonNpmModulesPath)
     }
 
-    # Build Frontend
+    # Build Client
     'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
     'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build') -Verbose
 
-    # Zip Frontend's Artifacts
-    Compress-Archive -Path ".\build\*" -DestinationPath ".\thesis-$ProjectVersion.zip" -CompressionLevel Fastest -Force
+    # Zip Client's Artifacts
+    Compress-Archive -Path ".\build\*" -DestinationPath ".\client-$ProjectVersion.zip" -CompressionLevel Fastest -Force
     exit 0
 }
 catch {

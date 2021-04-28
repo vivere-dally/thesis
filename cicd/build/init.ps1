@@ -26,10 +26,10 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:FEPath = ("$PSScriptRoot/../../frontend" | Resolve-Path).Path
+$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
 
 try {
-    Set-Location $Private:FEPath
+    Set-Location $Private:ClientPath
     # Get the Project Version from package.json
     $ProjectVersion = (Get-Content '.\package.json' | ConvertFrom-Json).version
     if (-not ($ProjectVersion | Test-GooSemVer)) {
@@ -45,10 +45,10 @@ try {
     # Increment based on prerelease
     if ($Prerelease) {
         $projectVersionPrerelease = ($ProjectVersion | ConvertFrom-GooSemVer).prerelease
-        $newProjectVersionPrerelease = ($NewProjectVersion | ConvertFrom-GooSemVer).prerelease 
+        $newProjectVersionPrerelease = ($NewProjectVersion | ConvertFrom-GooSemVer).prerelease
         if (
             $projectVersionPrerelease -and
-            $newProjectVersionPrerelease -and 
+            $newProjectVersionPrerelease -and
             $Prerelease -eq ($projectVersionPrerelease.split('.')[0]) -and
             $Prerelease -eq ($newProjectVersionPrerelease.split('.')[0])
         ) {

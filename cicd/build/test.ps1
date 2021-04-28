@@ -9,16 +9,16 @@ param ()
 
 $ErrorActionPreference = 'Stop'
 
-$Private:BEPath = ("$PSScriptRoot/../../backend/thesis" | Resolve-Path).Path
-$Private:FEPath = ("$PSScriptRoot/../../frontend" | Resolve-Path).Path
+$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
+$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
 
 try {
-    Set-Location -Path $Private:BEPath
+    Set-Location -Path $Private:ServerPath
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
 
-    Set-Location -Path $Private:FEPath
+    Set-Location -Path $Private:ClientPath
     # TODO npm tests
-    
+
     exit 0
 }
 catch {

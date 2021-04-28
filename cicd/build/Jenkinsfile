@@ -57,7 +57,7 @@ ProjectVersion: ${env.ProjectVersion}"""
 
             post {
                 always {
-                    junit "backend/thesis/target/surefire-reports/*.xml"
+                    junit "backend/server/target/surefire-reports/*.xml"
                 }
             }
         }
@@ -98,8 +98,8 @@ ProjectVersion: ${env.ProjectVersion}"""
 
     post {
         success {
-            archiveArtifacts artifacts: "backend/thesis/target/*.jar", fingerprint: true
-            archiveArtifacts artifacts: "frontend/*.zip", fingerprint: true
+            archiveArtifacts artifacts: "backend/server/target/*.jar", fingerprint: true
+            archiveArtifacts artifacts: "frontend/client/*.zip", fingerprint: true
         }
 
         cleanup {

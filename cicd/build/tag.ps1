@@ -17,8 +17,8 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:BEPath = ("$PSScriptRoot/../../backend/thesis" | Resolve-Path).Path
-$Private:FEPath = ("$PSScriptRoot/../../frontend" | Resolve-Path).Path
+$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
+$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
 
 try {
     if (-not ($ProjectVersion | Test-GooSemVer)) {
@@ -30,18 +30,19 @@ try {
     # Discard build metadata
     $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
 
-    # Update Backend's Version and stage
-    Set-Location -Path $Private:BEPath
+    # Update Server's Version & Stage
+    Set-Location -Path $Private:ServerPath
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
     'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\pom.xml')
 
-    # Update Frontend's Version and stage
-    Set-Location -Path $Private:FEPath
+    # Update Client's Version & Stage
+    Set-Location -Path $Private:ClientPath
     @('.\package.json', '.\package-lock.json') | ForEach-Object {
         $content = Get-Content -Path $_ | ConvertFrom-Json
         $content.version = $ProjectVersion
         $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
     }
+
     'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package.json')
     'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package-lock.json')
 
