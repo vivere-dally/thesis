@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  thesisapi:
+    image: ${__dc__IMAGE}
+    container_name: thesisapi
+    restart: always
+    ports:
+      # Azure Web App exposes port 80
+      - 80:${__dc__SERVER_PORT}
+    environment:
+      - SERVER_PORT=${__dc__SERVER_PORT}
+      - SPRING_DATASOURCE_URL=${__dc__MYSQL_CONN_STR}
+      - SPRING_DATASOURCE_USERNAME=${__dc__MYSQL_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${__dc__MYSQL_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL5InnoDBDialect

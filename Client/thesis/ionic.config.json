@@ -1,7 +1,0 @@
-{
-  "name": "thesis",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react"
-}
