@@ -37,8 +37,8 @@ function Mount-bsAppServicePlan {
         }
 
         $params = @{}
-        if ($ASPConfig.Property.Tier -ne $asp.Sku.Tier) { 
-            $params['Tier'] = $ASPConfig.Property.Tier 
+        if ($ASPConfig.Property.Tier -ne $asp.Sku.Tier) {
+            $params['Tier'] = $ASPConfig.Property.Tier
         }
 
         $skuSize = "$($ASPConfig.Property.Tier[0])$($workerSize[$ASPConfig.Property.WorkerSize])"
@@ -53,7 +53,7 @@ function Mount-bsAppServicePlan {
         if (0 -lt $params.Keys.Count) {
             $params += @{
                 ResourceGroupName = $ResourceGroup.ResourceGroupName;
-                Name              = $asp.Name; 
+                Name              = $asp.Name;
             }
 
             $updatedAsp = Set-AzWebApp @params

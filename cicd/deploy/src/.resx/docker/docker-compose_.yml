@@ -1,8 +1,8 @@
 version: '3.8'
 services:
-  thesis:
+  client:
     image: ${__dc__IMAGE}
-    container_name: thesis
+    container_name: client
     restart: always
     ports:
       # Azure Web App exposes port 80

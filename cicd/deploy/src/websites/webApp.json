@@ -17,7 +17,7 @@
     // Docker Compose properties
     "DockerCompose": {
       // Relative path to the docker compose used by this application service
-      "Path": "./../.resx/be/docker-compose.yml",
+      "Path": "./../.resx/docker/docker-compose_api.yml",
 
       // Because of the fact that Azure does not support environment variables placeholders, neither a .env config file we need to upload
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
@@ -25,7 +25,7 @@
         {
           "Name": "${__dc__IMAGE}",
           "Value": null,
-          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesisapi:${Tag}\""
+          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/server:${Tag}\""
         },
         {
           "Name": "${__dc__MY_SQL_VOLUME}",
@@ -138,7 +138,7 @@
     // Docker Compose properties
     "DockerCompose": {
       // Relative path to the docker compose used by this application service
-      "Path": "./../.resx/fe/docker-compose.yml",
+      "Path": "./../.resx/docker/docker-compose_.yml",
 
       // Because of the fact that Azure does not support environment variables placeholders, neither a .env config file we need to upload
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
@@ -146,7 +146,7 @@
         {
           "Name": "${__dc__IMAGE}",
           "Value": null,
-          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/thesis:${Tag}\""
+          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/client:${Tag}\""
         },
         {
           "Name": "${__dc__VOLUME}",
