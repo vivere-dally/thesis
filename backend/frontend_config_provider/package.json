@@ -5,12 +5,10 @@
   "scripts": {
     "start": "node ./build/main.js",
     "dev": "backpack dev",
-    "build": "backpack build",
-    "postinstall": "backpack build"
+    "build": "backpack build"
   },
   "dependencies": {
     "backpack-core": "^0.8.4",
-    "source-map-support": "0.5.19",
     "express": "^4.16.2"
   },
   "description": "A Node project"

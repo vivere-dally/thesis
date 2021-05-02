@@ -12,10 +12,5 @@
   },
 
   // File Shares
-  "Shares": [
-    // {
-    //   //! Used by the Backed Web App for a MySQL container
-    //   "Name": "api-my-sql"
-    // }
-  ]
+  "Shares": []
 }

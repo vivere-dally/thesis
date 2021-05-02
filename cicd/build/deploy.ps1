@@ -27,9 +27,6 @@ param (
 
 $ErrorActionPreference = 'Stop'
 
-$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
-$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
-
 try {
     if (-not ($ProjectVersion | Test-GooSemVer)) {
         throw "The Project Version $ProjectVersion is not following the SemVer guidelines."
@@ -39,19 +36,18 @@ try {
     $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
     'docker' | Invoke-GooNativeCommand -CommandArgs @('login', "$ACRUsername.azurecr.io", '-u', $ACRUsername, '-p', $ACRPassword)
 
-    # Docker Build backend image
-    Set-Location -Path $Private:ServerPath
-    $tag = "$ACRUsername.azurecr.io/$BranchName/server:$ProjectVersion"
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('push', $tag)
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $tag)
-
-    # Docker Build frontend image
-    Set-Location -Path $Private:ClientPath
-    $tag = "$ACRUsername.azurecr.io/$BranchName/client:$ProjectVersion"
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('push', $tag)
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $tag)
+    @(
+        ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path,
+        ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path,
+        ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
+    ) | ForEach-Object {
+        $_ | Set-Location
+        $projectName = $_ | Split-Path -Leaf
+        $tag = "$ACRUsername.azurecr.io/$BranchName/${projectName}:$ProjectVersion"
+        'docker' | Invoke-GooNativeCommand -CommandArgs @('build', '-f', './docker/Dockerfile', '-t', $tag, '.', '--label', "buildmetadata=$Buildmetadata")
+        'docker' | Invoke-GooNativeCommand -CommandArgs @('push', $tag)
+        'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $tag)
+    }
 
     exit 0
 }

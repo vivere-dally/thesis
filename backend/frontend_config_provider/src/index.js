@@ -1,8 +1,7 @@
-require('source-map-support').install();
-const express = require('express');
+import express from "express";
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
 app.get("/api/config", async (req, res) => {
   return res.json(process.env);
@@ -12,10 +11,9 @@ app.post("/api/config", async (req, res) => {
   const keys = req.body;
   const config = {};
   for (const key of keys) {
-    if(key in process.env) {
+    if (key in process.env) {
       config[key] = process.env[key];
-    }
-    else {
+    } else {
       config[key] = null;
     }
   }
@@ -34,4 +32,5 @@ app.listen(port, (err) => {
   }
 
   console.log(`> listening on port ${port}`);
+  console.log(process.env);
 });

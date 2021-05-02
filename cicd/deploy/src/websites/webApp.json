@@ -23,14 +23,9 @@
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
-          "Name": "${__dc__IMAGE}",
+          "Name": "${__dc__SERVER_IMAGE}",
           "Value": null,
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/server:${Tag}\""
-        },
-        {
-          "Name": "${__dc__MY_SQL_VOLUME}",
-          "Value": "MySQLVolume",
-          "Expression": null
         },
         {
           "Name": "${__dc__SERVER_PORT}",
@@ -110,15 +105,7 @@
     "ConnectionStrings": [],
 
     // Storage Paths used by the containers
-    "AzureStoragePath": [
-      {
-        "Name": "MySQLVolume",
-
-        //! Defined in storageAccount.json
-        "ShareName": "api-my-sql",
-        "MountPath": "/var/lib/bsmyapp/mysql"
-      }
-    ]
+    "AzureStoragePath": []
   },
   {
     // Suffix added to the resource group name
@@ -144,14 +131,14 @@
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
-          "Name": "${__dc__IMAGE}",
+          "Name": "${__dc__FRONTEND_CONFIG_PROVIDER_IMAGE}",
           "Value": null,
-          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/client:${Tag}\""
+          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/frontend_config_provider:${Tag}\""
         },
         {
-          "Name": "${__dc__VOLUME}",
+          "Name": "${__dc__CLIENT_IMAGE}",
           "Value": null,
-          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)$($WAConfig.AzureStoragePath.Suffix)\""
+          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/client:${Tag}\""
         },
         {
           "Name": "${__dc__CLIENT_PORT}",
