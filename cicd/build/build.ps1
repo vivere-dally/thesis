@@ -31,7 +31,7 @@ function Main {
         exit 1
     }
     finally {
-        Set-Location $PSScriptRoot
+        $PSScriptRoot | Set-Location
     }
 }
 

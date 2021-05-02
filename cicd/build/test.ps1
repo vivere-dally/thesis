@@ -13,10 +13,10 @@ try {
     ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path | Set-Location
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
 
-    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location -Path $Private:ClientPath
+    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
     # TODO client tests
 
-    ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location -Path $Private:ClientPath
+    ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location
     # TODO frontend_config_provider tests
 
     exit 0
@@ -27,6 +27,6 @@ catch {
     exit 1
 }
 finally {
-    Set-Location -Path $PSScriptRoot
+    $PSScriptRoot | Set-Location
 }
 

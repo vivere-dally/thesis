@@ -49,7 +49,7 @@ function Main {
         exit 1
     }
     finally {
-        Set-Location -Path $PSScriptRoot
+        $PSScriptRoot | Set-Location
     }
 }
 
