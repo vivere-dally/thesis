@@ -1,0 +1,109 @@
+pipeline {
+    agent any
+
+    environment {
+        Buildmetadata = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyD"}.${BUILDS_ALL_TIME, XXXX}', worstResultForIncrement: 'SUCCESS'
+    }
+
+    options {
+        copyArtifactPermission 'thesis-deploy'
+        buildDiscarder logRotator(numToKeepStr: '10')
+        skipStagesAfterUnstable()
+        ansiColor('xterm')
+    }
+
+    parameters {
+        choice choices: ['', 'Patch', 'Minor', 'Major'], description: 'Specifies the Release type.', name: 'Release'
+        choice choices: ['', 'alpha', 'beta', 'rc'], description: 'Specifies the Prerelease type.', name: 'Prerelease'
+        booleanParam defaultValue: false, description: 'New npm_modules.', name: 'FreshNpmModules'
+    }
+
+    stages {
+        stage('Init') {
+            steps {
+                script {
+                    env.Release = params.Release ? params.Release : ''
+                    env.Prerelease = params.Prerelease ? params.Prerelease : ''
+                    env.FreshNpmModules = params.FreshNpmModules ? params.FreshNpmModules : false
+
+                    def pv = pwsh returnStdout: true, encoding: 'UTF-8', label: 'Get Project Version', script: '''
+                        ./cicd/build/init.ps1 -Release $env:Release -Prerelease $env:Prerelease -Buildmetadata $env:Buildmetadata
+                    '''.strip()
+                    env.ProjectVersion = pv.trim()
+
+                    println "Project Version: ${env.ProjectVersion}"
+                    currentBuild.description = """Release: ${env.Release ? env.Release : 'not set'}
+Prerelease: ${env.Prerelease ? env.Prerelease : 'not set'}
+FreshNpmModules: ${env.FreshNpmModules}
+ProjectVersion: ${env.ProjectVersion}"""
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                pwsh label: 'Run build script', script: '''
+                    ./cicd/build/build.ps1 -ProjectVersion $env:ProjectVersion -FreshNpmModules ([bool]::Parse($env:FreshNpmModules))
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                pwsh label: 'Run test script', script: '''
+                    ./cicd/build/test.ps1
+                '''
+            }
+
+            post {
+                always {
+                    junit "backend/server/target/surefire-reports/*.xml"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            environment {
+                ACR_CRED = credentials('azure_container_registry')
+            }
+
+            steps {
+                pwsh label: 'Run deploy script', script: '''
+                    ./cicd/build/deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
+                '''
+            }
+        }
+
+        stage('Tag') {
+            when {
+                expression {
+                    env.Release
+                }
+            }
+
+            steps {
+                sshagent(['github_vivere-dally']) {
+                    pwsh label: 'Run tag script', script: '''
+                        ./cicd/build/tag.ps1 -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
+                    '''
+                }
+
+                script {
+                    // Keep this build forever
+                    currentBuild.keepLog = true
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: "backend/server/target/*.jar", fingerprint: true
+            archiveArtifacts artifacts: "frontend/client/*.zip", fingerprint: true
+        }
+
+        cleanup {
+            deleteDir()
+        }
+    }
+}
