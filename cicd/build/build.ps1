@@ -72,7 +72,7 @@ function Build-FrontendConfigProvider {
 
     # Zip Client's Artifacts
     Compress-Archive -Path ".\build\*" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Force
-    Compress-Archive -Path ".\package*.json" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Update -Force
+    Compress-Archive -Path ".\package*.json" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Update
 }
 
 function Build-Client {
