@@ -18,13 +18,11 @@ param (
 
 $Global:ErrorActionPreference = 'Stop'
 
-$Script:CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
-
 function Main {
     try {
         Build-Server
-        Build-Client
         Build-FrontendConfigProvider
+        Build-Client
         exit 0
     }
     catch {
@@ -48,34 +46,6 @@ function Build-Server {
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package') -Verbose
 }
 
-function Build-Client {
-    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
-    # Update Client's Version
-    if ($ProjectVersion) {
-        @('.\package.json', '.\package-lock.json') | ForEach-Object {
-            $content = Get-Content -Path $_ | ConvertFrom-Json
-            $content.version = $ProjectVersion
-            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
-        }
-    }
-
-    # Create junction for node_modules.
-    # Improve lifetime of the SSD.
-    # Improve the speed of the Build Job.
-    if (-not $FreshNpmModules -and
-        -not (Test-Path '.\node_modules') -and
-        (Test-Path $Script:CommonNpmModulesPath)) {
-        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Script:CommonNpmModulesPath)
-    }
-
-    # Build Client
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
-
-    # Zip Client's Artifacts
-    Compress-Archive -Path ".\build\*" -DestinationPath ".\client-$ProjectVersion.zip" -CompressionLevel Fastest -Force
-}
-
 function Build-FrontendConfigProvider {
     ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location
     # Update FrontendConfigProvider's Version
@@ -92,8 +62,8 @@ function Build-FrontendConfigProvider {
     # Improve the speed of the Build Job.
     if (-not $FreshNpmModules -and
         -not (Test-Path '.\node_modules') -and
-        (Test-Path $Script:CommonNpmModulesPath)) {
-        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Script:CommonNpmModulesPath)
+        (Test-Path 'E:\Dev\npm\thesis\frontend_config_provider_node_modules')) {
+        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', 'E:\Dev\npm\frontend_config_provider_node_modules')
     }
 
     # Build Client
@@ -103,6 +73,34 @@ function Build-FrontendConfigProvider {
     # Zip Client's Artifacts
     Compress-Archive -Path ".\build\*" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Force
     Compress-Archive -Path ".\package*.json" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Update -Force
+}
+
+function Build-Client {
+    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
+    # Update Client's Version
+    if ($ProjectVersion) {
+        @('.\package.json', '.\package-lock.json') | ForEach-Object {
+            $content = Get-Content -Path $_ | ConvertFrom-Json
+            $content.version = $ProjectVersion
+            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
+        }
+    }
+
+    # Create junction for node_modules.
+    # Improve lifetime of the SSD.
+    # Improve the speed of the Build Job.
+    if (-not $FreshNpmModules -and
+        -not (Test-Path '.\node_modules') -and
+        (Test-Path 'E:\Dev\npm\thesis\client_node_modules')) {
+        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', 'E:\Dev\npm\thesis\client_node_modules')
+    }
+
+    # Build Client
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
+
+    # Zip Client's Artifacts
+    Compress-Archive -Path ".\build\*" -DestinationPath ".\client-$ProjectVersion.zip" -CompressionLevel Fastest -Force
 }
 
 # Entrypoint

@@ -99,6 +99,7 @@ ProjectVersion: ${env.ProjectVersion}"""
     post {
         success {
             archiveArtifacts artifacts: "backend/server/target/*.jar", fingerprint: true
+            archiveArtifacts artifacts: "backend/frontend_config_provider/*.zip", fingerprint: true
             archiveArtifacts artifacts: "frontend/client/*.zip", fingerprint: true
         }
 
