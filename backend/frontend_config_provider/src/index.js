@@ -3,19 +3,31 @@ import express from "express";
 const app = express();
 app.use(express.json());
 
-app.get("/api/config", async (req, res) => {
-  return res.json(process.env);
-});
+function getValue(key, prefix) {
+  const k = `${prefix}_${key}`;
+  if (k in process.env) {
+    return process.env[k];
+  }
+
+  return null;
+}
 
 app.post("/api/config", async (req, res) => {
   const keys = req.body;
-  const config = {};
-  for (const key of keys) {
-    if (key in process.env) {
-      config[key] = process.env[key];
-    } else {
-      config[key] = null;
-    }
+  const config = {
+    appSettings: {},
+    connStrings: {},
+  };
+
+  for (const appSetting of keys.appSettings) {
+    config.appSettings[appSetting] = getValue(appSetting, "APPSETTING");
+  }
+
+  for (const connString of keys.connStrings) {
+    config.connStrings[connString.name] = getValue(
+      connString.name,
+      connString.type
+    );
   }
 
   return res.json(config);
@@ -32,5 +44,4 @@ app.listen(port, (err) => {
   }
 
   console.log(`> listening on port ${port}`);
-  console.log(process.env);
 });

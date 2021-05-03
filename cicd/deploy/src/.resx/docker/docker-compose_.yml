@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   frontend_config_provider:
     image: ${__dc__FRONTEND_CONFIG_PROVIDER_IMAGE}
@@ -9,7 +9,8 @@ services:
     image: ${__dc__CLIENT_IMAGE}
     container_name: client
     restart: always
-    depends_on: frontend_config_provider
+    depends_on:
+      - frontend_config_provider
     ports:
       # Azure Web App exposes port 80
       - 80:${__dc__CLIENT_PORT}
