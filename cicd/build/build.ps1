@@ -77,15 +77,6 @@ function Build-Client {
         }
     }
 
-    # Create junction for node_modules.
-    # Improve lifetime of the SSD.
-    # Improve the speed of the Build Job.
-    if (-not $FreshNpmModules -and
-        -not (Test-Path '.\node_modules') -and
-        (Test-Path 'E:\Dev\npm\thesis\client_node_modules')) {
-        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', 'E:\Dev\npm\thesis\client_node_modules')
-    }
-
     # Build Client
     'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
     'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
