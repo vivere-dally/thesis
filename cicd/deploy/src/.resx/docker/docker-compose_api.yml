@@ -1,5 +1,7 @@
 version: '3.8'
+
 services:
+
   server:
     image: ${__dc__SERVER_IMAGE}
     container_name: server
