@@ -63,7 +63,7 @@ function Build-FrontendConfigProvider {
     if (-not $FreshNpmModules -and
         -not (Test-Path '.\node_modules') -and
         (Test-Path 'E:\Dev\npm\thesis\frontend_config_provider_node_modules')) {
-        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', 'E:\Dev\npm\frontend_config_provider_node_modules')
+        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', 'E:\Dev\npm\thesis\frontend_config_provider_node_modules')
     }
 
     # Build Client
