@@ -5,9 +5,7 @@ import { AuthenticationProps, UserAuthenticated, UserLogin } from './authenticat
 
 
 const log = newLogger('security/authentication/authentication-api');
-const __axios = axios.create({
-    baseURL: Config.instance.appSettings.WEB_API_URL
-});
+
 const __axiosRequestConfig: AxiosRequestConfig = {
     headers: {
         'Content-Type': 'application/json'
@@ -15,7 +13,7 @@ const __axiosRequestConfig: AxiosRequestConfig = {
 };
 
 export const loginApi: (userLogin: UserLogin) => Promise<AuthenticationProps> = async (userLogin) => {
-    return __axios.post('/login', userLogin, __axiosRequestConfig)
+    return axios.post(`${(await Config.instance.appSettings).WEB_API_URL}/login`, userLogin, __axiosRequestConfig)
         .then(async (response) => {
             const authenticationProps: AuthenticationProps = {
                 user: response.data as UserAuthenticated,
@@ -24,7 +22,7 @@ export const loginApi: (userLogin: UserLogin) => Promise<AuthenticationProps> = 
                 refreshToken: response.headers['refreshtoken']
             };
 
-            await storageSet(Config.instance.appSettings.STORAGE_AUTHENTICATION_KEY, authenticationProps);
+            await storageSet((await Config.instance.appSettings).STORAGE_AUTHENTICATION_KEY, authenticationProps);
             return authenticationProps;
         })
         .catch(error => {

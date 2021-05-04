@@ -5,9 +5,7 @@ import { UserSignup } from './signup';
 
 
 const log = newLogger('security/signup/signup-api');
-const __axios = axios.create({
-    baseURL: Config.instance.appSettings.WEB_API_URL
-});
+
 const __axiosRequestConfig: AxiosRequestConfig = {
     headers: {
         'Content-Type': 'application/json'
@@ -15,7 +13,7 @@ const __axiosRequestConfig: AxiosRequestConfig = {
 };
 
 export const signupApi: (userSignup: UserSignup) => Promise<any> = async (userSignup) => {
-    return __axios.post('/signup', userSignup, __axiosRequestConfig)
+    return axios.post(`${(await Config.instance.appSettings).WEB_API_URL}/signup`, userSignup, __axiosRequestConfig)
         .then(response => {
             log('{signupApi}', 'User created successfully.');
             return response.data;

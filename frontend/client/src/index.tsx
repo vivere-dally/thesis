@@ -4,9 +4,6 @@ import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
-import { Config } from "./environment/config";
-
-Config.instance.fetch().then(() => {})
 
 ReactDOM.render(
   <React.StrictMode>

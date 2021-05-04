@@ -69,7 +69,7 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
         }
 
         async function authenticate() {
-            const authenticationProps: AuthenticationProps = (await storageGetByKeyPrefix<AuthenticationProps>(Config.instance.appSettings.STORAGE_AUTHENTICATION_KEY))[0];
+            const authenticationProps: AuthenticationProps = (await storageGetByKeyPrefix<AuthenticationProps>((await Config.instance.appSettings).STORAGE_AUTHENTICATION_KEY))[0];
             if (isAuthenticationPropsValid(authenticationProps)) {
                 log('{__loginEffect}', '(authenticate)', 'success');
                 setState({

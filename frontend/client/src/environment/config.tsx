@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
 import { newLogger } from "../core/utils";
 
@@ -21,7 +21,9 @@ export interface ConnStrings {
 export class Config {
   private static __instance: Config = new Config();
 
-  private __fetched: boolean = false;
+  private __axios: AxiosInstance;
+  private __fetchPromise: Promise<void>;
+
   private __appSettings: AppSettings = {
     WEB_API_URL: "http://localhost:8080/api",
     WEB_API_WS_URL: "ws://localhost:8080/api",
@@ -31,7 +33,8 @@ export class Config {
   private __connStrings: ConnStrings = {};
 
   private constructor() {
-    axiosRetry(axios, {
+    this.__axios = axios.create();
+    axiosRetry(this.__axios, {
       retries: 7,
       retryDelay: (retryCount) => {
         log(`Retry count: ${retryCount}`);
@@ -41,11 +44,14 @@ export class Config {
         return true;
       },
     });
+
+    this.__fetchPromise = this.__fetch();
   }
 
   /**
    * instance
-   * @returns the instance of @type {Config}
+   * @returns the instance
+   * @type {Config}
    */
   public static get instance(): Config {
     return this.__instance;
@@ -53,31 +59,28 @@ export class Config {
 
   /**
    * appSettings
-   * @returns the appSettings of @type {AppSettings}
+   * @returns the appSettings
+   * @type {AppSettings}
    */
-  public get appSettings(): AppSettings {
-    log('{appSettings}', this.__fetched);
-    return this.__appSettings;
+  public get appSettings(): Promise<AppSettings> {
+    return this.__fetchPromise.then(() => this.__appSettings);
   }
 
   /**
    * connStrings
-   * @returns the connStrings of @type {ConnStrings}
+   * @returns the connString
+   * @type {ConnStrings}
    */
-  public get connStrings(): ConnStrings {
-    return this.__connStrings;
+  public get connStrings(): Promise<ConnStrings> {
+    return this.__fetchPromise.then(() => this.__connStrings);
   }
 
   /**
    * fetch the remote configuration
    */
-  public async fetch(): Promise<void> {
-    if (this.__fetched) {
-      return;
-    }
-
+  private async __fetch(): Promise<void> {
     try {
-      const response = await axios
+      const response = await this.__axios
         .post(
           "http://localhost:3000/api/config",
           {
@@ -107,8 +110,6 @@ export class Config {
       for (const connString of neededConnStrings) {
         this.__connStrings[connString[0]] = response.connStrings[connString[0]];
       }
-
-      this.__fetched = true;
     } catch (error) {
       log(
         "{fetch}",
