@@ -10,6 +10,7 @@ if (process.env.NODE_ENV !== "production") {
   process.env["APPSETTING_WEB_API_WS_URL"] = "ws://localhost:5000/api";
 }
 
+console.log(process.env)
 function getValue(key, prefix) {
   const k = `${prefix}_${key}`;
   if (k in process.env) {
