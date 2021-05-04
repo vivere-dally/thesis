@@ -21,7 +21,6 @@ $Global:ErrorActionPreference = 'Stop'
 function Main {
     try {
         Build-Server
-        Build-FrontendConfigProvider
         Build-Client
         exit 0
     }
@@ -44,26 +43,6 @@ function Build-Server {
 
     # Build Server
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package') -Verbose
-}
-
-function Build-FrontendConfigProvider {
-    ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location
-    # Update FrontendConfigProvider's Version
-    if ($ProjectVersion) {
-        @('.\package.json', '.\package-lock.json') | ForEach-Object {
-            $content = Get-Content -Path $_ | ConvertFrom-Json
-            $content.version = $ProjectVersion
-            $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
-        }
-    }
-
-    # Build Client
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
-
-    # Zip Client's Artifacts
-    Compress-Archive -Path ".\build\*" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Force
-    Compress-Archive -Path ".\package*.json" -DestinationPath ".\frontend_config_provider-$ProjectVersion.zip" -CompressionLevel Fastest -Update
 }
 
 function Build-Client {

@@ -62,7 +62,7 @@
       {
         "Name": "SECURITY_KEY",
         "Value": null,
-        "Expression": "(New-Guid).Guid.ToString()"
+        "Expression": "[System.Convert]::ToBase64String(([System.Security.Cryptography.HMACSHA512]::new().Key))"
       },
       {
         "Name": "SECURITY_REQUIRED_AUTHORIZATION_HEADER",
@@ -85,7 +85,7 @@
         "Expression": null
       },
       {
-        "Name": "SECURITY_ACCESS_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Name": "SECURITY_ACCESS_TOKEN_TTL_MILLIS",
         "Value": "300000",
         "Expression": null
       },
@@ -95,7 +95,7 @@
         "Expression": null
       },
       {
-        "Name": "SECURITY_REFRESH_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Name": "SECURITY_REFRESH_TOKEN_TTL_MILLIS",
         "Value": "900000",
         "Expression": null
       }
@@ -131,11 +131,6 @@
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
-          "Name": "${__dc__FRONTEND_CONFIG_PROVIDER_IMAGE}",
-          "Value": null,
-          "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/frontend_config_provider:${Tag}\""
-        },
-        {
           "Name": "${__dc__CLIENT_IMAGE}",
           "Value": null,
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/client:${Tag}\""
@@ -156,16 +151,6 @@
         "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
         "Value": "1",
         "Expression": null
-      },
-      {
-        "Name": "WEB_API_URL",
-        "Value": null,
-        "Expression": "\"https://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
-      },
-      {
-        "Name": "WEB_API_WS_URL",
-        "Value": null,
-        "Expression": "\"wss://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
       }
     ],
 

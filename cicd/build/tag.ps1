@@ -29,7 +29,6 @@ function Main {
         $ProjectVersion = $ProjectVersion | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
 
         Update-ServerVersion
-        Update-FrontendConfigProviderVersion
         Update-ClientVersion
 
         # Commit & Push changes to origin
@@ -57,18 +56,6 @@ function Update-ServerVersion {
     ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path | Set-Location
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
     'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\pom.xml')
-}
-
-function Update-FrontendConfigProviderVersion {
-    ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location
-    @('.\package.json', '.\package-lock.json') | ForEach-Object {
-        $content = Get-Content -Path $_ | ConvertFrom-Json
-        $content.version = $ProjectVersion
-        $content | ConvertTo-Json -Depth 10 | Set-Content -Path $_ -Force | Out-Null
-    }
-
-    'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package.json')
-    'git' | Invoke-GooNativeCommand -CommandArgs @('add', '.\package-lock.json')
 }
 
 function Update-ClientVersion {

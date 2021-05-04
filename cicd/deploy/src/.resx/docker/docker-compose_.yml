@@ -4,14 +4,8 @@ services:
 
   client:
     image: ${__dc__CLIENT_IMAGE}
-    container_name: client
     restart: always
     ports:
       # Azure Web App exposes port 80
       - 80:${__dc__CLIENT_PORT}
-
-  frontend_config_provider:
-    image: ${__dc__FRONTEND_CONFIG_PROVIDER_IMAGE}
-    container_name: frontend_config_provider
-    restart: always
 

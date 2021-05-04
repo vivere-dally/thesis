@@ -38,7 +38,6 @@ try {
 
     @(
         ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path,
-        ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path,
         ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
     ) | ForEach-Object {
         $_ | Set-Location

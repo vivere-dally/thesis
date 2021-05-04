@@ -16,9 +16,6 @@ try {
     ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
     # TODO client tests
 
-    ("$PSScriptRoot/../../backend/frontend_config_provider" | Resolve-Path).Path | Set-Location
-    # TODO frontend_config_provider tests
-
     exit 0
 }
 catch {

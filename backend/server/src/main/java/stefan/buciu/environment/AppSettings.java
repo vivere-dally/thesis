@@ -20,10 +20,10 @@ public class AppSettings {
     private final String securityAccessTokenTypeHeaderValue;
 
     private final String securityAccessTokenHeaderName;
-    private final Long securityAccessTokenExpirationTimeInMilliseconds;
+    private final Long securityAccessTokenTtlMillis;
 
     private final String securityRefreshTokenHeaderName;
-    private final Long securityRefreshTokenExpirationTimeInMilliseconds;
+    private final Long securityRefreshTokenTtlMillis;
 
     @Getter(AccessLevel.NONE)
     private final Environment environment;
@@ -39,10 +39,10 @@ public class AppSettings {
         this.securityAccessTokenTypeHeaderValue = getAppSetting("SECURITY_ACCESS_TOKEN_TYPE_HEADER_VALUE");
 
         this.securityAccessTokenHeaderName = getAppSetting("SECURITY_ACCESS_TOKEN_HEADER_NAME");
-        this.securityAccessTokenExpirationTimeInMilliseconds = Long.parseLong(getAppSetting("SECURITY_ACCESS_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS"));
+        this.securityAccessTokenTtlMillis = Long.parseLong(getAppSetting("SECURITY_ACCESS_TOKEN_TTL_MILLIS"));
 
         this.securityRefreshTokenHeaderName = getAppSetting("SECURITY_REFRESH_TOKEN_HEADER_NAME");
-        this.securityRefreshTokenExpirationTimeInMilliseconds = Long.parseLong(getAppSetting("SECURITY_REFRESH_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS"));
+        this.securityRefreshTokenTtlMillis = Long.parseLong(getAppSetting("SECURITY_REFRESH_TOKEN_TTL_MILLIS"));
     }
 
     private String getAppSetting(String s) {
