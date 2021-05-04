@@ -6,6 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { defineCustomElements } from "@ionic/pwa-elements/loader";
 
 console.log(process.env);
+console.log(process.env.WEBSITE_HOSTNAME);
 
 ReactDOM.render(
   <React.StrictMode>
