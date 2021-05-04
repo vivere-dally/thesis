@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "backpack-core": "^0.8.4",
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "cors": "2.8.5"
   },
   "description": "A Node project"
 }

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { getConfig } from "../../config";
 import { ReactNodeLikeProps, newLogger, storageClearByKeyPrefix, storageGetByKeyPrefix } from "../../core/utils";
 import { loginApi } from "./authentication-api";
 import { AuthenticationProps, isAuthenticationPropsValid, UserLogin } from "./authentication";
+import { Config } from "../../environment/config";
 
 
 const log = newLogger('security/authentication/authentication-provider');
@@ -69,7 +69,7 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
         }
 
         async function authenticate() {
-            const authenticationProps: AuthenticationProps = (await storageGetByKeyPrefix<AuthenticationProps>(getConfig().STORAGE_AUTHENTICATION_KEY))[0];
+            const authenticationProps: AuthenticationProps = (await storageGetByKeyPrefix<AuthenticationProps>(Config.instance.appSettings.STORAGE_AUTHENTICATION_KEY))[0];
             if (isAuthenticationPropsValid(authenticationProps)) {
                 log('{__loginEffect}', '(authenticate)', 'success');
                 setState({

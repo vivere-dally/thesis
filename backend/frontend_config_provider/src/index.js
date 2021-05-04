@@ -1,7 +1,14 @@
 import express from "express";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
+
+if (process.env.NODE_ENV !== "production") {
+  process.env["APPSETTING_WEB_API_URL"] = "http://localhost:8080/api";
+  process.env["APPSETTING_WEB_API_WS_URL"] = "ws://localhost:8080/api";
+}
 
 function getValue(key, prefix) {
   const k = `${prefix}_${key}`;

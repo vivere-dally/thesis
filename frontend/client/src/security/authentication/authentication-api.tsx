@@ -1,12 +1,12 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { getConfig } from '../../config';
 import { newLogger, storageSet } from '../../core/utils';
+import { Config } from '../../environment/config';
 import { AuthenticationProps, UserAuthenticated, UserLogin } from './authentication';
 
 
 const log = newLogger('security/authentication/authentication-api');
 const __axios = axios.create({
-    baseURL: getConfig().WEB_API_URL
+    baseURL: Config.instance.appSettings.WEB_API_URL
 });
 const __axiosRequestConfig: AxiosRequestConfig = {
     headers: {
@@ -24,7 +24,7 @@ export const loginApi: (userLogin: UserLogin) => Promise<AuthenticationProps> = 
                 refreshToken: response.headers['refreshtoken']
             };
 
-            await storageSet(getConfig().STORAGE_AUTHENTICATION_KEY, authenticationProps);
+            await storageSet(Config.instance.appSettings.STORAGE_AUTHENTICATION_KEY, authenticationProps);
             return authenticationProps;
         })
         .catch(error => {

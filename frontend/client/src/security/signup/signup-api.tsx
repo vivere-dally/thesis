@@ -1,12 +1,12 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { getConfig } from '../../config';
 import { newLogger } from '../../core/utils';
+import { Config } from '../../environment/config';
 import { UserSignup } from './signup';
 
 
 const log = newLogger('security/signup/signup-api');
 const __axios = axios.create({
-    baseURL: getConfig().WEB_API_URL
+    baseURL: Config.instance.appSettings.WEB_API_URL
 });
 const __axiosRequestConfig: AxiosRequestConfig = {
     headers: {
