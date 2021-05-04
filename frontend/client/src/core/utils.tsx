@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Plugins } from "@capacitor/core";
-import { IS_PRODUCTION } from '../environment/constants';
+import { constants } from '../environment/constants';
 
 
 const { Storage } = Plugins;
@@ -10,7 +10,7 @@ export const newLogger: (tag: string) =>
     (...args: any) =>
         void = tag =>
         (...args) => {
-            if (!IS_PRODUCTION) {
+            if (!constants.IS_PRODUCTION) {
                 console.log(`[${tag}]`, ...args);
             }
         }
