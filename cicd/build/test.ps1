@@ -7,17 +7,14 @@ param ()
 #Requires -PSEdition Core
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
 
-$ErrorActionPreference = 'Stop'
-
-$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
-$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
+$Global:ErrorActionPreference = 'Stop'
 
 try {
-    Set-Location -Path $Private:ServerPath
+    ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path | Set-Location
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
 
-    Set-Location -Path $Private:ClientPath
-    # TODO npm tests
+    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
+    # TODO client tests
 
     exit 0
 }
@@ -27,6 +24,6 @@ catch {
     exit 1
 }
 finally {
-    Set-Location -Path $PSScriptRoot
+    $PSScriptRoot | Set-Location
 }
 

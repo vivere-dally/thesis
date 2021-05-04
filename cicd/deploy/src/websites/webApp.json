@@ -23,14 +23,9 @@
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
-          "Name": "${__dc__IMAGE}",
+          "Name": "${__dc__SERVER_IMAGE}",
           "Value": null,
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/server:${Tag}\""
-        },
-        {
-          "Name": "${__dc__MY_SQL_VOLUME}",
-          "Value": "MySQLVolume",
-          "Expression": null
         },
         {
           "Name": "${__dc__SERVER_PORT}",
@@ -67,7 +62,7 @@
       {
         "Name": "SECURITY_KEY",
         "Value": null,
-        "Expression": "(New-Guid).Guid.ToString()"
+        "Expression": "[System.Convert]::ToBase64String(([System.Security.Cryptography.HMACSHA512]::new().Key))"
       },
       {
         "Name": "SECURITY_REQUIRED_AUTHORIZATION_HEADER",
@@ -90,7 +85,7 @@
         "Expression": null
       },
       {
-        "Name": "SECURITY_ACCESS_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Name": "SECURITY_ACCESS_TOKEN_TTL_MILLIS",
         "Value": "300000",
         "Expression": null
       },
@@ -100,7 +95,7 @@
         "Expression": null
       },
       {
-        "Name": "SECURITY_REFRESH_TOKEN_EXPIRATION_TIME_IN_MILLISECONDS",
+        "Name": "SECURITY_REFRESH_TOKEN_TTL_MILLIS",
         "Value": "900000",
         "Expression": null
       }
@@ -110,15 +105,7 @@
     "ConnectionStrings": [],
 
     // Storage Paths used by the containers
-    "AzureStoragePath": [
-      {
-        "Name": "MySQLVolume",
-
-        //! Defined in storageAccount.json
-        "ShareName": "api-my-sql",
-        "MountPath": "/var/lib/bsmyapp/mysql"
-      }
-    ]
+    "AzureStoragePath": []
   },
   {
     // Suffix added to the resource group name
@@ -144,14 +131,9 @@
       // a good-to-go docker-compose. To achieve this, we replace all placeholders that respect the convention: ${name}
       "Placeholders": [
         {
-          "Name": "${__dc__IMAGE}",
+          "Name": "${__dc__CLIENT_IMAGE}",
           "Value": null,
           "Expression": "\"${ACRUsername}.azurecr.io/${BranchName}/client:${Tag}\""
-        },
-        {
-          "Name": "${__dc__VOLUME}",
-          "Value": null,
-          "Expression": "\"$($ResourceGroup.ResourceGroupName)$($WAConfig.Suffix)$($WAConfig.AzureStoragePath.Suffix)\""
         },
         {
           "Name": "${__dc__CLIENT_PORT}",
@@ -169,16 +151,6 @@
         "Name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
         "Value": "1",
         "Expression": null
-      },
-      {
-        "Name": "WEB_API_URL",
-        "Value": null,
-        "Expression": "\"https://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
-      },
-      {
-        "Name": "WEB_API_WS_URL",
-        "Value": null,
-        "Expression": "\"wss://$($ResourceGroup.ResourceGroupName)api.azurewebsites.net/api\""
       }
     ],
 

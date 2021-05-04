@@ -11,7 +11,7 @@ function Mount-bsWebApp {
         [Parameter(Mandatory = $true)]
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.SdkModels.PSResourceGroup]
         $ResourceGroup,
-        
+
         [Parameter(Mandatory = $true)]
         [Microsoft.Azure.Commands.WebApps.Models.WebApp.PSAppServicePlan]
         $AppServicePlan,
@@ -23,7 +23,7 @@ function Mount-bsWebApp {
         [Parameter(Mandatory = $true)]
         [string]
         $ACRUsername,
-    
+
         [Parameter(Mandatory = $true)]
         [string]
         $ACRPassword,
@@ -31,15 +31,15 @@ function Mount-bsWebApp {
         [Parameter(Mandatory = $true)]
         [string]
         $BranchName,
-    
+
         [Parameter(Mandatory = $true)]
         [string]
         $Tag,
-    
+
         [Parameter(Mandatory = $true)]
         [string]
         $MySqlUsername,
-    
+
         [Parameter(Mandatory = $true)]
         [string]
         $MySqlPassword,
@@ -141,7 +141,7 @@ function Mount-bsWebApp {
         }
 
         'Configuring connection strings...' | Write-GooLog
-        $connectionStrings = @{} 
+        $connectionStrings = @{}
         $WAConfig.ConnectionStrings | ForEach-Object {
             $connectionStrings[$_.Name] = $_.Value
         }

@@ -87,11 +87,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         Claims accessTokenClaims = Jwts.claims().setSubject(securityUser.getUsername());
         accessTokenClaims.put("authorities", securityUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray());
-        Date accessTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityAccessTokenExpirationTimeInMilliseconds());
+        Date accessTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityAccessTokenTtlMillis());
         String accessToken = getToken(accessTokenClaims, key, accessTokenExpirationDate);
 
         Claims refreshTokenClaims = Jwts.claims().setSubject(securityUser.getUsername());
-        Date refreshTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityRefreshTokenExpirationTimeInMilliseconds());
+        Date refreshTokenExpirationDate = new Date(System.currentTimeMillis() + appSettings.getSecurityRefreshTokenTtlMillis());
         String refreshToken = getToken(refreshTokenClaims, key, refreshTokenExpirationDate);
 
         response.setHeader(appSettings.getSecurityAccessTokenTypeHeaderName(), appSettings.getSecurityAccessTokenTypeHeaderValue());

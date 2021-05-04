@@ -1,8 +1,9 @@
 version: '3.8'
+
 services:
+
   server:
-    image: ${__dc__IMAGE}
-    container_name: server
+    image: ${__dc__SERVER_IMAGE}
     restart: always
     ports:
       # Azure Web App exposes port 80

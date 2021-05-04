@@ -16,14 +16,26 @@ param (
 #Requires -PSEdition Core
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
 
-$ErrorActionPreference = 'Stop'
+$Global:ErrorActionPreference = 'Stop'
 
-$Private:CommonNpmModulesPath = 'E:\Dev\npm\node_modules'
-$Private:ServerPath = ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path
-$Private:ClientPath = ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path
+function Main {
+    try {
+        Build-Server
+        Build-Client
+        exit 0
+    }
+    catch {
+        $_
+        $_.ScriptStackTrace
+        exit 1
+    }
+    finally {
+        $PSScriptRoot | Set-Location
+    }
+}
 
-try {
-    Set-Location -Path $Private:ServerPath
+function Build-Server {
+    ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path | Set-Location
     # Update Server's Version
     if ($ProjectVersion) {
         'mvn' | Invoke-GooNativeCommand -CommandArgs @('versions:set', "-DnewVersion=$ProjectVersion")
@@ -31,8 +43,10 @@ try {
 
     # Build Server
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('-B', '-DskipTests', 'clean', 'package') -Verbose
+}
 
-    Set-Location $Private:ClientPath
+function Build-Client {
+    ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
     # Update Client's Version
     if ($ProjectVersion) {
         @('.\package.json', '.\package-lock.json') | ForEach-Object {
@@ -42,28 +56,13 @@ try {
         }
     }
 
-    # Create junction for node_modules.
-    # Improve lifetime of the SSD.
-    # Improve the speed of the Build Job.
-    if (-not $FreshNpmModules -and
-        -not (Test-Path '.\node_modules') -and
-        (Test-Path $Private:CommonNpmModulesPath)) {
-        'cmd.exe' | Invoke-GooNativeCommand -CommandArgs @('/c', 'mklink', '/J', '.\node_modules', $Private:CommonNpmModulesPath)
-    }
-
     # Build Client
     'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
     'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
 
     # Zip Client's Artifacts
     Compress-Archive -Path ".\build\*" -DestinationPath ".\client-$ProjectVersion.zip" -CompressionLevel Fastest -Force
-    exit 0
 }
-catch {
-    $_
-    $_.ScriptStackTrace
-    exit 1
-}
-finally {
-    Set-Location $PSScriptRoot
-}
+
+# Entrypoint
+Main

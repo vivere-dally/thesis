@@ -1,8 +1,10 @@
 version: "3.8"
+
 services:
-  frontend:
-    image: frontend:local
-    container_name: frontend
+
+  client:
+    image: client:local
+    container_name: client
     restart: always
     build:
       context: ./../
