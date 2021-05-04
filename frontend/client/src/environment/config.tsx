@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
 import { newLogger } from "../core/utils";
+import { CONFIG_API_URL } from "./constants";
 
 const log = newLogger("environment");
 
@@ -82,7 +83,7 @@ export class Config {
     try {
       const response = await this.__axios
         .post(
-          "http://localhost:3000/api/config",
+          CONFIG_API_URL,
           {
             appSettings: neededAppSettings,
             connStrings: neededConnStrings,
