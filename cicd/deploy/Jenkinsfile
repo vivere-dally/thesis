@@ -130,7 +130,7 @@ properties([
                         def acrPassword = acrCred.getPassword().getPlainText()
 
                         def auth = "${acrUsername}:${acrPassword}".bytes.encodeBase64().toString()
-                        def tags = ['server', 'frontend_config_provider', 'client'].collect { name ->
+                        def tags = ['server', 'client'].collect { name ->
                             def req = (HttpURLConnection) new URL("https://${acrUsername}.azurecr.io/acr/v1/${BranchName}/${name}/_tags").openConnection()
                             req.setRequestProperty('Authorization', "Basic ${auth}")
                             def result = jsonSlurper.parseText(req.inputStream.text)
