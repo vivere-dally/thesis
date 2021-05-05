@@ -1,9 +1,7 @@
 package stefan.buciu.config.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -68,6 +66,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                     userLogin.getPassword(),
                     new ArrayList<>()
             ));
+        } catch (ExpiredJwtException expiredJwtException) {
+            this.setErrorResponse(HttpStatus.UNAUTHORIZED, response, expiredJwtException);
+            return null;
         } catch (BadCredentialsException | UsernameNotFoundException exception) {
             this.setErrorResponse(HttpStatus.FORBIDDEN, response, exception);
             return null;
