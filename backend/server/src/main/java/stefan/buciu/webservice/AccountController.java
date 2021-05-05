@@ -15,7 +15,7 @@ import java.util.List;
 @Api(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @PreAuthorize("isAuthenticated()")
-@RequestMapping("/user/{userId}")
+@RequestMapping("/user/{userId}/account")
 @RestController
 public class AccountController {
     private final AccountService accountService;
@@ -24,7 +24,7 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping("/account")
+    @GetMapping()
     public ResponseEntity<List<AccountDTO>> get(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId
@@ -36,7 +36,7 @@ public class AccountController {
                 .ok(result);
     }
 
-    @GetMapping("/account/{accountId}")
+    @GetMapping("/{accountId}")
     public ResponseEntity<AccountDTO> getById(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId,
@@ -51,7 +51,7 @@ public class AccountController {
                 .ok(result);
     }
 
-    @PostMapping("/account")
+    @PostMapping()
     public ResponseEntity<AccountDTO> save(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId,
@@ -66,7 +66,7 @@ public class AccountController {
                 .ok(result);
     }
 
-    @PutMapping("/account/{accountId}")
+    @PutMapping("/{accountId}")
     public ResponseEntity<AccountDTO> update(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId,
@@ -85,7 +85,7 @@ public class AccountController {
                 .ok(result);
     }
 
-    @DeleteMapping("/account/{accountId}")
+    @DeleteMapping("/{accountId}")
     public ResponseEntity<AccountDTO> delete(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId,
