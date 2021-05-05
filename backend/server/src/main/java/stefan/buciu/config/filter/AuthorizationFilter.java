@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -33,7 +34,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         String authorizationToken = request.getHeader(appSettings.getSecurityRequiredAuthorizationHeader());
         if (authorizationToken != null) {
             try {
-                Claims claims = Jwts.parser()
+                Claims claims = Jwts
+                        .parser()
                         .setSigningKey(Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes()))
                         .parseClaimsJws(authorizationToken)
                         .getBody();
@@ -42,7 +44,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             claims,
                             null,
-                            AuthorityUtils.createAuthorityList(claims.get("authorities", String[].class))
+                            AuthorityUtils.createAuthorityList(((ArrayList<String>) claims.get("authorities")).toArray(String[]::new))
                     );
 
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

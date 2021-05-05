@@ -22,7 +22,7 @@ public class SecurityUserServiceImpl implements SecurityUserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = this.userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("A user with the given username does not exist."));
+                .orElseThrow(UserNotFoundException::new);
 
         // TODO - do I need authorities for the user?
         return new SecurityUser(username, user.getPassword(), new ArrayList<>());

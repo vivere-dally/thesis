@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import stefan.buciu.domain.exception.UserNotFoundException;
 import stefan.buciu.domain.model.dto.UserAuthenticatedDTO;
 import stefan.buciu.domain.model.dto.UserLoginDTO;
 import stefan.buciu.domain.model.dto.UserSignupDTO;
@@ -60,8 +59,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         String username = (String) request.getAttribute("username");
-        UserAuthenticatedDTO userAuthenticatedDTO = this.userService.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("A user with the given username does not exist."));
+        UserAuthenticatedDTO userAuthenticatedDTO = this.userService.findByUsername(username);
         return ResponseEntity.ok(userAuthenticatedDTO);
     }
 }
