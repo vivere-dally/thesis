@@ -5,9 +5,10 @@ import {
     storageClearByKeyPrefix,
     storageGetByKeyPrefix
 } from "../../core/utils";
-import { loginByCredentialsApi, loginByRefreshTokenApi } from "./authentication-api";
+import { loginByCredentialsApi, loginByRefreshTokenApi, newAuthenticatedAxiosInstance } from "./authentication-api";
 import { AuthenticationProps, UserLogin } from "./authentication";
 import { environment } from "../../environment/environment";
+import { AxiosInstance, AxiosRequestConfig } from "axios";
 
 const log = newLogger("security/authentication/authentication-provider");
 interface AuthenticationState {
@@ -16,6 +17,7 @@ interface AuthenticationState {
     isAuthenticated: boolean;
     isAuthenticating: boolean;
     authenticationError: Error | null;
+    axiosInstance?: AxiosInstance;
     login?: (userLogin: UserLogin) => Promise<void>;
     logout?: () => Promise<void>;
 }
@@ -32,11 +34,10 @@ export const AuthenticationContext = React.createContext<AuthenticationState>(
 const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
     const [state, setState] = useState<AuthenticationState>(authenticationInitialState);
 
-    const login = useCallback<(userLogin: UserLogin) => Promise<void>>(__login, []);
-    const logout = useCallback<() => Promise<void>>(__logout, []);
+    const login = useCallback<(userLogin: UserLogin) => Promise<void>>(__login, [state]);
+    const logout = useCallback<() => Promise<void>>(__logout, [state]);
 
     useEffect(__loginEffect, [state.isAuthenticating]);
-    useEffect(__authenticatedEffect, [state.isAuthenticated]);
 
     const value = { ...state, login, logout };
     return (
@@ -52,7 +53,8 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
             userLogin: userLogin,
             authenticationProps: undefined,
             isAuthenticating: true,
-            authenticationError: null
+            authenticationError: null,
+            axiosInstance: undefined
         });
     }
 
@@ -60,9 +62,11 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
         log("__logout");
         setState({
             ...state,
+            userLogin: undefined,
             authenticationProps: undefined,
             isAuthenticated: false,
-            authenticationError: null
+            authenticationError: null,
+            axiosInstance: undefined
         });
 
         await storageClearByKeyPrefix("");
@@ -76,43 +80,19 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
         }
 
         async function authenticate() {
-            try {
-                const refreshToken: string = (await storageGetByKeyPrefix<string>(environment.STORAGE_REFRESH_TOKEN_KEY))[0];
-                const authenticationProps: AuthenticationProps = await loginByRefreshTokenApi(refreshToken);
-                setState({
-                    ...state,
-                    authenticationProps: authenticationProps,
-                    isAuthenticating: false,
-                    isAuthenticated: true,
-                    authenticationError: null
-                });
-
-                return;
-            } catch { }
-
-            if (!state.isAuthenticating) {
+            if (state.isAuthenticated) {
                 return;
             }
 
             try {
                 log("{__loginEffect}", "(authenticate)", "start");
-                if (!state.userLogin) {
-                    throw "no credentials";
+                await authenticateByRefreshToken();
+                if (!state.isAuthenticating) {
+                    return;
                 }
 
-                const authenticationProps: AuthenticationProps = await loginByCredentialsApi(state.userLogin);
-                if (cancelled) {
-                    log("{__loginEffect}", "(authenticate)", "cancelled");
-                }
-
+                await authenticateByCredentials();
                 log("{__loginEffect}", "(authenticate)", "success");
-                setState({
-                    ...state,
-                    authenticationProps: authenticationProps,
-                    isAuthenticating: false,
-                    isAuthenticated: true,
-                    authenticationError: null
-                });
             } catch (error) {
                 if (cancelled || !error) {
                     return;
@@ -121,25 +101,95 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
                 log("{__loginEffect}", "(authenticate)", error);
                 setState({
                     ...state,
+                    userLogin: undefined,
                     authenticationProps: undefined,
                     isAuthenticating: false,
                     isAuthenticated: false,
-                    authenticationError: error
+                    authenticationError: error,
+                    axiosInstance: undefined
                 });
             }
         }
+
+        async function authenticateByRefreshToken() {
+            log("{__loginEffect}", "(authenticateByRefreshToken)", "start");
+            const refreshToken: string = (await storageGetByKeyPrefix<string>(environment.STORAGE_REFRESH_TOKEN_KEY))[0];
+            if (refreshToken) {
+                const authenticationProps: AuthenticationProps = await loginByRefreshTokenApi(refreshToken);
+                const axiosInstance: AxiosInstance = newAuthenticatedAxiosInstance(authenticationProps, __onInterceptorSuccess, __onInterceptorFailure);
+                if (cancelled) {
+                    log("{__loginEffect}", "(authenticateByRefreshToken)", "cancelled");
+                    return;
+                }
+
+                setState({
+                    ...state,
+                    userLogin: undefined,
+                    authenticationProps: authenticationProps,
+                    isAuthenticating: false,
+                    isAuthenticated: true,
+                    authenticationError: null,
+                    axiosInstance: axiosInstance
+                });
+
+                log("{__loginEffect}", "(authenticateByRefreshToken)", "success");
+                return;
+            }
+
+            log("{__loginEffect}", "(authenticateByRefreshToken)", "no refresh token");
+        }
+
+        async function authenticateByCredentials() {
+            log("{__loginEffect}", "(authenticateByCredentials)", "start");
+            if (!state.userLogin) {
+                throw "no credentials";
+            }
+
+            const authenticationProps: AuthenticationProps = await loginByCredentialsApi(state.userLogin);
+            const axiosInstance: AxiosInstance = newAuthenticatedAxiosInstance(authenticationProps, __onInterceptorSuccess, __onInterceptorFailure);
+            if (cancelled) {
+                log("{__loginEffect}", "(authenticateByCredentials)", "cancelled");
+                return;
+            }
+
+            setState({
+                ...state,
+                userLogin: undefined,
+                authenticationProps: authenticationProps,
+                isAuthenticating: false,
+                isAuthenticated: true,
+                authenticationError: null,
+                axiosInstance: axiosInstance
+            });
+
+            log("{__loginEffect}", "(authenticateByCredentials)", "success");
+        }
     }
 
-    function __authenticatedEffect() {
-        let cancelled = false;
-        authenticated();
-        return () => {
-            cancelled = true;
-        }
+    async function __onInterceptorSuccess(authenticationProps: AuthenticationProps, config: AxiosRequestConfig) {
+        log('{__onInterceptorSuccess}', "tokens renewed");
+        const axiosInstance: AxiosInstance = newAuthenticatedAxiosInstance(authenticationProps, __onInterceptorSuccess, __onInterceptorFailure);
+        axiosInstance.request(config);
+        setState({
+            ...state,
+            userLogin: undefined,
+            authenticationProps: authenticationProps,
+            isAuthenticated: true,
+            authenticationError: null,
+            axiosInstance: axiosInstance
+        });
+    }
 
-        async function authenticated() {
-
-        }
+    async function __onInterceptorFailure(error: any) {
+        log('{__onInterceptorFailure}', "refresh token expired");
+        setState({
+            ...state,
+            userLogin: undefined,
+            authenticationProps: undefined,
+            isAuthenticated: false,
+            authenticationError: error,
+            axiosInstance: undefined
+        });
     }
 };
 

@@ -31,6 +31,7 @@ export const loginByCredentialsApi: (userLogin: UserLogin) => Promise<Authentica
     return __axios
         .post("login", userLogin, __axiosRequestConfig)
         .then(async (response) => {
+            log('{loginByCredentialsApi}', 'success');
             return await parseLoginResponse(response);
         })
         .catch((error) => {
@@ -50,6 +51,7 @@ export const loginByRefreshTokenApi: (refreshToken: string) => Promise<Authentic
     return __axios
         .post("login", null, __cfg)
         .then(async (response) => {
+            log('{loginByRefreshTokenApi}', 'success');
             return await parseLoginResponse(response);
         })
         .catch((error) => {
@@ -61,12 +63,18 @@ export const loginByRefreshTokenApi: (refreshToken: string) => Promise<Authentic
 export const newAuthenticatedAxiosInstance:
     (
         authenticationProps: AuthenticationProps,
-        onSuccess: (authenticationProps: AuthenticationProps) => Promise<void>,
-        onFailure: () => Promise<void>
-    ) => AxiosInstance = (authenticationProps, onSuccess, onFailure) => {
-        let axiosInstance = axios.create({
+        onSuccess: (authenticationProps: AuthenticationProps, config: AxiosRequestConfig) => Promise<void>,
+        onFailure: (error: any) => Promise<void>
+    ) => AxiosInstance =
+    (
+        authenticationProps,
+        onSuccess,
+        onFailure
+    ) => {
+        const axiosInstance = axios.create({
             baseURL: `${environment.WEB_API_URL}/${authenticationProps.user.id}`
         });
+
         axiosInstance.interceptors.request
             .use(async (config) => {
                 config.headers.common['Authorization'] = `${authenticationProps.tokenType} ${authenticationProps.accessToken}`;
@@ -78,15 +86,11 @@ export const newAuthenticatedAxiosInstance:
 
                 loginByRefreshTokenApi(authenticationProps.refreshToken)
                     .then((result) => {
-                        onSuccess(result);
-
-                        // Redo original request.
-                        axiosInstance = newAuthenticatedAxiosInstance(result, onSuccess, onFailure);
                         delete error.config['Authorization'];
-                        axiosInstance.request(error.config);
+                        onSuccess(result, error.config);
                     })
                     .catch((error) => {
-                        onFailure();
+                        onFailure(error);
                         Promise.reject(error);
                     });
             });
