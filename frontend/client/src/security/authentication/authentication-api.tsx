@@ -72,7 +72,7 @@ export const newAuthenticatedAxiosInstance:
         onFailure
     ) => {
         const axiosInstance = axios.create({
-            baseURL: `${environment.WEB_API_URL}/${authenticationProps.user.id}`
+            baseURL: `${environment.WEB_API_URL}/user/${authenticationProps.user.id}`
         });
 
         axiosInstance.interceptors.request

@@ -115,25 +115,28 @@ const AuthenticationProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
             log("{__loginEffect}", "(authenticateByRefreshToken)", "start");
             const refreshToken: string = (await storageGetByKeyPrefix<string>(environment.STORAGE_REFRESH_TOKEN_KEY))[0];
             if (refreshToken) {
-                const authenticationProps: AuthenticationProps = await loginByRefreshTokenApi(refreshToken);
-                const axiosInstance: AxiosInstance = newAuthenticatedAxiosInstance(authenticationProps, __onInterceptorSuccess, __onInterceptorFailure);
-                if (cancelled) {
-                    log("{__loginEffect}", "(authenticateByRefreshToken)", "cancelled");
+                try {
+                    const authenticationProps: AuthenticationProps = await loginByRefreshTokenApi(refreshToken);
+                    const axiosInstance: AxiosInstance = newAuthenticatedAxiosInstance(authenticationProps, __onInterceptorSuccess, __onInterceptorFailure);
+                    if (cancelled) {
+                        log("{__loginEffect}", "(authenticateByRefreshToken)", "cancelled");
+                        return;
+                    }
+
+                    setState({
+                        ...state,
+                        userLogin: undefined,
+                        authenticationProps: authenticationProps,
+                        isAuthenticating: false,
+                        isAuthenticated: true,
+                        authenticationError: null,
+                        axiosInstance: axiosInstance
+                    });
+
+                    log("{__loginEffect}", "(authenticateByRefreshToken)", "success");
                     return;
                 }
-
-                setState({
-                    ...state,
-                    userLogin: undefined,
-                    authenticationProps: authenticationProps,
-                    isAuthenticating: false,
-                    isAuthenticated: true,
-                    authenticationError: null,
-                    axiosInstance: axiosInstance
-                });
-
-                log("{__loginEffect}", "(authenticateByRefreshToken)", "success");
-                return;
+                catch { }
             }
 
             log("{__loginEffect}", "(authenticateByRefreshToken)", "no refresh token");

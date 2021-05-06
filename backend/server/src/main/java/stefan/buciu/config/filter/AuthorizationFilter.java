@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -30,25 +31,33 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
-        String authorizationToken = request.getHeader(appSettings.getSecurityRequiredAuthorizationHeader());
-        if (authorizationToken != null) {
-            try {
-                Claims claims = Jwts.parser()
-                        .setSigningKey(Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes()))
-                        .parseClaimsJws(authorizationToken)
-                        .getBody();
 
-                if (claims != null) {
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                            claims,
-                            null,
-                            AuthorityUtils.createAuthorityList(claims.get("authorities", String[].class))
-                    );
+        String authorizationHeader = request.getHeader(appSettings.getSecurityRequiredAuthorizationHeader());
+        if (authorizationHeader != null) {
+            String[] authorizationHeaderTokenParts = authorizationHeader.split(" ");
+            if (authorizationHeaderTokenParts.length == 2 &&
+                    authorizationHeaderTokenParts[0].equals(appSettings.getSecurityAccessTokenTypeHeaderValue())
+            ) {
+                String authorizationToken = authorizationHeaderTokenParts[1];
+                try {
+                    Claims claims = Jwts
+                            .parser()
+                            .setSigningKey(Keys.hmacShaKeyFor(appSettings.getSecurityKey().getBytes()))
+                            .parseClaimsJws(authorizationToken)
+                            .getBody();
 
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    if (claims != null) {
+                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                                claims,
+                                null,
+                                AuthorityUtils.createAuthorityList(((ArrayList<String>) claims.get("authorities")).toArray(String[]::new))
+                        );
+
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    }
+                } catch (JwtException jwtException) {
+                    response.setStatus(403);
                 }
-            } catch (JwtException jwtException) {
-                response.setStatus(403);
             }
         }
 
