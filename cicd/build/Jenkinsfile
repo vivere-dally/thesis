@@ -15,7 +15,6 @@ pipeline {
     parameters {
         choice choices: ['', 'Patch', 'Minor', 'Major'], description: 'Specifies the Release type.', name: 'Release'
         choice choices: ['', 'alpha', 'beta', 'rc'], description: 'Specifies the Prerelease type.', name: 'Prerelease'
-        booleanParam defaultValue: false, description: 'New npm_modules.', name: 'FreshNpmModules'
     }
 
     stages {
@@ -24,7 +23,6 @@ pipeline {
                 script {
                     env.Release = params.Release ? params.Release : ''
                     env.Prerelease = params.Prerelease ? params.Prerelease : ''
-                    env.FreshNpmModules = params.FreshNpmModules ? params.FreshNpmModules : false
 
                     def pv = pwsh returnStdout: true, encoding: 'UTF-8', label: 'Get Project Version', script: '''
                         ./cicd/build/init.ps1 -Release $env:Release -Prerelease $env:Prerelease -Buildmetadata $env:Buildmetadata
@@ -34,7 +32,6 @@ pipeline {
                     println "Project Version: ${env.ProjectVersion}"
                     currentBuild.description = """Release: ${env.Release ? env.Release : 'not set'}
 Prerelease: ${env.Prerelease ? env.Prerelease : 'not set'}
-FreshNpmModules: ${env.FreshNpmModules}
 ProjectVersion: ${env.ProjectVersion}"""
                 }
             }
@@ -43,7 +40,7 @@ ProjectVersion: ${env.ProjectVersion}"""
         stage('Build') {
             steps {
                 pwsh label: 'Run build script', script: '''
-                    ./cicd/build/build.ps1 -ProjectVersion $env:ProjectVersion -FreshNpmModules ([bool]::Parse($env:FreshNpmModules))
+                    ./cicd/build/build.ps1 -ProjectVersion $env:ProjectVersion
                 '''
             }
         }
