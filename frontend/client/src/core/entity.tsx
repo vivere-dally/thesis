@@ -36,7 +36,7 @@ export interface StateCrud<E extends Entity<T>, T> extends State<E, T> {
     getOne?: (t: T) => Promise<E | void>;
     post?: (e: E) => Promise<E | void>;
     put?: (e: E) => Promise<E | void>;
-    delete?: (t: T) => Promise<E | void>;
+    remove?: (t: T) => Promise<E | void>;
 }
 
 export function newReducer<S extends State<E, T>, E extends Entity<T>, T>(): (state: S, actionPayload: ActionPayload) => S {

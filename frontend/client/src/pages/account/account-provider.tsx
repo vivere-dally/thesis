@@ -23,11 +23,11 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
     const { data, executing, actionType, actionError } = state;
 
     // Callbacks
-    const _get = useCallback<(cancelled?: boolean) => Promise<Account[] | void>>(__get, []);
-    const _getOne = useCallback<(accountId: number) => Promise<Account | void>>(__getOne, []);
-    const _post = useCallback<(account: Account) => Promise<Account | void>>(__post, []);
-    const _put = useCallback<(account: Account) => Promise<Account | void>>(__put, []);
-    const _delete = useCallback<(accountId: number) => Promise<Account | void>>(__delete, []);
+    const get = useCallback<(cancelled?: boolean) => Promise<Account[] | void>>(__get, [authenticationContext]);
+    const getOne = useCallback<(accountId: number) => Promise<Account | void>>(__getOne, [authenticationContext]);
+    const post = useCallback<(account: Account) => Promise<Account | void>>(__post, [authenticationContext]);
+    const put = useCallback<(account: Account) => Promise<Account | void>>(__put, [authenticationContext]);
+    const remove = useCallback<(accountId: number) => Promise<Account | void>>(__remove, [authenticationContext]);
 
     // Effects
     useEffect(() => {
@@ -38,7 +38,7 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
         }
     }, [authenticationContext.isAuthenticated]);
 
-    const value = { data, executing, actionType, actionError, _get, _getOne, _post, _put, _delete };
+    const value = { data, executing, actionType, actionError, get, getOne, post, put, remove };
     return (
         <AccountContext.Provider value={value}>
             {children}
@@ -112,17 +112,17 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
             });
     }
 
-    async function __delete(accountId: number): Promise<Account | void> {
-        log('{__delete}', 'start');
+    async function __remove(accountId: number): Promise<Account | void> {
+        log('{__remove}', 'start');
         dispatch({ actionState: ActionState.STARTED, actionType: ActionType.DELETE });
         return deleteAccountApi(authenticationContext.axiosInstance!, accountId)
             .then(result => {
-                log('{__delete}', 'success');
+                log('{__remove}', 'success');
                 dispatch({ actionState: ActionState.SUCCEEDED, actionType: ActionType.DELETE, data: result });
                 return result;
             })
             .catch(error => {
-                log('{__delete}', 'failure');
+                log('{__remove}', 'failure');
                 dispatch({ actionState: ActionState.FAILED, actionType: ActionType.DELETE, data: error });
             });
     }
