@@ -55,7 +55,7 @@ const AccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                 }
 
                 <IonFab slot='fixed' vertical='bottom' horizontal='end'>
-                    <IonFabButton onClick={() => history.push('/account/new')}>
+                    <IonFabButton onClick={() => history.push('/account-new')}>
                         <IonIcon icon={add} />
                     </IonFabButton>
                 </IonFab>

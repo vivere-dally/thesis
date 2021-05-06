@@ -45,7 +45,7 @@ const App: React.FC = () => (
 
           <AccountProvider>
             <PrivateRoute path="/account" component={AccountPage} exact />
-            <PrivateRoute path="/account/new" component={NewAccountPage} exact />
+            <PrivateRoute path="/account-new" component={NewAccountPage} exact />
             <PrivateRoute path="/account/:id" component={AccountFeedPage} exact />
           </AccountProvider>
         </AuthenticationProvider>

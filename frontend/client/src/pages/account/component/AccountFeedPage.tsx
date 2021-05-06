@@ -1,4 +1,4 @@
-import { IonBackButton, IonButtons, IonHeader, IonItemDivider, IonLabel, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButtons, IonHeader, IonLabel, IonPage, IonTitle, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { newLogger } from "../../../core/utils";
