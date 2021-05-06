@@ -1,18 +1,20 @@
 package stefan.buciu.domain.model;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @javax.persistence.Entity
-@javax.persistence.Table(name = "accounts")
-public class Account implements Entity<Long> {
+@javax.persistence.Table(name = "transactions")
+public class Transaction implements Entity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,19 +25,19 @@ public class Account implements Entity<Long> {
     @Column(name = "u_lmod_id", columnDefinition = "integer DEFAULT 1", nullable = false)
     private int version;
 
-    @Column(name = "money", scale = 2, precision = 12)
-    private BigDecimal money;
+    @Column(name = "value", scale = 2, precision = 12)
+    private BigDecimal value;
 
-    @Column(name = "monthly_income", scale = 2, precision = 12)
-    private BigDecimal monthlyIncome;
-
-    @Column(name = "currency")
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private CurrencyType currency;
+    private TransactionType type;
+
+    @Column(name = "date")
+    private LocalDateTime date;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @Override
     public Long getId() {

@@ -25,6 +25,8 @@ public class AppSettings {
     private final String securityRefreshTokenHeaderName;
     private final Long securityRefreshTokenTtlMillis;
 
+    private final String[] securityCorsAllowedOrigins;
+
     @Getter(AccessLevel.NONE)
     private final Environment environment;
 
@@ -43,6 +45,14 @@ public class AppSettings {
 
         this.securityRefreshTokenHeaderName = getAppSetting("SECURITY_REFRESH_TOKEN_HEADER_NAME");
         this.securityRefreshTokenTtlMillis = Long.parseLong(getAppSetting("SECURITY_REFRESH_TOKEN_TTL_MILLIS"));
+
+        String corsAllowedOriginsCommaSeparated = getAppSetting("SECURITY_CORS_ALLOWED_ORIGINS");
+        if (corsAllowedOriginsCommaSeparated == null || corsAllowedOriginsCommaSeparated.split(",").length == 0) {
+            this.securityCorsAllowedOrigins = new String[]{"*"};
+        }
+        else {
+            this.securityCorsAllowedOrigins = corsAllowedOriginsCommaSeparated.split(",");
+        }
     }
 
     private String getAppSetting(String s) {
