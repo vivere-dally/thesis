@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
 import { Account, CurrencyType } from "../account";
 import { AccountContext } from "../account-provider";
-import "./AccountPage.scss";
+import "./NewAccountPage.scss";
 
 
 const log = newLogger('pages/account/component/NewAccountPage');

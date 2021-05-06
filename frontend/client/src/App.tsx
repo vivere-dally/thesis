@@ -29,6 +29,7 @@ import { AccountProvider } from './pages/account/account-provider';
 import AccountPage from './pages/account/component/AccountPage';
 import PrivateRoute from './security/authentication/component/PrivateRoute';
 import NewAccountPage from './pages/account/component/NewAccountPage';
+import AccountFeedPage from './pages/account/component/AccountFeedPage';
 
 const App: React.FC = () => (
   <IonApp>
@@ -45,6 +46,7 @@ const App: React.FC = () => (
           <AccountProvider>
             <PrivateRoute path="/account" component={AccountPage} exact />
             <PrivateRoute path="/account/new" component={NewAccountPage} exact />
+            <PrivateRoute path="/account/:id" component={AccountFeedPage} exact />
           </AccountProvider>
         </AuthenticationProvider>
       </IonRouterOutlet>
