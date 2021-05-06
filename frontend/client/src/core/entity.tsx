@@ -32,7 +32,7 @@ export interface State<E extends Entity<T>, T> {
 }
 
 export interface StateCrud<E extends Entity<T>, T> extends State<E, T> {
-    get?: () => Promise<E | void>;
+    get?: (cancelled?: boolean) => Promise<E[] | void>;
     getOne?: (t: T) => Promise<E | void>;
     post?: (e: E) => Promise<E | void>;
     put?: (e: E) => Promise<E | void>;

@@ -21,7 +21,12 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            toast.success('Logged in successfully');
+            toast.success('Logged in successfully',
+                {
+                    onClose: () => {
+                        history.push('/account');
+                    }
+                });
         }
     }, [isAuthenticated]);
 
@@ -74,7 +79,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={3000}
+                autoClose={2000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}

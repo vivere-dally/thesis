@@ -1,12 +1,12 @@
 import { ActionState, ActionType, newReducer, StateCrud } from "../../core/entity";
 import { Account } from "./account";
 import { newLogger, ReactNodeLikeProps } from "../../core/utils";
-import React, { useContext, useReducer } from "react";
+import React, { useCallback, useContext, useEffect, useReducer } from "react";
 import { AuthenticationContext } from "../../security/authentication/authentication-provider";
-import { deleteAccountApi, getOneAccountApi, postAccountApi, putAccountApi } from "./account-api";
+import { deleteAccountApi, getAccountApi, getOneAccountApi, postAccountApi, putAccountApi } from "./account-api";
 
 
-const log = newLogger('pages/account/account-api');
+const log = newLogger('pages/account/account-provider');
 
 
 interface AccountState extends StateCrud<Account, number> { }
@@ -22,12 +22,50 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialAccountState);
     const { data, executing, actionType, actionError } = state;
 
-    const value = { data, executing, actionType, actionError };
+    // Callbacks
+    const _get = useCallback<(cancelled?: boolean) => Promise<Account[] | void>>(__get, []);
+    const _getOne = useCallback<(accountId: number) => Promise<Account | void>>(__getOne, []);
+    const _post = useCallback<(account: Account) => Promise<Account | void>>(__post, []);
+    const _put = useCallback<(account: Account) => Promise<Account | void>>(__put, []);
+    const _delete = useCallback<(accountId: number) => Promise<Account | void>>(__delete, []);
+
+    // Effects
+    useEffect(() => {
+        let cancelled = false;
+        __get(cancelled);
+        return () => {
+            cancelled = true;
+        }
+    }, [authenticationContext.isAuthenticated]);
+
+    const value = { data, executing, actionType, actionError, _get, _getOne, _post, _put, _delete };
     return (
         <AccountContext.Provider value={value}>
             {children}
         </AccountContext.Provider>
     )
+
+    async function __get(cancelled?: boolean): Promise<Account[] | void> {
+        log('{__get}', 'start');
+        if (!authenticationContext.isAuthenticated) {
+            return;
+        }
+
+        dispatch({ actionState: ActionState.STARTED, actionType: ActionType.GET });
+        return getAccountApi(authenticationContext.axiosInstance!)
+            .then((result) => {
+                log('{__get}', 'success');
+                if (!cancelled) {
+                    dispatch({ actionState: ActionState.SUCCEEDED, actionType: ActionType.GET, data: result });
+                }
+
+                return result;
+            })
+            .catch((error) => {
+                log('{__get}', 'failure');
+                dispatch({ actionState: ActionState.FAILED, actionType: ActionType.GET, data: error });
+            });
+    }
 
     async function __getOne(accountId: number): Promise<Account | void> {
         log('{__getOne}', 'start')
