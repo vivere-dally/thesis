@@ -1,8 +1,11 @@
-import { IonBackButton, IonButtons, IonHeader, IonLabel, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { add } from "ionicons/icons";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
+import { ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
+import TransactionFeed from "../../transaction/component/TransactionFeed";
 import { Account } from "../account";
 import { AccountContext } from "../account-provider";
 import "./AccountFeedPage.scss";
@@ -29,7 +32,7 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
         const routeId = Number(match.params.id || '');
         const __account = data?.find(it => it.id === routeId);
         setAccount(__account);
-    }, [data, match.params.id])
+    }, [data, match.params.id]);
 
     return (
         <IonPage id='account-feed-page'>
@@ -51,6 +54,27 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                     </IonButtons>
                 </IonToolbar>
             </IonHeader>
+
+            <IonContent fullscreen>
+                <TransactionFeed accountId={account?.id!} currencyType={account?.currency!} />
+
+                <IonFab slot='fixed' vertical='bottom' horizontal='end'>
+                    <IonFabButton onClick={() => history.push('/transaction-new')}>
+                        <IonIcon icon={add} />
+                    </IonFabButton>
+                </IonFab>
+
+                <ToastContainer
+                    position="bottom-center"
+                    autoClose={2000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
+            </IonContent>
         </IonPage>
     )
 }

@@ -53,6 +53,10 @@ public class EntitySocketHandler extends TextWebSocketHandler {
     }
 
     public <E extends Entity<T>, T extends Serializable> void notifySessions(DTO<E, T> entity, Action action, long userId) throws EntitySocketNotificationException {
+        if (!this.sessions.containsKey(userId)) {
+            return;
+        }
+
         var payload = new HashMap<String, Object>();
         payload.put("entity", entity);
         payload.put("actionType", action.toString());

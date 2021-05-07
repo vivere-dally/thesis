@@ -2,6 +2,7 @@ package stefan.buciu.service;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import stefan.buciu.domain.exception.AccountHasInsufficientFundsException;
@@ -66,7 +67,11 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         Account account = this.findAccountByIdOrThrow(accountId);
-        Pageable pageable = PageRequest.of(optionalPage.orElse(0), optionalSize.orElse(Integer.MAX_VALUE));
+        Pageable pageable = PageRequest.of(
+                optionalPage.orElse(0),
+                optionalSize.orElse(Integer.MAX_VALUE),
+                Sort.by(Sort.Direction.DESC, "date")
+        );
         return this.transactionRepository
                 .findAllByAccount(account, pageable)
                 .getContent()

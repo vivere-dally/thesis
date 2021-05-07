@@ -25,6 +25,9 @@ public class Transaction implements Entity<Long> {
     @Column(name = "u_lmod_id", columnDefinition = "integer DEFAULT 1", nullable = false)
     private int version;
 
+    @Column(name = "message")
+    private String message;
+
     @Column(name = "value", scale = 2, precision = 12)
     private BigDecimal value;
 

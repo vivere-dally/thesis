@@ -1,6 +1,7 @@
 
 const common = {
-    STORAGE_REFRESH_TOKEN_KEY: "__REFRESH_TOKEN__"
+    STORAGE_REFRESH_TOKEN_KEY: "__REFRESH_TOKEN__",
+    PAGE_SIZE: 5
 }
 
 export const environment =

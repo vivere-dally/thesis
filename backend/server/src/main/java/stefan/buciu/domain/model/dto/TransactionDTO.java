@@ -22,6 +22,10 @@ public class TransactionDTO implements DTO<Transaction, Long> {
     @ApiModelProperty(example = "1", value = "id")
     private long id;
 
+    @ApiModelProperty(required = true, example = "apples", value = "message")
+    @NotNull(message = "Message cannot be null.")
+    private String message;
+
     @ApiModelProperty(required = true, example = "1234.56", value = "value")
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer = 10, fraction = 2)
@@ -36,6 +40,7 @@ public class TransactionDTO implements DTO<Transaction, Long> {
 
     public TransactionDTO(Transaction transaction) {
         this.id = transaction.getId();
+        this.message = transaction.getMessage();
         this.value = transaction.getValue();
         this.type = transaction.getType();
         this.date = transaction.getDate();
@@ -44,6 +49,7 @@ public class TransactionDTO implements DTO<Transaction, Long> {
     @Override
     public Transaction toEntity() {
         Transaction transaction = new Transaction();
+        transaction.setMessage(this.message);
         transaction.setValue(this.value);
         transaction.setType(this.type);
         transaction.setDate(this.date);
