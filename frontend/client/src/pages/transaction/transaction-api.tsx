@@ -15,9 +15,9 @@ export const getTransactionApi: (axiosInstance: AxiosInstance, accountId: number
         });
 }
 
-export const postTransactionApi: (axiosInstance: AxiosInstance, accountId: number) => Promise<Transaction> = async (axiosInstance, accountId) => {
+export const postTransactionApi: (axiosInstance: AxiosInstance, accountId: number, transaction: Transaction) => Promise<Transaction> = async (axiosInstance, accountId, transaction) => {
     return axiosInstance
-        .post<Transaction>(`/account/${accountId}/transaction`)
+        .post<Transaction>(`/account/${accountId}/transaction`, transaction)
         .then((response) => {
             log('{postTransactionApi}', 'success');
             return response.data;

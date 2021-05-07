@@ -1,5 +1,5 @@
 import { IonInfiniteScroll, IonInfiniteScrollContent, IonList } from "@ionic/react";
-import { memo, useContext, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { newLogger } from "../../../core/utils";
 import { environment } from "../../../environment/environment";
@@ -7,8 +7,9 @@ import { AuthenticationContext } from "../../../security/authentication/authenti
 import { CurrencyType } from "../../account/account";
 import { Transaction } from "../transaction";
 import { getTransactionApi } from "../transaction-api";
-import './TransactionFeed.scss'
 import TransactionFeedItem from "./TransactionFeedItem";
+import dayjs from "dayjs";
+import './TransactionFeed.scss'
 
 
 const log = newLogger('pages/account/component/TransactionFeed')
@@ -29,7 +30,7 @@ const TransactionFeed: React.FC<TransactionFeedProps> = memo(({ accountId, curre
     const [page, setPage] = useState<number>(0);
 
     return (
-        <div>
+        <>
             <IonList>
                 {
                     data.map((transaction) => {
@@ -37,10 +38,10 @@ const TransactionFeed: React.FC<TransactionFeedProps> = memo(({ accountId, curre
                     })
                 }
             </IonList>
-            <IonInfiniteScroll onIonInfinite={(e: CustomEvent<void>) => __handleIonInfinite(e)}>
+            <IonInfiniteScroll threshold="10px" onIonInfinite={(e: CustomEvent<void>) => __handleIonInfinite(e)}>
                 <IonInfiniteScrollContent loadingText="Loading transactions" />
             </IonInfiniteScroll>
-        </div>
+        </>
     );
 
     async function __get(cancelled?: boolean): Promise<Transaction[] | void> {

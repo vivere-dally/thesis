@@ -1,25 +1,37 @@
-import { IonBackButton, IonButtons, IonContent, IonDatetime, IonHeader, IonInput, IonItem, IonLabel, IonPage, IonSelect, IonSelectOption, IonToolbar } from "@ionic/react";
-import React, { useContext, useState } from "react";
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonDatetime, IonHeader, IonInput, IonItem, IonLabel, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar } from "@ionic/react";
+import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
-import { TransactionType } from "../transaction";
+import { Transaction, TransactionType } from "../transaction";
+import { postTransactionApi } from "../transaction-api";
 import "./NewTransactionPage.scss";
 
 
 const log = newLogger('pages/transacation/component/NewTransactionPage');
 
-
-const NewTransactionPage: React.FC<RouteComponentProps> = ({ }) => {
+interface NewTransactionPageProps extends RouteComponentProps<{
+    id?: string;
+}> { }
+const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match }) => {
 
     // Contexts
     const { axiosInstance } = useContext(AuthenticationContext);
 
     // States
+    const [accountId, setAccountId] = useState<number>();
+    const [message, setMessage] = useState<string>('');
     const [value, setValue] = useState<number>(0.0);
     const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
     const [date, setDate] = useState<string>(new Date().toISOString());
+
+    // Effects
+    useEffect(() => {
+        log('{useEffect}', '(accountId)', 'start');
+        const routeId = Number(match.params.id || '');
+        setAccountId(routeId);
+    }, [match.params.id]);
 
     return (
         <IonPage id='new-transaction-page'>
@@ -28,12 +40,25 @@ const NewTransactionPage: React.FC<RouteComponentProps> = ({ }) => {
                     <IonButtons>
                         <IonBackButton text='Transactions' />
                     </IonButtons>
-                    <IonToolbar>New transaction</IonToolbar>
+                </IonToolbar>
+                <IonToolbar>
+                    <IonTitle>New transaction</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
             <IonContent fullscreen>
                 <form onSubmit={handleNewTransaction}>
+                    <IonItem>
+                        <IonLabel position="floating">Message</IonLabel>
+                        <IonInput
+                            type="text"
+                            maxlength={255}
+                            required
+                            value={message}
+                            onIonChange={e => setMessage(e.detail.value || '')}
+                        />
+                    </IonItem>
+
                     <IonItem>
                         <IonLabel position="floating">Value</IonLabel>
                         <IonInput
@@ -71,6 +96,12 @@ const NewTransactionPage: React.FC<RouteComponentProps> = ({ }) => {
                             onIonChange={e => setDate((e.detail.value) ? new Date(e.detail.value).toISOString() : new Date().toISOString())}
                         />
                     </IonItem>
+
+                    <IonRow>
+                        <IonCol className="ion-text-center">
+                            <IonButton type="submit" expand="block">Create</IonButton>
+                        </IonCol>
+                    </IonRow>
                 </form>
             </IonContent>
 
@@ -90,7 +121,43 @@ const NewTransactionPage: React.FC<RouteComponentProps> = ({ }) => {
     function handleNewTransaction(e: React.FormEvent) {
         log('{handleNewTransaction}', 'start');
         e.preventDefault();
+        if (value <= 0) {
+            log('{handleNewTransaction}', 'invalid data');
+            toast.warning("The value must be greater than 0.");
+            return;
+        }
 
+        const transaction: Transaction = {
+            message: message,
+            value: value,
+            type: type,
+            date: date
+        }
+
+        postTransactionApi(axiosInstance!, accountId!, transaction)
+            .then(() => {
+                log('{handleNewTransaction}', 'sucess');
+                toast.success("Transaction created successfully.",
+                    {
+                        onClose: () => {
+                            history.goBack();
+                        }
+                    });
+            })
+            .catch((error) => {
+                log('{handleNewTransaction}', 'error');
+                if (error) {
+                    if (error.message) {
+                        toast.error(error.message);
+                    }
+                    else {
+                        toast.error(error);
+                    }
+                }
+                else {
+                    toast.error("Could not create the transaction.");
+                }
+            })
     }
 }
 

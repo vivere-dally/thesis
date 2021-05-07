@@ -70,7 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
         Pageable pageable = PageRequest.of(
                 optionalPage.orElse(0),
                 optionalSize.orElse(Integer.MAX_VALUE),
-                Sort.by(Sort.Direction.DESC, "date")
+                Sort.by("date").descending().and(Sort.by("id"))
         );
         return this.transactionRepository
                 .findAllByAccount(account, pageable)

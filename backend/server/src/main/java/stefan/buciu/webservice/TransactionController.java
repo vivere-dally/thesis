@@ -68,7 +68,7 @@ public class TransactionController {
 
         TransactionDTO result = this.transactionService.save(accountId, transactionDTO);
         AccountDTO account = this.accountService.findByUserIdAndId(userId, accountId);
-        this.entitySocketHandler.notifySessions(account, Action.UPDATE, userId);
+        this.entitySocketHandler.notifySessions(account, Action.PUT, userId);
 
         return ResponseEntity
                 .ok(result);
