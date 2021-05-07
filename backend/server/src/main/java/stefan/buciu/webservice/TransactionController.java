@@ -54,7 +54,7 @@ public class TransactionController {
                 .ok(result);
     }
 
-    @GetMapping()
+    @PostMapping()
     public ResponseEntity<TransactionDTO> save(
             @ApiParam(name = "userId", type = "long", value = "ID of the User", example = "1")
             @PathVariable Long userId,
