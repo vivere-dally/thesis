@@ -59,7 +59,7 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                 <TransactionFeed accountId={account?.id!} currencyType={account?.currency!} />
 
                 <IonFab slot='fixed' vertical='bottom' horizontal='end'>
-                    <IonFabButton onClick={() => history.push('/transaction-new')}>
+                    <IonFabButton onClick={() => history.push(`${account?.id!}/transaction-new`)}>
                         <IonIcon icon={add} />
                     </IonFabButton>
                 </IonFab>

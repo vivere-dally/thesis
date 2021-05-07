@@ -86,7 +86,7 @@ export const newAuthenticatedAxiosInstance:
 
                 loginByRefreshTokenApi(authenticationProps.refreshToken)
                     .then((result) => {
-                        delete error.config['Authorization'];
+                        delete error.config['Authorization']; // TODO not working as expected!
                         onSuccess(result, error.config);
                     })
                     .catch((error) => {
