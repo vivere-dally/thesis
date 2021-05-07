@@ -6,7 +6,7 @@
 
     <groupId>stefan.buciu</groupId>
     <artifactId>backend</artifactId>
-    <version>1.1.0-alpha</version>
+    <version>1.2.0-alpha</version>
     <description>The backend.</description>
     <properties>
         <java.version>11</java.version>
