@@ -162,8 +162,12 @@ function Mount-bsWebApp {
         }
 
         $params = @{
-            ResourceGroupName = $ResourceGroup.ResourceGroupName;
-            Name              = $wa.Name;
+            ResourceGroupName     = $ResourceGroup.ResourceGroupName;
+            Name                  = $wa.Name;
+
+            # TEMPORARY FIX FOR: https://github.com/Azure/azure-powershell/issues/14998
+            # DELETE THIS AFTER THE ISSUE GETS FIXED
+            Use32BitWorkerProcess = $false;
         }
 
         if (0 -lt $appSettings.Count) {
