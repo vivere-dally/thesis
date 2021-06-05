@@ -168,6 +168,11 @@ pipeline {
             }
 
             steps {
+                script {
+                    currentBuild.description = """Tag: ${env.Tag}
+ResourceGroupName: ${env.ResourceGroupName}"""
+                }
+
                 withCredentials([
                     string(credentialsId: 'azure_secrets', variable: 'azureSecrets'),
                     usernamePassword(credentialsId: 'azure_container_registry', passwordVariable: 'acrPassword', usernameVariable: 'acrUsername'),

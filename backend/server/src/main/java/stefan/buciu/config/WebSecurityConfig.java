@@ -19,6 +19,8 @@ import stefan.buciu.environment.AppSettings;
 import stefan.buciu.service.SecurityUserService;
 import stefan.buciu.service.UserService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 @EnableWebSecurity
@@ -64,7 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList("*")); // TODO - inject from config at deployment time the url of the api?
+        configuration.setAllowedOrigins(Arrays.asList(this.appSettings.getSecurityCorsAllowedOrigins()));
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
         configuration.setAllowCredentials(true);

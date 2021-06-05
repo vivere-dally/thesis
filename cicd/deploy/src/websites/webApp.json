@@ -98,6 +98,11 @@
         "Name": "SECURITY_REFRESH_TOKEN_TTL_MILLIS",
         "Value": "900000",
         "Expression": null
+      },
+      {
+        "Name": "SECURITY_CORS_ALLOWED_ORIGINS",
+        "Value": null,
+        "Expression": "\"https://$($ResourceGroup.ResourceGroupName).azurewebsites.net\""
       }
     ],
 

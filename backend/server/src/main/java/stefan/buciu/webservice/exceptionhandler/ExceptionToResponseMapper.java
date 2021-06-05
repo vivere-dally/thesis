@@ -5,8 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import stefan.buciu.domain.exception.UserAlreadyExistsException;
-import stefan.buciu.domain.exception.UserNotFoundException;
+import stefan.buciu.domain.exception.*;
 
 @ControllerAdvice
 public class ExceptionToResponseMapper extends ResponseEntityExceptionHandler {
@@ -28,4 +27,23 @@ public class ExceptionToResponseMapper extends ResponseEntityExceptionHandler {
     }
 
     //endregion
+
+    //region Account Errors
+    @ExceptionHandler(value = AccountHasInsufficientFundsException.class)
+    public ResponseEntity<ErrorResponse> handleAccountHasInsufficientFunds(AccountHasInsufficientFundsException exception) {
+        return getErrorResponse(exception, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(value = AccountNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAccountNotFound(AccountNotFoundException exception) {
+        return getErrorResponse(exception, HttpStatus.NOT_FOUND);
+    }
+
+    //endregion
+
+    @ExceptionHandler(value = EntitySocketNotificationException.class)
+    public ResponseEntity<ErrorResponse> handleEntitySocketNotification(EntitySocketNotificationException exception) {
+        return getErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

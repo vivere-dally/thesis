@@ -59,7 +59,7 @@ public class UserController {
             HttpServletRequest request
     ) {
         String username = (String) request.getAttribute("username");
-        UserAuthenticatedDTO userAuthenticatedDTO = this.userService.findByUsername(username);
-        return ResponseEntity.ok(userAuthenticatedDTO);
+        UserAuthenticatedDTO result = this.userService.findByUsername(username);
+        return ResponseEntity.ok(result);
     }
 }

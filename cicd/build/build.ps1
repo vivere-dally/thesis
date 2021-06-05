@@ -4,11 +4,7 @@ param (
     [Parameter(Mandatory = $false)]
     [AllowEmptyString()]
     [string]
-    $ProjectVersion,
-
-    [Parameter(Mandatory = $false)]
-    [boolean]
-    $FreshNpmModules = $false
+    $ProjectVersion
 )
 
 #Requires -RunAsAdministrator

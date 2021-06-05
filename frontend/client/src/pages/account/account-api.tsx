@@ -1,5 +1,7 @@
 import { AxiosInstance } from "axios";
+import { ActionPayload } from "../../core/entity";
 import { newLogger } from "../../core/utils";
+import { environment } from "../../environment/environment";
 import { Account } from "./account";
 
 
@@ -48,4 +50,14 @@ export const deleteAccountApi: (axiosInstantce: AxiosInstance, accountId: number
             log('{postAccountApi}', 'success');
             return response.data;
         })
+}
+
+export const newWebSocket: (userId: number, onMessage: (payload: any) => void) => WebSocket = (userId, onMessage) => {
+    const ws = new WebSocket(`${environment.WEB_API_WS_URL}/user/userId/${userId}`);
+    ws.onmessage = messageEvent => {
+        log('{newWebSocket}', '(onmessage)');
+        onMessage(JSON.parse(messageEvent.data));
+    }
+
+    return ws;
 }

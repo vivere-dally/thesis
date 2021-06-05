@@ -3,7 +3,7 @@ import { Account } from "./account";
 import { newLogger, ReactNodeLikeProps } from "../../core/utils";
 import React, { useCallback, useContext, useEffect, useReducer } from "react";
 import { AuthenticationContext } from "../../security/authentication/authentication-provider";
-import { deleteAccountApi, getAccountApi, getOneAccountApi, postAccountApi, putAccountApi } from "./account-api";
+import { deleteAccountApi, getAccountApi, getOneAccountApi, newWebSocket, postAccountApi, putAccountApi } from "./account-api";
 
 
 const log = newLogger('pages/account/account-provider');
@@ -37,6 +37,8 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
             cancelled = true;
         }
     }, [authenticationContext.isAuthenticated]);
+
+    useEffect(__wsEffect, [authenticationContext.isAuthenticated]);
 
     const value = { data, executing, actionType, actionError, get, getOne, post, put, remove };
     return (
@@ -125,5 +127,31 @@ export const AccountProvider: React.FC<ReactNodeLikeProps> = ({ children }) => {
                 log('{__remove}', 'failure');
                 dispatch({ actionState: ActionState.FAILED, actionType: ActionType.DELETE, data: error });
             });
+    }
+
+    function __wsEffect() {
+        if (!authenticationContext.isAuthenticated) {
+            return;
+        }
+
+        log('{__wsEffect}', 'start');
+        let cancelled = false;
+        const ws = newWebSocket(authenticationContext.authenticationProps?.user.id!, payload => {
+            log('{__wsEffect}', 'received a payload');
+            const account = payload.entity as Account;
+            const actionType = payload.actionType as ActionType;
+
+            if (cancelled) {
+                return;
+            }
+
+            dispatch({ actionType: actionType, actionState: ActionState.SUCCEEDED, data: account });
+        });
+
+        return () => {
+            log('{__wsEffect}', 'closing');
+            cancelled = true;
+            ws.close();
+        }
     }
 }
