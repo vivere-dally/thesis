@@ -53,7 +53,7 @@ function Build-Client {
     }
 
     # Build Client
-    'npm' | Invoke-GooNativeCommand -CommandArgs @('install') -Verbose
+    'npm' | Invoke-GooNativeCommand -CommandArgs @('ci') -Verbose
     'npm' | Invoke-GooNativeCommand -CommandArgs @('run', 'build', '--production') -Verbose
 
     # Zip Client's Artifacts

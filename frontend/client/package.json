@@ -11,12 +11,15 @@
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.3",
     "@types/jest": "^26.0.20",
+    "@types/jest-when": "^2.7.2",
     "@types/node": "^12.19.15",
     "@types/react": "^16.14.3",
     "@types/react-dom": "^16.9.10",
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
-    "axios": "0.21.1",
+    "axios": "^0.21.1",
+    "jest-junit": "^12.1.0",
+    "jest-when": "^3.3.1",
     "axios-retry": "3.1.9",
     "ionicons": "^5.4.0",
     "node-sass": "^5.0.0",
@@ -46,6 +49,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "citest": "react-scripts test --watchAll=false --reporters=jest-junit",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -67,7 +71,12 @@
     ]
   },
   "devDependencies": {
-    "@capacitor/cli": "2.4.6"
+    "@capacitor/cli": "2.4.6",
+    "@types/jest-when": "^2.7.2"
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "jest-junit": {
+    "outputDirectory": "./jest-reports",
+    "outputName": "jest-junit.xml"
+  }
 }
