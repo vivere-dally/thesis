@@ -14,7 +14,7 @@ try {
     'mvn' | Invoke-GooNativeCommand -CommandArgs @('test') -Verbose
 
     ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
-    # TODO client tests
+    'npm' | Invoke-GooNativeCommand -CommandArgs ('run', 'citest') -Verbose
 
     exit 0
 }
