@@ -4,7 +4,7 @@ import { when } from 'jest-when';
 
 const { Storage } = Plugins;
 
-describe('Storage CRUD', () => {
+describe('StorageCRUD', () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
