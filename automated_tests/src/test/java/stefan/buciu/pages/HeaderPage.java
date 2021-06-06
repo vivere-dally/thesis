@@ -10,6 +10,10 @@ public class HeaderPage extends PageObject {
         return WebElementUtils.exists(By.id("authentication-title"), getDriver(), null);
     }
 
+    public boolean isSignupTitleVisible() {
+        return WebElementUtils.exists(By.id("signup-title"), getDriver(), null);
+    }
+
     public boolean isAccountsTitleVisible() {
         return WebElementUtils.exists(By.id("accounts-title"), getDriver(), null);
     }

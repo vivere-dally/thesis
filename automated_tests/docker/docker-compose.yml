@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: mysql_selenium_automated_testing
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+
+  server:
+    image: server:${SERVER_IMAGE_TAG}
+    container_name: server_selenium_automated_testing
+    restart: always
+    ports:
+      - 5000:5000
+    depends_on:
+      - mysql
+    environment:
+      - SERVER_PORT=5000
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL5InnoDBDialect
+
+  client:
+    image: client:${CLIENT_IMAGE_TAG}
+    container_name: client_selenium_automated_testing
+    restart: always
+    ports:
+      - 8100:5000
+    depends_on:
+      - server

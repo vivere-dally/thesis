@@ -1,12 +1,10 @@
 package stefan.buciu.pages;
 
 import net.serenitybdd.core.annotations.findby.FindBy;
-import net.thucydides.core.annotations.DefaultUrl;
 import net.thucydides.core.pages.PageObject;
 import org.openqa.selenium.WebElement;
 
-@DefaultUrl("http://localhost:8100/login")
-public class LoginPage extends PageObject {
+public class SignupPage extends PageObject {
 
     @FindBy(xpath = "//ion-input[@id='username-text-input']/input")
     private WebElement usernameInput;
@@ -14,10 +12,7 @@ public class LoginPage extends PageObject {
     @FindBy(xpath = "//ion-input[@id='password-password-input']/input")
     private WebElement passwordInput;
 
-    @FindBy(id = "login-submit-button")
-    private WebElement loginButton;
-
-    @FindBy(id = "signup-button")
+    @FindBy(id = "signup-submit-button")
     private WebElement signupButton;
 
     public void inputUsername(String username) {
@@ -26,10 +21,6 @@ public class LoginPage extends PageObject {
 
     public void inputPassword(String password) {
         this.passwordInput.sendKeys(password);
-    }
-
-    public void clickLogin() {
-        this.loginButton.click();
     }
 
     public void clickSignup() {
