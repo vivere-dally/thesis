@@ -3,14 +3,10 @@ package stefan.buciu.utils;
 public class AccountTestState {
     private static AccountTestState instance = null;
 
-    public final String username;
-    public final String password;
-    public boolean first;
+    public final Credential credential;
 
     private AccountTestState() {
-        this.username = DataGenerator.username(true);
-        this.password = DataGenerator.password(true);
-        first = true;
+        this.credential = new Credential(true);
     }
 
     public static AccountTestState getInstance() {

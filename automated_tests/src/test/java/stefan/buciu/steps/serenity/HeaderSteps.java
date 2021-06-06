@@ -30,6 +30,16 @@ public class HeaderSteps {
     }
 
     @Step
+    public boolean isAccountFeedTitleVisible() {
+        return this.headerPage.isAccountFeedTitleVisible();
+    }
+
+    @Step
+    public boolean isNewTransactionTitleVisible() {
+        return this.headerPage.isNewTransactionTitleVisible();
+    }
+
+    @Step
     public void assertIsAuthenticationTitleVisible(boolean expected) {
         assertEquals(expected, this.isAuthenticationTitleVisible());
     }
@@ -47,5 +57,15 @@ public class HeaderSteps {
     @Step
     public void assertIsNewAccountTitleVisible(boolean expected) {
         assertEquals(expected, this.isNewAccountTitleVisible());
+    }
+
+    @Step
+    public void assertIsAccountFeedTitleVisible(boolean expected) {
+        assertEquals(expected, this.isAccountFeedTitleVisible());
+    }
+
+    @Step
+    public void assertIsNewTransactionTitleVisible(boolean expected) {
+        assertEquals(expected, this.isNewTransactionTitleVisible());
     }
 }

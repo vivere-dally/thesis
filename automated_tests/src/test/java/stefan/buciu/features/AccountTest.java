@@ -4,7 +4,6 @@ package stefan.buciu.features;
 import net.serenitybdd.junit.runners.SerenityRunner;
 import net.thucydides.core.annotations.Managed;
 import net.thucydides.core.annotations.Steps;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,33 +33,33 @@ public class AccountTest {
 
     @Before
     public void before() {
-        if (accountTestState.first) {
+        if (!accountTestState.credential.isCreated) {
             // Navigate to Signup Page
             loginSteps.openPage();
             loginSteps.clickSignup();
             headerSteps.assertIsSignupTitleVisible(true);
 
             // Signup
-            signupSteps.signup(accountTestState.username, accountTestState.password);
+            signupSteps.signup(accountTestState.credential.username, accountTestState.credential.password);
             headerSteps.assertIsAuthenticationTitleVisible(true);
 
-            accountTestState.first = false;
+            accountTestState.credential.isCreated = true;
         }
 
         // Login
         loginSteps.openPage();
-        loginSteps.login(accountTestState.username, accountTestState.password);
+        loginSteps.login(accountTestState.credential.username, accountTestState.credential.password);
         headerSteps.assertIsAccountsTitleVisible(true);
+
+        // Navigate to NewAccount Page
+        accountSteps.clickNewAccount();
+        headerSteps.assertIsNewAccountTitleVisible(true);
     }
 
     @Test
     public void createAccount_success() {
         String money = DataGenerator.money(true);
         String monthlyIncome = DataGenerator.money(true);
-
-        // Navigate to NewAccount Page
-        accountSteps.clickNewAccount();
-        headerSteps.assertIsNewAccountTitleVisible(true);
 
         // Create Account
         newAccountSteps.createAccount(money, monthlyIncome);
@@ -76,10 +75,6 @@ public class AccountTest {
 
     @Test
     public void createAccount_noInput() {
-        // Navigate to NewAccount Page
-        accountSteps.clickNewAccount();
-        headerSteps.assertIsNewAccountTitleVisible(true);
-
         newAccountSteps.clickCreate();
         headerSteps.assertIsNewAccountTitleVisible(true);
     }
@@ -88,10 +83,6 @@ public class AccountTest {
     public void createAccount_badInput() {
         String money = DataGenerator.money(false);
         String monthlyIncome = DataGenerator.money(false);
-
-        // Navigate to NewAccount Page
-        accountSteps.clickNewAccount();
-        headerSteps.assertIsNewAccountTitleVisible(true);
 
         // Create Account
         newAccountSteps.createAccount(money, monthlyIncome);

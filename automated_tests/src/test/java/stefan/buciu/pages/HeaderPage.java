@@ -21,4 +21,12 @@ public class HeaderPage extends PageObject {
     public boolean isNewAccountTitleVisible() {
         return WebElementUtils.exists(By.id("new_account-title"), getDriver(), null);
     }
+
+    public boolean isAccountFeedTitleVisible() {
+        return WebElementUtils.exists(By.id("account_feed-title"), getDriver(), null);
+    }
+
+    public boolean isNewTransactionTitleVisible() {
+        return WebElementUtils.exists(By.id("new_transaction-title"), getDriver(), null);
+    }
 }

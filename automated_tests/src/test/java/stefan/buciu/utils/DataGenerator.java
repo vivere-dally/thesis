@@ -37,4 +37,8 @@ public class DataGenerator {
                 faker.number().numberBetween(MONEY_MIN_VALUE, MONEY_MAX_VALUE),
                 faker.number().numberBetween(111, MONEY_MAX_VALUE));
     }
+
+    public static String message() {
+        return password(true);
+    }
 }

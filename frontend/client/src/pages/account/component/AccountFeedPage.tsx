@@ -43,7 +43,7 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                     </IonButtons>
                 </IonToolbar>
                 <IonToolbar>
-                    <IonTitle className="ion-text-center">
+                    <IonTitle className="ion-text-center" id='account_feed-title'>
                         <IonLabel>{authenticationProps?.user.username}</IonLabel><br />
                         <IonLabel>{account?.money} {account?.currency}</IonLabel><br />
                     </IonTitle>
@@ -55,11 +55,11 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                 </IonToolbar>
             </IonHeader>
 
-            <IonContent fullscreen>
+            <IonContent fullscreen id='account_feed_page-ion_content'>
                 <TransactionFeed accountId={account?.id!} currencyType={account?.currency!} />
 
                 <IonFab slot='fixed' vertical='bottom' horizontal='end'>
-                    <IonFabButton onClick={() => history.push(`${account?.id!}/transaction-new`)}>
+                    <IonFabButton onClick={() => history.push(`${account?.id!}/transaction-new`)} id='new_transaction-button'>
                         <IonIcon icon={add} />
                     </IonFabButton>
                 </IonFab>
