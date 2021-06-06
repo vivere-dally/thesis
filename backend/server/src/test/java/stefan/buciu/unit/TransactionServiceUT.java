@@ -2,12 +2,12 @@ package stefan.buciu.unit;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.*;
+import stefan.buciu.domain.exception.AccountHasInsufficientFundsException;
 import stefan.buciu.domain.exception.AccountNotFoundException;
 import stefan.buciu.domain.model.*;
 import stefan.buciu.domain.model.dto.TransactionDTO;
@@ -18,7 +18,10 @@ import stefan.buciu.service.TransactionServiceImpl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -88,6 +91,59 @@ public class TransactionServiceUT {
         mockAccountRepositoryFindById(accountId, null);
 
         assertThrows(AccountNotFoundException.class, () -> transactionService.save(accountId, new TransactionDTO()));
+        verify(accountRepository, times(1)).findById(accountId);
+    }
+
+    @Test
+    public void save_notEnoughFunds() {
+        User user = new User();
+        Account account = new Account(1L, 1, BigDecimal.ZERO, BigDecimal.ONE, CurrencyType.RON, user);
+        TransactionDTO expected = new TransactionDTO(2L, "test", BigDecimal.ONE, TransactionType.EXPENSE, LocalDateTime.now());
+        Transaction transaction = expected.toEntity();
+        transaction.setAccount(account);
+
+        mockAccountRepositoryFindById(account.getId(), account);
+
+        assertThrows(AccountHasInsufficientFundsException.class, () -> transactionService.save(account.getId(), expected));
+        verify(accountRepository, times(1)).findById(account.getId());
+    }
+
+    @Test
+    public void findAllByAccountId_success() {
+        Account account = new Account(1L, 1, BigDecimal.ZERO, BigDecimal.ONE, CurrencyType.RON, new User());
+        List<Transaction> data = Arrays.asList(
+                new Transaction(1L, 1, "test", BigDecimal.ONE, TransactionType.INCOME, LocalDateTime.now(), account),
+                new Transaction(2L, 1, "test", BigDecimal.ONE, TransactionType.INCOME, LocalDateTime.now(), account),
+                new Transaction(3L, 1, "test", BigDecimal.ONE, TransactionType.INCOME, LocalDateTime.now(), account));
+        List<TransactionDTO> expected = data.stream().map(TransactionDTO::new).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("date").descending().and(Sort.by("id")));
+        Page<Transaction> page = new PageImpl<>(data, pageable, data.size());
+
+        mockAccountRepositoryFindById(account.getId(), account);
+        when(transactionRepository.findAllByAccount(account, pageable)).thenReturn(page);
+
+        List<TransactionDTO> actual = transactionService.findAllByAccountId(account.getId(), null, null);
+
+        verify(accountRepository, times(1)).findById(account.getId());
+        verify(transactionRepository, times(1)).findAllByAccount(account, pageable);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void findAllByAccountId_incorrectPaginationArguments() {
+        long accountId = 1L;
+        Integer page = null, size = 5;
+
+        assertThrows(IllegalArgumentException.class, () -> transactionService.findAllByAccountId(accountId, page, size));
+    }
+
+    @Test
+    public void findAllByAccountId_accountDoesNotExist() {
+        long accountId = 1L;
+
+        mockAccountRepositoryFindById(accountId, null);
+
+        assertThrows(AccountNotFoundException.class, () -> transactionService.findAllByAccountId(accountId, null, null));
         verify(accountRepository, times(1)).findById(accountId);
     }
 
