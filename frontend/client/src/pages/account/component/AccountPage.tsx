@@ -29,9 +29,9 @@ const AccountPage: React.FC<RouteComponentProps> = ({ history }) => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="end">
-                        <IonButton onClick={handleLogout}>Logout</IonButton>
+                        <IonButton onClick={handleLogout} id="logout-button">Logout</IonButton>
                     </IonButtons>
-                    <IonTitle>Accounts</IonTitle>
+                    <IonTitle id='accounts-title'>Accounts</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -55,7 +55,7 @@ const AccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                 }
 
                 <IonFab slot='fixed' vertical='bottom' horizontal='end'>
-                    <IonFabButton onClick={() => history.push('/account-new')}>
+                    <IonFabButton onClick={() => history.push('/account-new')} id="new_account-button">
                         <IonIcon icon={add} />
                     </IonFabButton>
                 </IonFab>
