@@ -1,0 +1,3 @@
+username,password,valid
+admin,Admin123@@,true
+bad_username,bad_password,false
