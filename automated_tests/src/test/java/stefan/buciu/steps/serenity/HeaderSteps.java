@@ -25,6 +25,11 @@ public class HeaderSteps {
     }
 
     @Step
+    public boolean isNewAccountTitleVisible() {
+        return this.headerPage.isNewAccountTitleVisible();
+    }
+
+    @Step
     public void assertIsAuthenticationTitleVisible(boolean expected) {
         assertEquals(expected, this.isAuthenticationTitleVisible());
     }
@@ -37,5 +42,10 @@ public class HeaderSteps {
     @Step
     public void assertIsAccountsTitleVisible(boolean expected) {
         assertEquals(expected, this.isAccountsTitleVisible());
+    }
+
+    @Step
+    public void assertIsNewAccountTitleVisible(boolean expected) {
+        assertEquals(expected, this.isNewAccountTitleVisible());
     }
 }
