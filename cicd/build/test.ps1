@@ -11,8 +11,8 @@ $Global:ErrorActionPreference = 'Stop'
 
 try {
     ("$PSScriptRoot/../../backend/server" | Resolve-Path).Path | Set-Location
-    'mvn' | Invoke-GooNativeCommand -CommandArgs @('surefire:test', '-DTest=*UT') -Verbose
-    'mvn' | Invoke-GooNativeCommand -CommandArgs @('surefire:test', '-DTest=*IT') -Verbose
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('surefire:test', '-Dtest=*UT') -Verbose
+    'mvn' | Invoke-GooNativeCommand -CommandArgs @('surefire:test', '-Dtest=*IT') -Verbose
 
     ("$PSScriptRoot/../../frontend/client" | Resolve-Path).Path | Set-Location
     'npm' | Invoke-GooNativeCommand -CommandArgs ('run', 'citest') -Verbose
