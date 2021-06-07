@@ -50,7 +50,16 @@ try {
     '../' | Set-Location
 
     try {
-        Start-Sleep -Seconds 20
+        # Wait until the server is running
+        while ($true) {
+            Start-Sleep -Seconds 3
+            try {
+                Invoke-WebRequest -Method Options -Uri 'http://localhost:5000/api/swagger-ui/#/' | Out-Null
+                break
+            }
+            catch {}
+        }
+
         # Run automated tests
         'mvn' | Invoke-GooNativeCommand -CommandArgs ('verify')
     }

@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
+import { environment } from "../../../environment/environment";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
 import TransactionFeed from "../../transaction/component/TransactionFeed";
 import { Account } from "../account";
@@ -66,7 +67,7 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
 
                 <ToastContainer
                     position="bottom-center"
-                    autoClose={2000}
+                    autoClose={environment.TOAST_TIME_IN_SECONDS}
                     hideProgressBar={false}
                     newestOnTop={false}
                     rtl={false}
