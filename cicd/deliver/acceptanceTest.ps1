@@ -23,10 +23,18 @@ param (
 #Requires -Version 7.1.3
 #Requires -PSEdition Core
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
+#Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
 
 $Global:ErrorActionPreference = 'Stop'
 
 try {
+    if (-not ($Tag | Test-GooSemVer)) {
+        throw "The Project Version $Tag is not following the SemVer guidelines."
+    }
+
+    # Discard build metadata
+    $Tag = $Tag | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
+
     # Login
     'docker' | Invoke-GooNativeCommand -CommandArgs @('login', "$ACRUsername.azurecr.io", '-u', $ACRUsername, '-p', $ACRPassword)
 

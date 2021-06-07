@@ -95,6 +95,11 @@ ProjectVersion: ${env.ProjectVersion}"""
         success {
             archiveArtifacts artifacts: "backend/server/target/*.jar", fingerprint: true
             archiveArtifacts artifacts: "frontend/client/*.zip", fingerprint: true
+            build wait: false, job: "thesis-deliverv3/${env.BRANCH_NAME}", parameters: [
+                string(name: 'BranchName', value: "${env.BRANCH_NAME}"),
+                string(name: 'ResourceGroupName', value: 'bsirprod'),
+                string(name: 'Tag', value: "${env.ProjectVersion}")
+            ]
         }
 
         cleanup {

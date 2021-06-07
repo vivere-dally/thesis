@@ -162,9 +162,12 @@ pipeline {
     }
 
     stages {
-        stage('Deliver') {
+        stage('Acceptance Test') {
             when {
-                triggeredBy cause: 'UserIdCause'
+                anyOf {
+                    triggeredBy 'UserIdCause'
+                    triggeredBy 'UpstreamCause'
+                }
             }
 
             steps {
@@ -174,32 +177,57 @@ ResourceGroupName: ${env.ResourceGroupName}"""
                 }
 
                 withCredentials([
+                    usernamePassword(credentialsId: 'azure_container_registry', passwordVariable: 'acrPassword', usernameVariable: 'acrUsername'),
+                ]) {
+                    ansiColor('xterm') {
+                        pwsh label: 'Deploy to Azure', script: '''
+                            ./cicd/deliver/src/acceptanceTest.ps1 `
+                                -ACRUsername $env:acrUsername `
+                                -ACRPassword $env:acrPassword `
+                                -Tag $env:Tag `
+                                -BranchName $env:BRANCH_NAME
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deliver') {
+            when {
+                anyOf {
+                    triggeredBy 'UserIdCause'
+                    triggeredBy 'UpstreamCause'
+                }
+            }
+
+            steps {
+                withCredentials([
                     string(credentialsId: 'azure_secrets', variable: 'azureSecrets'),
                     usernamePassword(credentialsId: 'azure_container_registry', passwordVariable: 'acrPassword', usernameVariable: 'acrUsername'),
                     usernamePassword(credentialsId: 'azure_my_sql_credentials', passwordVariable: 'mySqlPassword', usernameVariable: 'mySqlUsername')
                 ]) {
-                ansiColor('xterm') {
-                    pwsh label: 'Deploy to Azure', script: '''
-                        $ErrorActionPreference = 'Stop'
-                        Set-Item Env:\\SuppressAzurePowerShellBreakingChangeWarnings 'true'
+                    ansiColor('xterm') {
+                        pwsh label: 'Deploy to Azure', script: '''
+                            $ErrorActionPreference = 'Stop'
+                            Set-Item Env:\\SuppressAzurePowerShellBreakingChangeWarnings 'true'
 
-                        $params = @{}
-                        $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
+                            $params = @{}
+                            $env:azureSecrets.Split('&') | ForEach-Object { $kvp = $_.Split('='); $params[$kvp[0]] = $kvp[1] }
 
-                        ./cicd/deliver/src/run.ps1 `
-                            -SubscriptionId $params.subscriptionId `
-                            -TenantId $params.tenantId `
-                            -ClientId $params.clientId `
-                            -ClientSecret $params.clientSecret `
-                            -ResourceGroupName $env:ResourceGroupName `
-                            -Location 'westeurope' `
-                            -ACRUsername $env:acrUsername `
-                            -ACRPassword $env:acrPassword `
-                            -BranchName $env:BRANCH_NAME `
-                            -Tag $env:Tag `
-                            -MySqlUsername $env:mySqlUsername `
-                            -MySqlPassword $env:mySqlPassword
-                    '''
+                            ./cicd/deliver/src/deliver.ps1 `
+                                -SubscriptionId $params.subscriptionId `
+                                -TenantId $params.tenantId `
+                                -ClientId $params.clientId `
+                                -ClientSecret $params.clientSecret `
+                                -ResourceGroupName $env:ResourceGroupName `
+                                -Location 'westeurope' `
+                                -ACRUsername $env:acrUsername `
+                                -ACRPassword $env:acrPassword `
+                                -BranchName $env:BRANCH_NAME `
+                                -Tag $env:Tag `
+                                -MySqlUsername $env:mySqlUsername `
+                                -MySqlPassword $env:mySqlPassword
+                        '''
                     }
                 }
 

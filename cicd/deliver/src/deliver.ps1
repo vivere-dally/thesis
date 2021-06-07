@@ -63,13 +63,21 @@ $Global:GooLogAnsiPreference = 'Set'
 #Requires -Module @{ ModuleName = 'Az.MySql'; RequiredVersion = '0.6.0' }
 #Requires -Module @{ ModuleName = 'LogGoodies'; RequiredVersion = '0.1.1' }
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
+#Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
 
 Import-Module -Name (Get-ChildItem -Path $PSScriptRoot -Filter '*.psm1' -Recurse | Select-Object -ExpandProperty FullName) -Global -Force
 $config = Get-ChildItem -Path $PSScriptRoot -Filter '*.json' -Recurse | ForEach-Object { @{$_.BaseName = Get-Content -Path $_.FullName | ConvertFrom-Json -AsHashtable } }
 
 function Start-Deployment {
     try {
-        Add-GooLogPath "$PSScriptRoot\run.log" -Force
+        if (-not ($Tag | Test-GooSemVer)) {
+            throw "The Project Version $Tag is not following the SemVer guidelines."
+        }
+
+        # Discard build metadata
+        $Tag = $Tag | Reset-GooSemVer -Identifier Buildmetadata | Reset-GooSemVer -Identifier Buildmetadata
+
+        Add-GooLogPath "$PSScriptRoot\deliver.log" -Force
         'CREATE', 'UPDATE', 'MOUNT' | Add-GooLogLevel
         New-GooLogMessage -Stage | Write-GooLog
 
