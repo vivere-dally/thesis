@@ -192,6 +192,12 @@ ResourceGroupName: ${env.ResourceGroupName}"""
                     }
                 }
             }
+
+            post {
+                always {
+                    junit "automated_tests/target/failsafe-reports/*.xml"
+                }
+            }
         }
 
         stage('Deliver') {
