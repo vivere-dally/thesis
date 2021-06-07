@@ -49,17 +49,21 @@ try {
 
     '../' | Set-Location
 
-    # Run automated tests
-    'mvn' | Invoke-GooNativeCommand -CommandArgs ('verify')
+    try {
+        Start-Sleep -Seconds 20
+        # Run automated tests
+        'mvn' | Invoke-GooNativeCommand -CommandArgs ('verify')
+    }
+    finally {
+        './docker' | Set-Location
 
-    './docker' | Set-Location
+        # docker-compose down
+        'docker-compose' | Invoke-GooNativeCommand -CommandArgs @('down')
 
-    # docker-compose down
-    'docker-compose' | Invoke-GooNativeCommand -CommandArgs @('down')
-
-    # Remove downloaded images
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $envHash.SERVER_IMAGE)
-    'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $envHash.CLIENT_IMAGE)
+        # Remove downloaded images
+        'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $envHash.SERVER_IMAGE)
+        'docker' | Invoke-GooNativeCommand -CommandArgs @('rmi', $envHash.CLIENT_IMAGE)
+    }
 
     exit 0
 }

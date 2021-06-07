@@ -51,6 +51,7 @@ ProjectVersion: ${env.ProjectVersion}"""
             post {
                 always {
                     junit "backend/server/target/surefire-reports/*.xml"
+                    junit "backend/server/target/failsafe-reports/*.xml"
                     junit "frontend/client/jest-reports/*.xml"
                 }
             }
