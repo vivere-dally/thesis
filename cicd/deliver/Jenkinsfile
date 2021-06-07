@@ -181,7 +181,9 @@ ResourceGroupName: ${env.ResourceGroupName}"""
                 ]) {
                     ansiColor('xterm') {
                         pwsh label: 'Deploy to Azure', script: '''
-                            ./cicd/deliver/src/acceptanceTest.ps1 `
+                            $ErrorActionPreference = 'Stop'
+
+                            ./cicd/deliver/acceptanceTest.ps1 `
                                 -ACRUsername $env:acrUsername `
                                 -ACRPassword $env:acrPassword `
                                 -Tag $env:Tag `
