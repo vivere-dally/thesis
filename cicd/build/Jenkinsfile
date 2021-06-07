@@ -6,7 +6,7 @@ pipeline {
     }
 
     options {
-        copyArtifactPermission 'thesis-deploy'
+        copyArtifactPermission '*'
         buildDiscarder logRotator(numToKeepStr: '10')
         skipStagesAfterUnstable()
         ansiColor('xterm')
@@ -18,7 +18,7 @@ pipeline {
     }
 
     stages {
-        stage('Init') {
+        stage('Build') {
             steps {
                 script {
                     env.Release = params.Release ? params.Release : ''
@@ -34,11 +34,7 @@ pipeline {
 Prerelease: ${env.Prerelease ? env.Prerelease : 'not set'}
 ProjectVersion: ${env.ProjectVersion}"""
                 }
-            }
-        }
 
-        stage('Build') {
-            steps {
                 pwsh label: 'Run build script', script: '''
                     ./cicd/build/build.ps1 -ProjectVersion $env:ProjectVersion
                 '''
@@ -60,14 +56,14 @@ ProjectVersion: ${env.ProjectVersion}"""
             }
         }
 
-        stage('Deploy') {
+        stage('Dockerize') {
             environment {
                 ACR_CRED = credentials('azure_container_registry')
             }
 
             steps {
-                pwsh label: 'Run deploy script', script: '''
-                    ./cicd/build/deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
+                pwsh label: 'Run Docker Image script', script: '''
+                    ./cicd/build/dockerImage.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
                 '''
             }
         }

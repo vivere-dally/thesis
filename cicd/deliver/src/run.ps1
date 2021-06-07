@@ -69,7 +69,7 @@ $config = Get-ChildItem -Path $PSScriptRoot -Filter '*.json' -Recurse | ForEach-
 
 function Start-Deployment {
     try {
-        Add-GooLogPath "$PSScriptRoot\deploy.log" -Force
+        Add-GooLogPath "$PSScriptRoot\run.log" -Force
         'CREATE', 'UPDATE', 'MOUNT' | Add-GooLogLevel
         New-GooLogMessage -Stage | Write-GooLog
 
