@@ -1,5 +1,5 @@
 
-export const IS_PRODUCTION = window.location.hostname.includes('localhost')
+export const IS_PRODUCTION = !window.location.hostname.includes('localhost')
 
 const common = {
     STORAGE_REFRESH_TOKEN_KEY: "__REFRESH_TOKEN__",
