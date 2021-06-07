@@ -1,11 +1,13 @@
 
+export const IS_PRODUCTION = window.location.hostname.includes('localhost')
+
 const common = {
     STORAGE_REFRESH_TOKEN_KEY: "__REFRESH_TOKEN__",
     PAGE_SIZE: 10
 }
 
 export const environment =
-    (process.env.NODE_ENV === 'production') ?
+    (IS_PRODUCTION) ?
         (
             () => {
                 let [domain, ...rest] = window.location.hostname.split(".");
