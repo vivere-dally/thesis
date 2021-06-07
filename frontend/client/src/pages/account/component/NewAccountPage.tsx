@@ -28,7 +28,7 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonButtons>
                         <IonBackButton text='Accounts' defaultHref='/account' />
                     </IonButtons>
-                    <IonTitle>New account</IonTitle>
+                    <IonTitle id='new_account-title'>New account</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -39,6 +39,7 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                         <IonSelect
                             value={currencyType}
                             onIonChange={e => setCurrencyType(e.detail.value)}
+                            id="currency-select"
                         >
                             {
                                 Object
@@ -59,6 +60,7 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                             required
                             value={money}
                             onIonChange={e => setMoney(parseFloat(e.detail.value || "0.0"))}
+                            id="money-number-input"
                         />
                     </IonItem>
 
@@ -71,12 +73,13 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                             required
                             value={monthlyIncome}
                             onIonChange={e => setMonthlyIncome(parseFloat(e.detail.value || "0.0"))}
+                            id="monthly_income-number-input"
                         />
                     </IonItem>
 
                     <IonRow>
                         <IonCol className="ion-text-center">
-                            <IonButton type="submit" expand="block">Create</IonButton>
+                            <IonButton type="submit" expand="block" id="create-submit-button">Create</IonButton>
                         </IonCol>
                     </IonRow>
                 </form>

@@ -1,0 +1,7 @@
+spring:
+  rest:
+    base-url: http://localhost:5000/api
+    signup-path: signup
+    login-path: login
+    account-path: account
+    transaction-path: transaction

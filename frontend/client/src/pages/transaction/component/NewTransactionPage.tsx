@@ -23,7 +23,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
     const [accountId, setAccountId] = useState<number>();
     const [message, setMessage] = useState<string>('');
     const [value, setValue] = useState<number>(0.0);
-    const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
+    const [type, setType] = useState<TransactionType>(TransactionType.INCOME);
     const [date, setDate] = useState<string>(new Date().toISOString());
 
     // Effects
@@ -42,7 +42,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
                     </IonButtons>
                 </IonToolbar>
                 <IonToolbar>
-                    <IonTitle>New transaction</IonTitle>
+                    <IonTitle id='new_transaction-title'>New transaction</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -56,6 +56,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
                             required
                             value={message}
                             onIonChange={e => setMessage(e.detail.value || '')}
+                            id="message-text-input"
                         />
                     </IonItem>
 
@@ -68,6 +69,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
                             required
                             value={value}
                             onIonChange={e => setValue(parseFloat(e.detail.value || "0.0"))}
+                            id="value-number-input"
                         />
                     </IonItem>
 
@@ -99,7 +101,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
 
                     <IonRow>
                         <IonCol className="ion-text-center">
-                            <IonButton type="submit" expand="block">Create</IonButton>
+                            <IonButton type="submit" expand="block" id="create-submit-button">Create</IonButton>
                         </IonCol>
                     </IonRow>
                 </form>

@@ -37,7 +37,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonButtons>
                         <IonMenuButton></IonMenuButton>
                     </IonButtons>
-                    <IonTitle>Authentication</IonTitle>
+                    <IonTitle id='authentication-title'>Authentication</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -52,6 +52,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={username}
                             onIonChange={e => setUsername(e.detail.value!)}
                             required
+                            id = "username-text-input"
                         />
                     </IonItem>
 
@@ -62,16 +63,17 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={password}
                             onIonChange={e => setPassword(e.detail.value!)}
                             required
+                            id = "password-password-input"
                         />
                     </IonItem>
 
                     <IonRow>
                         <IonCol>
-                            <IonButton fill="clear" routerLink="/signup" expand={"block"}>Signup</IonButton>
+                            <IonButton fill="clear" routerLink="/signup" expand={"block"} id="signup-button">Signup</IonButton>
                         </IonCol>
 
                         <IonCol>
-                            <IonButton type={"submit"} expand={"block"}>Login</IonButton>
+                            <IonButton type={"submit"} expand={"block"} id="login-submit-button">Login</IonButton>
                         </IonCol>
                     </IonRow>
                 </form>

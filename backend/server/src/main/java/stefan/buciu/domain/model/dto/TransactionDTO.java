@@ -49,6 +49,7 @@ public class TransactionDTO implements DTO<Transaction, Long> {
     @Override
     public Transaction toEntity() {
         Transaction transaction = new Transaction();
+        transaction.setId(this.id);
         transaction.setMessage(this.message);
         transaction.setValue(this.value);
         transaction.setType(this.type);

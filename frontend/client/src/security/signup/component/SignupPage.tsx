@@ -26,7 +26,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonButtons>
                         <IonBackButton text='Login' defaultHref='/login' />
                     </IonButtons>
-                    <IonTitle>Signup</IonTitle>
+                    <IonTitle id='signup-title'>Signup</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
@@ -42,6 +42,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
                                 value={username}
                                 onIonChange={e => setUsername(e.detail.value!)}
                                 required
+                                id="username-text-input"
                             />
                         </IonItem>
                         {
@@ -62,6 +63,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
                                 value={password}
                                 onIonChange={e => setPassword(e.detail.value!)}
                                 required
+                                id="password-password-input"
                             />
                         </IonItem>
                         {
@@ -76,7 +78,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
 
                     <IonRow>
                         <IonCol>
-                            <IonButton type={"submit"} expand={"block"}>Signup</IonButton>
+                            <IonButton type={"submit"} expand={"block"} id="signup-submit-button">Signup</IonButton>
                         </IonCol>
                     </IonRow>
                 </form>

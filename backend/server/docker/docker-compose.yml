@@ -1,15 +1,14 @@
 version: '3.8'
 services:
-  backend:
-    image: backend:local
-    container_name: backend
+  server:
+    image: server:local
+    container_name: server
     restart: always
     build:
       context: ./../
       dockerfile: ./docker/Dockerfile
     ports:
-      # Azure Web App exposes port 80
-      - 80:5000
+      - 5000:5000
     depends_on:
       - mysql
     environment:

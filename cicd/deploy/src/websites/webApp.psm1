@@ -215,7 +215,9 @@ function Mount-bsWebApp {
         'Done' | Write-GooLog
 
         "Restarting to apply the latest changes" | Write-GooLog
-        $wa | Restart-AzWebApp | Out-Null
+        $wa = $wa | Stop-AzWebApp
+        Start-Sleep -Seconds 10
+        $wa = $wa | Start-AzWebApp
 
         $wa.Name | Write-GooLog -Level MOUNT
         New-GooLogMessage -Separator | Write-GooLog
