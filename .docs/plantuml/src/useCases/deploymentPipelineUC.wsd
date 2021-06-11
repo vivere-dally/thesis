@@ -1,0 +1,39 @@
+@startuml UseCase_DeploymentPipeline
+
+' Declaration
+actor Developer
+actor "Docker Image\n   Repository"
+cloud "Production Environment"
+
+rectangle DeploymentPipeline {
+  (Continuous Integration)
+  (Build)
+  (Test)
+  (Dockerize)
+
+  (Continuous Delivery)
+  (Acceptance Testing)
+  (Production Environment\n Provisioning)
+
+  (Continuous Deployment)
+}
+
+' Dependency
+Developer --> (Continuous Integration)
+Developer --> (Continuous Delivery)
+Developer --> (Continuous Deployment)
+
+(Continuous Integration) --> (Build): <<Includes>>
+(Continuous Integration) --> (Test): <<Includes>>
+(Continuous Integration) --> (Dockerize): <<Includes>>
+
+(Continuous Delivery) --> (Docker Image\n   Repository)
+(Continuous Delivery) --> (Acceptance Testing): <<Includes>>
+(Continuous Delivery) --> (Production Environment\n Provisioning): <<Includes>>
+
+(Continuous Deployment) --> (Continuous Integration): <<Includes>>
+(Continuous Deployment) --> (Continuous Delivery): <<Includes>>
+
+Dockerize --> (Docker Image\n   Repository)
+(Production Environment\n Provisioning) --> (Production Environment)
+@enduml

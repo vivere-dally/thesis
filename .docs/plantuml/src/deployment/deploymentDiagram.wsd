@@ -1,0 +1,56 @@
+@startuml DeploymentDiagram
+
+' Declaration
+' node ASP
+' node Client
+' node Server
+database MySQL
+storage "Storage Account" as SA
+
+' Dependency
+node "App Service Plan" as ASP {
+  node "App Service2" as AP2 {
+    node "AS2_Docker Container1" as DC2 {
+      node Server
+    }
+  }
+  node "App Service1" as AP1 {
+    node "AS1_Docker Container1" as DC1 {
+      node Client
+    }
+  }
+}
+
+note left of ASP
+App Service Plan
+<code>
+  - Tier: Basic
+  - Worker Size: Medium
+  - Number of Workers: 1
+Price compute: $0.15/hour
+</code>
+end note
+
+
+Client -> Server: <<HTTP>>
+Server --> MySQL: <<JDBC>>
+Server --> SA: <<HTTP>>
+
+note left of MySQL
+My SQL Server
+<code>
+  - Tier: Basic Gen5
+  - Storage: 5GB
+Price compute: $0.176/hour
+Price storage: $0.115/GB/month
+</code>
+end note
+
+note left of SA
+Storage Account
+<code>
+  - Tier: Standard
+Price: $0.15/GB/month
+</code>
+end note
+@enduml
