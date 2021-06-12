@@ -2,38 +2,39 @@
 
 ' Declaration
 actor Developer
-actor "Docker Image\n   Repository"
-cloud "Production Environment"
+actor "Docker Image Repository" as DIR
+actor "Cloud Provider" as CP
 
 rectangle DeploymentPipeline {
-  (Continuous Integration)
+  (Continuous Integration) as CI
   (Build)
   (Test)
   (Dockerize)
 
-  (Continuous Delivery)
-  (Acceptance Testing)
-  (Production Environment\n Provisioning)
+  (Continuous Delivery) as CDE
+  (Acceptance Testing) as AT
+  (Production Environment\n Provisioning) as PEP
 
-  (Continuous Deployment)
+  (Continuous Deployment) as CD
 }
 
 ' Dependency
-Developer --> (Continuous Integration)
-Developer --> (Continuous Delivery)
-Developer --> (Continuous Deployment)
+Developer -- CI
+Developer -- CDE
+Developer -- CD
 
-(Continuous Integration) --> (Build): <<Includes>>
-(Continuous Integration) --> (Test): <<Includes>>
-(Continuous Integration) --> (Dockerize): <<Includes>>
+CI ..> Build: <<Includes>>
+CI ..> Test: <<Includes>>
+CI ..> Dockerize: <<Includes>>
 
-(Continuous Delivery) --> (Docker Image\n   Repository)
-(Continuous Delivery) --> (Acceptance Testing): <<Includes>>
-(Continuous Delivery) --> (Production Environment\n Provisioning): <<Includes>>
+CDE -- DIR
+CDE ..> AT: <<Includes>>
+CDE ..> PEP: <<Includes>>
 
-(Continuous Deployment) --> (Continuous Integration): <<Includes>>
-(Continuous Deployment) --> (Continuous Delivery): <<Includes>>
+CD ..> CI: <<Includes>>
+CD ..> CDE: <<Includes>>
 
-Dockerize --> (Docker Image\n   Repository)
-(Production Environment\n Provisioning) --> (Production Environment)
+Dockerize -- DIR
+PEP -- CP
+
 @enduml
