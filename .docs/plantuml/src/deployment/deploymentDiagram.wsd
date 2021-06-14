@@ -65,12 +65,12 @@ Price compute: $0.15/hour
 end note
 
 
-Client -> Server: <<HTTP>>
-Server -u-> MySQL: <<JDBC>>
-Server -u-> SA: <<HTTP>>
+Client - Server: <<HTTP>>
+Server -u- MySQL: <<JDBC>>
+Server -u- SA: <<HTTP>>
 
-WB -u-> Client: <<HTTP>>
-MB -u-> Client: <<HTTP>>
-MA -u-> Server: <<HTTP>>
+WB -u- Client: <<HTTP>>
+MB -u- Client: <<HTTP>>
+MA -u- Server: <<HTTP>>
 
 @enduml
