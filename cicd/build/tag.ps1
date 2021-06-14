@@ -14,6 +14,7 @@ param (
 #Requires -Version 7.1.3
 #Requires -PSEdition Core
 #Requires -Module @{ ModuleName = 'UtilsGoodies'; RequiredVersion = '0.2.3' }
+#Requires -Module @{ ModuleName = 'SemVerGoodies'; RequiredVersion = '0.2.0' }
 
 $Global:ErrorActionPreference = 'Stop'
 

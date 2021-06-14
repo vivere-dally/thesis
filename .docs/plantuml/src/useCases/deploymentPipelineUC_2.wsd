@@ -1,0 +1,25 @@
+@startuml UseCase_DeploymentPipeline
+
+' Declaration
+actor Developer
+actor "Docker Image\n   Repository" as DIR
+cloud "Production Environment" as PE
+
+rectangle DeploymentPipeline {
+  (Continuous Integration)
+  (Continuous Delivery)
+  (Continuous Deployment)
+}
+
+' Dependency
+Developer --> (Continuous Integration)
+Developer --> (Continuous Delivery)
+Developer --> (Continuous Deployment)
+
+(Continuous Delivery) --> DIR
+(Continuous Delivery) --> PE
+
+(Continuous Deployment) --> (Continuous Integration): <<Includes>>
+(Continuous Deployment) --> (Continuous Delivery): <<Includes>>
+
+@enduml

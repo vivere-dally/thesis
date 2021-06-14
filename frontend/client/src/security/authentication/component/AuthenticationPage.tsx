@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { environment } from "../../../environment/environment";
 import { AuthenticationContext } from "../authentication-provider";
 import './AuthenticationPage.scss';
 
@@ -81,7 +82,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={2000}
+                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}

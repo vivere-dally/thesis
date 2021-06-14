@@ -7,6 +7,7 @@ mvnw
 mvnw.cmd
 .mvn
 .versionsBackup
+ci.env
 
 ### STS ###
 .apt_generated

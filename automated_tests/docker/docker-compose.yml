@@ -13,7 +13,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
 
   server:
-    image: server:${SERVER_IMAGE_TAG}
+    image: ${SERVER_IMAGE}
     container_name: server_selenium_automated_testing
     restart: always
     ports:
@@ -30,7 +30,7 @@ services:
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL5InnoDBDialect
 
   client:
-    image: client:${CLIENT_IMAGE_TAG}
+    image: ${CLIENT_IMAGE}
     container_name: client_selenium_automated_testing
     restart: always
     ports:

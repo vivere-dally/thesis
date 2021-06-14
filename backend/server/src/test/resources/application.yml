@@ -1,4 +1,9 @@
 spring:
+  datasource:
+    username: admindev
+    password: admindev
+    url: jdbc:mysql://localhost:5001/integration_test_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
   rest:
     base-url: http://localhost:5000/api
     signup-path: signup

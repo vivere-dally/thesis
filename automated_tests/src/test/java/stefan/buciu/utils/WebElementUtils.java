@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 public class WebElementUtils {
     public static boolean exists(By by, WebDriver webDriver, Long implicitlyWaitInSeconds) {
         if (implicitlyWaitInSeconds == null) {
-            implicitlyWaitInSeconds = 3L;
+            implicitlyWaitInSeconds = 5L;
         }
 
         try {

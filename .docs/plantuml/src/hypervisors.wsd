@@ -1,7 +1,0 @@
-@startuml
-
-node Hardware
-node Hipervizor
-node 
-
-@enduml

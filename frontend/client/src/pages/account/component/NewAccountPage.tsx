@@ -3,6 +3,7 @@ import React, { useContext, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
+import { environment } from "../../../environment/environment";
 import { Account, CurrencyType } from "../account";
 import { AccountContext } from "../account-provider";
 import "./NewAccountPage.scss";
@@ -86,7 +87,7 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
 
                 <ToastContainer
                     position="bottom-center"
-                    autoClose={2000}
+                    autoClose={environment.TOAST_TIME_IN_SECONDS}
                     hideProgressBar={false}
                     newestOnTop={false}
                     rtl={false}

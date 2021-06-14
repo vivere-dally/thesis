@@ -1,0 +1,48 @@
+@startuml SequenceDiagram
+
+' Declaration
+actor Developer
+entity GitHub
+entity Jenkins
+entity "Azure Container Registry" as ACR
+entity "Azure Active Directory" as AD
+entity "Azure Provisioning Service" as APS
+
+' Dependency
+Developer -> GitHub : Push Source Code
+
+GitHub -> Jenkins : WebHook Post
+
+Jenkins -> Jenkins : Trigger CI
+activate Jenkins
+Jenkins -> Jenkins : Build
+Jenkins -> Jenkins : Test
+Jenkins -> ACR : Upload Server Docker Image
+Jenkins -> ACR : Upload Client Docker Image
+Developer <-- Jenkins : Result
+deactivate Jenkins
+
+Jenkins -> Jenkins : Trigger CDE
+activate Jenkins
+Jenkins -> Jenkins : Acceptance Testing
+Jenkins -> AD : Authenticate
+Jenkins -> APS : Provision Resource Group
+Jenkins -> APS : Provision Storage Account
+Jenkins -> APS : Provision MySQL Server
+Jenkins -> APS : Provision Application Service Plan
+Jenkins -> APS : Provision Application Service for Server
+APS -> APS : Obtain Docker Image
+activate APS
+ACR <- APS : Download Server Image
+deactivate APS
+
+Jenkins -> APS : Provision Application Service for Client
+APS -> APS : Obtain Docker Image
+activate APS
+ACR <- APS : Download Client Image
+deactivate APS
+deactivate Jenkins
+
+Developer <-- Jenkins : Result
+
+@enduml

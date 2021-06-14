@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql_integration_testing
+    restart: always
+    ports:
+      - 5001:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_USER=admindev
+      - MYSQL_PASSWORD=admindev
+      - MYSQL_DATABASE=integration_test_db

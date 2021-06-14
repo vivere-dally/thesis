@@ -6,7 +6,7 @@ pipeline {
     }
 
     options {
-        copyArtifactPermission 'thesis-deploy'
+        copyArtifactPermission '*'
         buildDiscarder logRotator(numToKeepStr: '10')
         skipStagesAfterUnstable()
         ansiColor('xterm')
@@ -18,7 +18,7 @@ pipeline {
     }
 
     stages {
-        stage('Init') {
+        stage('Build') {
             steps {
                 script {
                     env.Release = params.Release ? params.Release : ''
@@ -34,11 +34,7 @@ pipeline {
 Prerelease: ${env.Prerelease ? env.Prerelease : 'not set'}
 ProjectVersion: ${env.ProjectVersion}"""
                 }
-            }
-        }
 
-        stage('Build') {
-            steps {
                 pwsh label: 'Run build script', script: '''
                     ./cicd/build/build.ps1 -ProjectVersion $env:ProjectVersion
                 '''
@@ -55,19 +51,20 @@ ProjectVersion: ${env.ProjectVersion}"""
             post {
                 always {
                     junit "backend/server/target/surefire-reports/*.xml"
+                    junit "backend/server/target/failsafe-reports/*.xml"
                     junit "frontend/client/jest-reports/*.xml"
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Dockerize') {
             environment {
                 ACR_CRED = credentials('azure_container_registry')
             }
 
             steps {
-                pwsh label: 'Run deploy script', script: '''
-                    ./cicd/build/deploy.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
+                pwsh label: 'Run Docker Image script', script: '''
+                    ./cicd/build/dockerImage.ps1 -ACRUsername $env:ACR_CRED_USR -ACRPassword $env:ACR_CRED_PSW -ProjectVersion $env:ProjectVersion -BranchName $env:BRANCH_NAME
                 '''
             }
         }
@@ -98,6 +95,11 @@ ProjectVersion: ${env.ProjectVersion}"""
         success {
             archiveArtifacts artifacts: "backend/server/target/*.jar", fingerprint: true
             archiveArtifacts artifacts: "frontend/client/*.zip", fingerprint: true
+            build wait: false, job: "thesis-deliverv3/${java.net.URLEncoder.encode(env.BRANCH_NAME, 'UTF-8')}", parameters: [
+                string(name: 'BranchName', value: "${env.BRANCH_NAME}"),
+                string(name: 'ResourceGroupName', value: 'bsirprod'),
+                string(name: 'Tag', value: "${env.ProjectVersion}")
+            ]
         }
 
         cleanup {

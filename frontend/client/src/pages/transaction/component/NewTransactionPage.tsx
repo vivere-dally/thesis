@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { toast, ToastContainer } from "react-toastify";
 import { newLogger } from "../../../core/utils";
+import { environment } from "../../../environment/environment";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
 import { Transaction, TransactionType } from "../transaction";
 import { postTransactionApi } from "../transaction-api";
@@ -109,7 +110,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={2000}
+                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}
