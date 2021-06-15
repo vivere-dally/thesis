@@ -87,7 +87,6 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
 
                 <ToastContainer
                     position="bottom-center"
-                    autoClose={environment.TOAST_TIME_IN_SECONDS}
                     hideProgressBar={false}
                     newestOnTop={false}
                     rtl={false}
@@ -116,27 +115,28 @@ const NewAccountPage: React.FC<RouteComponentProps> = ({ history }) => {
                         {
                             onClose: () => {
                                 history.push("/account");
-                            }
+                            },
+                            autoClose: environment.TOAST_TIME_IN_SECONDS
                         });
                 })
                 .catch((error) => {
                     log('{handleNewAccount}', 'error');
                     if (error) {
                         if (error.message) {
-                            toast.error(error.message);
+                            toast.error(error.message, { autoClose: environment.TOAST_TIME_IN_SECONDS });
                         }
                         else {
-                            toast.error(error);
+                            toast.error(error, { autoClose: environment.TOAST_TIME_IN_SECONDS });
                         }
                     }
                     else {
-                        toast.error("Could not create the account.");
+                        toast.error("Could not create the account.", { autoClose: environment.TOAST_TIME_IN_SECONDS });
                     }
                 });
         }
         else {
             log('{handleNewAccount}', 'invalid data');
-            toast.warning("The money and monthly income must be greater than 0.")
+            toast.warning("The money and monthly income must be greater than 0.", { autoClose: environment.TOAST_TIME_IN_SECONDS })
         }
     }
 }

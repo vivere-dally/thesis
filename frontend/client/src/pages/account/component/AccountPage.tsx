@@ -21,7 +21,7 @@ const AccountPage: React.FC<RouteComponentProps> = ({ history }) => {
     // Effects
     useEffect(() => {
         if (actionError) {
-            toast.error(actionError.message);
+            toast.error(actionError.message, { autoClose: environment.TOAST_TIME_IN_SECONDS });
         }
     }, [actionError]);
 
@@ -63,7 +63,7 @@ const AccountPage: React.FC<RouteComponentProps> = ({ history }) => {
 
                 <ToastContainer
                     position="bottom-center"
-                    autoClose={environment.TOAST_TIME_IN_SECONDS}
+                    //autoClose={environment.TOAST_TIME_IN_SECONDS}
                     hideProgressBar={false}
                     newestOnTop={false}
                     rtl={false}

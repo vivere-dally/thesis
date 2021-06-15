@@ -16,7 +16,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
     useEffect(() => {
         if (authenticationError) {
-            toast.error(authenticationError);
+            toast.error(authenticationError, { autoClose: environment.TOAST_TIME_IN_SECONDS });
         }
     }, [authenticationError]);
 
@@ -26,7 +26,8 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                 {
                     onClose: () => {
                         history.push('/account');
-                    }
+                    },
+                    autoClose: environment.TOAST_TIME_IN_SECONDS
                 });
         }
     }, [isAuthenticated]);
@@ -53,7 +54,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={username}
                             onIonChange={e => setUsername(e.detail.value!)}
                             required
-                            id = "username-text-input"
+                            id="username-text-input"
                         />
                     </IonItem>
 
@@ -64,7 +65,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={password}
                             onIonChange={e => setPassword(e.detail.value!)}
                             required
-                            id = "password-password-input"
+                            id="password-password-input"
                         />
                     </IonItem>
 
@@ -82,7 +83,6 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}
