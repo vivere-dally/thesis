@@ -1,11 +1,13 @@
-import { IonBackButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonLabel, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { add } from "ionicons/icons";
+import { IonBackButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonLabel, IonPage, IonToolbar } from "@ionic/react";
+import { add, barChartOutline, closeCircleOutline } from "ionicons/icons";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { ToastContainer } from "react-toastify";
+import { MyModal } from "../../../core/component/MyModal";
 import { newLogger } from "../../../core/utils";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
 import TransactionFeed from "../../transaction/component/TransactionFeed";
+import TransactionSumsPerMonthChart from "../../transaction/component/TransactionSumsPerMonthChart";
 import { Account } from "../account";
 import { AccountContext } from "../account-provider";
 import "./AccountFeedPage.scss";
@@ -43,14 +45,22 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                     </IonButtons>
                 </IonToolbar>
                 <IonToolbar>
-                    <IonTitle className="ion-text-center" id='account_feed-title'>
+                    <div className="ion-text-center" style={{ fontWeight: "bold" }} id='account_feed-title'>
                         <IonLabel>{authenticationProps?.user.username}</IonLabel><br />
-                        <IonLabel>{account?.money} {account?.currency}</IonLabel><br />
-                    </IonTitle>
+                        <IonLabel>{account?.money} {account?.currency} {(() => {
+                            if (account?.monthlyIncome! > 0) {
+                                return <span style={{ color: "green" }}>({account?.monthlyIncome} &uarr;)</span>
+                            }
+
+                            return <span style={{ color: "red" }}>({account?.monthlyIncome} &darr;)</span>
+                        })()}</IonLabel><br />
+                    </div>
                 </IonToolbar>
                 <IonToolbar>
                     <IonButtons slot="end">
-                        <IonLabel>Monthly income: {account?.monthlyIncome} {account?.currency}</IonLabel>
+                        <MyModal openModalIcon={barChartOutline} closeModalIcon={closeCircleOutline}>
+                            <TransactionSumsPerMonthChart account={account!} username={authenticationProps?.user.username!} />
+                        </MyModal>
                     </IonButtons>
                 </IonToolbar>
             </IonHeader>

@@ -1,7 +1,7 @@
 import { AxiosInstance } from "axios";
 import { newLogger } from "../../core/utils";
 import { environment } from "../../environment/environment";
-import { Transaction } from "./transaction";
+import { Transaction, TransactionSumsPerMonth } from "./transaction";
 
 
 const log = newLogger('pages/transaction/transaction-api');
@@ -20,6 +20,15 @@ export const postTransactionApi: (axiosInstance: AxiosInstance, accountId: numbe
         .post<Transaction>(`/account/${accountId}/transaction`, transaction)
         .then((response) => {
             log('{postTransactionApi}', 'success');
+            return response.data;
+        });
+}
+
+export const getTransactionValuesPerMonthApi: (axiosInstance: AxiosInstance, accountId: number) => Promise<TransactionSumsPerMonth[]> = async (axiosInstance, accountId) => {
+    return axiosInstance
+        .get<TransactionSumsPerMonth[]>(`/account/${accountId}/transaction/report/sumsPerMonth`)
+        .then((response) => {
+            log('{getTransactionValuesPerMonthApi}', 'success');
             return response.data;
         });
 }

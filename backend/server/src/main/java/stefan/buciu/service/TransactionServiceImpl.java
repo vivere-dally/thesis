@@ -11,13 +11,16 @@ import stefan.buciu.domain.model.Account;
 import stefan.buciu.domain.model.Transaction;
 import stefan.buciu.domain.model.TransactionType;
 import stefan.buciu.domain.model.dto.TransactionDTO;
+import stefan.buciu.domain.model.dto.TransactionSumsPerMonthDTO;
 import stefan.buciu.repository.AccountRepository;
 import stefan.buciu.repository.TransactionRepository;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -77,6 +80,36 @@ public class TransactionServiceImpl implements TransactionService {
                 .getContent()
                 .stream()
                 .map(TransactionDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TransactionSumsPerMonthDTO> getAllTransactionValuesPerMonthByAccountId(long accountId) {
+        Account account = this.findAccountByIdOrThrow(accountId);
+        return this.transactionRepository
+                .getAllTransactionsPerMonthByAccountId(account.getId())
+                .stream()
+                .collect(groupingBy(Transaction.PerMonthProjection::getMonth))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    IntFunction<TransactionSumsPerMonthDTO> lambda = (int index) -> {
+                        if (entry.getValue().get(index).getType() == TransactionType.INCOME) {
+                            return new TransactionSumsPerMonthDTO(entry.getKey(), entry.getValue().get(index).getSum(), BigDecimal.ZERO);
+                        }
+
+                        return new TransactionSumsPerMonthDTO(entry.getKey(), BigDecimal.ZERO, entry.getValue().get(index).getSum());
+                    };
+
+                    var first = lambda.apply(0);
+                    if (entry.getValue().size() == 2) {
+                        var second = lambda.apply(1);
+                        first.setIncome(first.getIncome().add(second.getIncome()));
+                        first.setExpense(first.getExpense().add(second.getExpense()));
+                    }
+
+                    return first;
+                })
                 .collect(Collectors.toList());
     }
 

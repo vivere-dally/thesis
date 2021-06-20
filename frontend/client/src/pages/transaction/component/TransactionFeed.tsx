@@ -8,7 +8,6 @@ import { CurrencyType } from "../../account/account";
 import { Transaction } from "../transaction";
 import { getTransactionApi } from "../transaction-api";
 import TransactionFeedItem from "./TransactionFeedItem";
-import dayjs from "dayjs";
 import './TransactionFeed.scss'
 
 
@@ -27,7 +26,19 @@ const TransactionFeed: React.FC<TransactionFeedProps> = memo(({ accountId, curre
 
     // States
     const [data, setData] = useState<Transaction[]>([]);
-    const [page, setPage] = useState<number>(0);
+    const [page, setPage] = useState<number>(1);
+
+    useEffect(() => {
+        if (!accountId) {
+            return;
+        }
+
+        let cancelled = false;
+        __get(cancelled);
+        return () => {
+            cancelled = true;
+        }
+    }, [accountId]);
 
     return (
         <>

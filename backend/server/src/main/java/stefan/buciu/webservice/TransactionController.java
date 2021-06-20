@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import stefan.buciu.domain.exception.EntitySocketNotificationException;
 import stefan.buciu.domain.model.dto.AccountDTO;
 import stefan.buciu.domain.model.dto.TransactionDTO;
+import stefan.buciu.domain.model.dto.TransactionSumsPerMonthDTO;
 import stefan.buciu.domain.model.notification.Action;
 import stefan.buciu.service.AccountService;
 import stefan.buciu.service.TransactionService;
@@ -70,6 +71,18 @@ public class TransactionController {
         AccountDTO account = this.accountService.findByUserIdAndId(userId, accountId);
         this.entitySocketHandler.notifySessions(account, Action.PUT, userId);
 
+        return ResponseEntity
+                .ok(result);
+    }
+
+    @GetMapping("/report/sumsPerMonth")
+    public ResponseEntity<List<TransactionSumsPerMonthDTO>> getReport(
+            @ApiParam(name = "accountId", type = "long", value = "ID of the Account", example = "1")
+            @PathVariable Long accountId
+    ) {
+        log.debug("Entered class = TransactionController & method = getReport");
+
+        var result = this.transactionService.getAllTransactionValuesPerMonthByAccountId(accountId);
         return ResponseEntity
                 .ok(result);
     }
