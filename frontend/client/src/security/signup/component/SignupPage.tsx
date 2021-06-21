@@ -71,7 +71,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
                             formSubmitted && !isPasswordValid &&
                             <IonText color="danger">
                                 <p className="ion-padding-start">
-                                    Use 8 or more characters with a mix of letters, numbers and symbols
+                                    Use 8 or more characters with a mix of upper and lower case letters, numbers and symbols
                                 </p>
                             </IonText>
                         }

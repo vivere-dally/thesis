@@ -1,6 +1,6 @@
 import { IonButton, IonButtons, IonCol, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { Redirect, RouteComponentProps } from "react-router";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { environment } from "../../../environment/environment";
@@ -20,17 +20,21 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
         }
     }, [authenticationError]);
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            toast.success('Logged in successfully',
-                {
-                    onClose: () => {
-                        history.push('/account');
-                    },
-                    autoClose: environment.TOAST_TIME_IN_SECONDS
-                });
-        }
-    }, [isAuthenticated]);
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         toast.success('Logged in successfully',
+    //             {
+    //                 onClose: () => {
+    //                     history.push('/account');
+    //                 },
+    //                 autoClose: environment.TOAST_TIME_IN_SECONDS
+    //             });
+    //     }
+    // }, [isAuthenticated]);
+
+    if (isAuthenticated) {
+        return <Redirect to={{ pathname: '/' }} />
+    }
 
     return (
         <IonPage id='authentication-page'>
