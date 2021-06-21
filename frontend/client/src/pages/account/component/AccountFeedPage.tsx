@@ -1,4 +1,4 @@
-import { IonBackButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonLabel, IonPage, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonLabel, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonToolbar } from "@ionic/react";
 import { add, barChartOutline, closeCircleOutline } from "ionicons/icons";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
@@ -8,6 +8,7 @@ import { newLogger } from "../../../core/utils";
 import { AuthenticationContext } from "../../../security/authentication/authentication-provider";
 import TransactionFeed from "../../transaction/component/TransactionFeed";
 import TransactionSumsPerMonthChart from "../../transaction/component/TransactionSumsPerMonthChart";
+import { TransactionType } from "../../transaction/transaction";
 import { Account } from "../account";
 import { AccountContext } from "../account-provider";
 import "./AccountFeedPage.scss";
@@ -27,6 +28,8 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
 
     // States
     const [account, setAccount] = useState<Account>();
+    const [message, setMessage] = useState<string>();
+    const [transactionType, setTransactionType] = useState<TransactionType>();
 
     // Effects
     useEffect(() => {
@@ -57,6 +60,27 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
                     </div>
                 </IonToolbar>
                 <IonToolbar>
+                    <IonButtons slot="start">
+                        <IonSelect
+                            value={String(transactionType)}
+                            onIonChange={e => setTransactionType(e.detail.value == 'undefined' ? undefined : e.detail.value)}
+                        >
+                            {
+                                (() => {
+                                    const options = [<IonSelectOption key={0} value={'undefined'}>ALL</IonSelectOption>];
+                                    options.push(
+                                        ...Object
+                                            .keys(TransactionType)
+                                            .map((key, index) =>
+                                                <IonSelectOption key={index + 1} value={key}>{key}</IonSelectOption>
+                                            ));
+
+                                    return options;
+                                })()
+                            }
+                        </IonSelect>
+                    </IonButtons>
+                    <IonSearchbar value={message} onIonChange={e => { setMessage(e.detail.value ? e.detail.value : undefined); }}></IonSearchbar>
                     <IonButtons slot="end">
                         <MyModal openModalIcon={barChartOutline} closeModalIcon={closeCircleOutline}>
                             <TransactionSumsPerMonthChart account={account!} username={authenticationProps?.user.username!} />
@@ -66,7 +90,7 @@ const AccountFeedPage: React.FC<AccountFeedPageProps> = ({ history, match }) => 
             </IonHeader>
 
             <IonContent fullscreen id='account_feed_page-ion_content'>
-                <TransactionFeed accountId={account?.id!} currencyType={account?.currency!} />
+                <TransactionFeed accountId={account?.id!} currencyType={account?.currency!} message={message} transactionType={transactionType} />
 
                 <IonFab slot='fixed' vertical='bottom' horizontal='end'>
                     <IonFabButton onClick={() => history.push(`${account?.id!}/transaction-new`)} id='new_transaction-button'>

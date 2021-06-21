@@ -1,5 +1,6 @@
 package stefan.buciu.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -39,19 +40,17 @@ public class TransactionServiceImpl implements TransactionService {
         Account account = this.findAccountByIdOrThrow(accountId);
         Transaction transaction = transactionDTO.toEntity();
         if (transaction.getType() == TransactionType.EXPENSE &&
-                account.getMoney().subtract(transaction.getValue()).compareTo(BigDecimal.ZERO) == -1) {
+                account.getMoney().subtract(transaction.getValue()).compareTo(BigDecimal.ZERO) < 0) {
             throw new AccountHasInsufficientFundsException();
         }
 
         transaction.setAccount(account);
         transaction = this.transactionRepository.save(transaction);
-        switch (transaction.getType()) {
-            case INCOME:
-                account.setMoney(account.getMoney().add(transaction.getValue()));
-                break;
-            case EXPENSE:
-                account.setMoney(account.getMoney().subtract(transaction.getValue()));
-                break;
+        if (transaction.getType() == TransactionType.INCOME) {
+            account.setMoney(account.getMoney().add(transaction.getValue()));
+        }
+        else if (transaction.getType() == TransactionType.EXPENSE) {
+            account.setMoney(account.getMoney().subtract(transaction.getValue()));
         }
 
         this.accountRepository.save(account);
@@ -59,7 +58,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionDTO> findAllByAccountId(long accountId, Integer page, Integer size) {
+    public List<TransactionDTO> findAllByAccountId(long accountId, Integer page, Integer size, String message, TransactionType transactionType) {
         Optional<Integer> optionalPage = Optional.ofNullable(page);
         Optional<Integer> optionalSize = Optional.ofNullable(size);
         if (optionalPage.isEmpty() && optionalSize.isPresent()) {
@@ -75,9 +74,13 @@ public class TransactionServiceImpl implements TransactionService {
                 optionalSize.orElse(Integer.MAX_VALUE),
                 Sort.by("date").descending().and(Sort.by("id"))
         );
-        return this.transactionRepository
-                .findAllByAccount(account, pageable)
-                .getContent()
+
+        message = (message == null) ? "" : message;
+        Page<Transaction> result = (transactionType == null) ?
+                this.transactionRepository.findAllByAccountAndMessageStartsWith(account, message, pageable) :
+                this.transactionRepository.findAllByAccountAndMessageStartsWithAndType(account, message, transactionType, pageable);
+
+        return result.getContent()
                 .stream()
                 .map(TransactionDTO::new)
                 .collect(Collectors.toList());

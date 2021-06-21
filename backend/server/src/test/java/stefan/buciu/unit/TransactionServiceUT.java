@@ -120,12 +120,12 @@ public class TransactionServiceUT {
         Page<Transaction> page = new PageImpl<>(data, pageable, data.size());
 
         mockAccountRepositoryFindById(account.getId(), account);
-        when(transactionRepository.findAllByAccount(account, pageable)).thenReturn(page);
+        when(transactionRepository.findAllByAccountAndMessageStartsWith(account, "", pageable)).thenReturn(page);
 
-        List<TransactionDTO> actual = transactionService.findAllByAccountId(account.getId(), null, null);
+        List<TransactionDTO> actual = transactionService.findAllByAccountId(account.getId(), null, null, null, null);
 
         verify(accountRepository, times(1)).findById(account.getId());
-        verify(transactionRepository, times(1)).findAllByAccount(account, pageable);
+        verify(transactionRepository, times(1)).findAllByAccountAndMessageStartsWith(account, "", pageable);
         assertEquals(expected, actual);
     }
 
@@ -134,7 +134,7 @@ public class TransactionServiceUT {
         long accountId = 1L;
         Integer page = null, size = 5;
 
-        assertThrows(IllegalArgumentException.class, () -> transactionService.findAllByAccountId(accountId, page, size));
+        assertThrows(IllegalArgumentException.class, () -> transactionService.findAllByAccountId(accountId, page, size, null, null));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class TransactionServiceUT {
 
         mockAccountRepositoryFindById(accountId, null);
 
-        assertThrows(AccountNotFoundException.class, () -> transactionService.findAllByAccountId(accountId, null, null));
+        assertThrows(AccountNotFoundException.class, () -> transactionService.findAllByAccountId(accountId, null, null, null, null));
         verify(accountRepository, times(1)).findById(accountId);
     }
 

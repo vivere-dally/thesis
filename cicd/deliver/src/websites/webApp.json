@@ -86,7 +86,7 @@
       },
       {
         "Name": "SECURITY_ACCESS_TOKEN_TTL_MILLIS",
-        "Value": "300000",
+        "Value": "900000",
         "Expression": null
       },
       {
@@ -96,7 +96,7 @@
       },
       {
         "Name": "SECURITY_REFRESH_TOKEN_TTL_MILLIS",
-        "Value": "900000",
+        "Value": "1800000",
         "Expression": null
       },
       {
