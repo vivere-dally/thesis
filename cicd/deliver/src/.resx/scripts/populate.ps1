@@ -14,7 +14,7 @@ function main {
     $JSON_CREDS = $creds | ConvertTo-Json
 
     $URI = if ($ResourceGroupName) {
-        "https://${$ResourceGroupName}api.azurewebsites.net/api"
+        "https://${ResourceGroupName}api.azurewebsites.net/api"
     }
     else {
         'http://localhost:5000/api'
