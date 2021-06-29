@@ -8,8 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import stefan.buciu.domain.exception.EntitySocketNotificationException;
+import stefan.buciu.domain.model.TransactionType;
 import stefan.buciu.domain.model.dto.AccountDTO;
 import stefan.buciu.domain.model.dto.TransactionDTO;
+import stefan.buciu.domain.model.dto.TransactionSumsPerMonthDTO;
 import stefan.buciu.domain.model.notification.Action;
 import stefan.buciu.service.AccountService;
 import stefan.buciu.service.TransactionService;
@@ -45,11 +47,17 @@ public class TransactionController {
             @ApiParam(name = "page", type = "Integer", value = "Number of the page", example = "2")
             @RequestParam(required = false) Integer page,
             @ApiParam(name = "size", type = "Integer", value = "The size of one page", example = "5")
-            @RequestParam(required = false) Integer size
+            @RequestParam(required = false) Integer size,
+
+            // Filters
+            @ApiParam(name = "message", type = "String", value = "The message of the transaction", example = "apples")
+            @RequestParam(required = false) String message,
+            @ApiParam(name = "transactionType", type = "TransactionType", value = "The type of the transaction", example = "INCOME")
+            @RequestParam(required = false) TransactionType transactionType
     ) {
         log.debug("Entered class = TransactionController & method = get");
 
-        List<TransactionDTO> result = this.transactionService.findAllByAccountId(accountId, page, size);
+        List<TransactionDTO> result = this.transactionService.findAllByAccountId(accountId, page, size, message, transactionType);
         return ResponseEntity
                 .ok(result);
     }
@@ -70,6 +78,18 @@ public class TransactionController {
         AccountDTO account = this.accountService.findByUserIdAndId(userId, accountId);
         this.entitySocketHandler.notifySessions(account, Action.PUT, userId);
 
+        return ResponseEntity
+                .ok(result);
+    }
+
+    @GetMapping("/report/sumsPerMonth")
+    public ResponseEntity<List<TransactionSumsPerMonthDTO>> getReport(
+            @ApiParam(name = "accountId", type = "long", value = "ID of the Account", example = "1")
+            @PathVariable Long accountId
+    ) {
+        log.debug("Entered class = TransactionController & method = getReport");
+
+        var result = this.transactionService.getAllTransactionValuesPerMonthByAccountId(accountId);
         return ResponseEntity
                 .ok(result);
     }

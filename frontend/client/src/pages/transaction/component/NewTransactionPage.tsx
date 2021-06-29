@@ -110,7 +110,6 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}
@@ -126,7 +125,7 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
         e.preventDefault();
         if (value <= 0) {
             log('{handleNewTransaction}', 'invalid data');
-            toast.warning("The value must be greater than 0.");
+            toast.warning("The value must be greater than 0.", { autoClose: environment.TOAST_TIME_IN_SECONDS });
             return;
         }
 
@@ -144,21 +143,22 @@ const NewTransactionPage: React.FC<NewTransactionPageProps> = ({ history, match 
                     {
                         onClose: () => {
                             history.goBack();
-                        }
+                        },
+                        autoClose: environment.TOAST_TIME_IN_SECONDS
                     });
             })
             .catch((error) => {
                 log('{handleNewTransaction}', 'error');
                 if (error) {
                     if (error.message) {
-                        toast.error(error.message);
+                        toast.error(error.message, { autoClose: environment.TOAST_TIME_IN_SECONDS });
                     }
                     else {
-                        toast.error(error);
+                        toast.error(error, { autoClose: environment.TOAST_TIME_IN_SECONDS });
                     }
                 }
                 else {
-                    toast.error("Could not create the transaction.");
+                    toast.error("Could not create the transaction.", { autoClose: environment.TOAST_TIME_IN_SECONDS });
                 }
             })
     }

@@ -38,7 +38,7 @@ const App: React.FC = () => (
       <IonRouterOutlet>
         <AuthenticationProvider>
           <Route path="/login" component={AuthenticationPage} exact />
-          <Route path="/" exact render={() => <Redirect to="/login" />} />
+          <Route path="/" exact render={() => <Redirect to="/account" />} />
 
           <SignupProvider>
             <Route path="/signup" component={SignupPage} exact />

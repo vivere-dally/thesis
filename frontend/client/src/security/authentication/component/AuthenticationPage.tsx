@@ -1,6 +1,6 @@
 import { IonButton, IonButtons, IonCol, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { Redirect, RouteComponentProps } from "react-router";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { environment } from "../../../environment/environment";
@@ -16,20 +16,25 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
     useEffect(() => {
         if (authenticationError) {
-            toast.error(authenticationError);
+            toast.error(authenticationError, { autoClose: environment.TOAST_TIME_IN_SECONDS });
         }
     }, [authenticationError]);
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            toast.success('Logged in successfully',
-                {
-                    onClose: () => {
-                        history.push('/account');
-                    }
-                });
-        }
-    }, [isAuthenticated]);
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         toast.success('Logged in successfully',
+    //             {
+    //                 onClose: () => {
+    //                     history.push('/account');
+    //                 },
+    //                 autoClose: environment.TOAST_TIME_IN_SECONDS
+    //             });
+    //     }
+    // }, [isAuthenticated]);
+
+    if (isAuthenticated) {
+        return <Redirect to={{ pathname: '/' }} />
+    }
 
     return (
         <IonPage id='authentication-page'>
@@ -53,7 +58,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={username}
                             onIonChange={e => setUsername(e.detail.value!)}
                             required
-                            id = "username-text-input"
+                            id="username-text-input"
                         />
                     </IonItem>
 
@@ -64,7 +69,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                             value={password}
                             onIonChange={e => setPassword(e.detail.value!)}
                             required
-                            id = "password-password-input"
+                            id="password-password-input"
                         />
                     </IonItem>
 
@@ -82,7 +87,6 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}

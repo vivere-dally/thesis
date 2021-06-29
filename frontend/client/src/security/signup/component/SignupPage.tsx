@@ -71,7 +71,7 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
                             formSubmitted && !isPasswordValid &&
                             <IonText color="danger">
                                 <p className="ion-padding-start">
-                                    Use 8 or more characters with a mix of letters, numbers and symbols
+                                    Use 8 or more characters with a mix of upper and lower case letters, numbers and symbols
                                 </p>
                             </IonText>
                         }
@@ -87,7 +87,6 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
 
             <ToastContainer
                 position="bottom-center"
-                autoClose={environment.TOAST_TIME_IN_SECONDS}
                 hideProgressBar={false}
                 newestOnTop={false}
                 rtl={false}
@@ -119,11 +118,12 @@ const SignupPage: React.FC<RouteComponentProps> = ({ history }) => {
             signup && signup({ username: username, password: password })
                 .then(result => {
                     toast.success(result, {
-                        onClose: () => { history.goBack(); }
+                        onClose: () => { history.goBack(); },
+                        autoClose: environment.TOAST_TIME_IN_SECONDS
                     });
                 })
                 .catch(error => {
-                    toast.error(error);
+                    toast.error(error, { autoClose: environment.TOAST_TIME_IN_SECONDS });
                 });
         }
     }

@@ -46,4 +46,10 @@ public class Transaction implements Entity<Long> {
     public Long getId() {
         return id;
     }
+
+    public interface PerMonthProjection {
+        Integer getMonth();
+        BigDecimal getSum();
+        TransactionType getType();
+    }
 }

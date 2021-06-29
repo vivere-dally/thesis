@@ -87,7 +87,7 @@ try {
 catch {
     $_
     $_.ScriptStackTrace
-    exit 1
+    exit 0
 }
 finally {
     $PSScriptRoot | Set-Location

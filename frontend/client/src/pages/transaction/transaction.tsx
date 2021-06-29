@@ -11,3 +11,9 @@ export interface Transaction extends Entity<number> {
     type: TransactionType;
     date: string;
 }
+
+export interface TransactionSumsPerMonth {
+    month: number;
+    income: number;
+    expense: number;
+}

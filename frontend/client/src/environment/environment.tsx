@@ -1,7 +1,11 @@
 
 const common = {
     STORAGE_REFRESH_TOKEN_KEY: "__REFRESH_TOKEN__",
-    PAGE_SIZE: 10
+    PAGE_SIZE: 20,
+    IS_PRODUCTION: false,
+    WEB_API_URL: "http://localhost:5000/api",
+    WEB_API_WS_URL: "ws://localhost:5000/api",
+    TOAST_TIME_IN_SECONDS: 1,
 }
 
 export const environment =
@@ -13,17 +17,11 @@ export const environment =
                 const hostname = [domain, ...rest].join(".");
 
                 return {
+                    ...common,
                     IS_PRODUCTION: true,
                     WEB_API_URL: `${window.location.protocol}//${hostname}/api`,
                     WEB_API_WS_URL: `${window.location.protocol.replace("http", "ws")}//${hostname}/api`,
-                    TOAST_TIME_IN_SECONDS: 3,
-                    ...common
+                    TOAST_TIME_IN_SECONDS: 3
                 }
             }
-        )() : {
-            IS_PRODUCTION: false,
-            WEB_API_URL: "http://localhost:5000/api",
-            WEB_API_WS_URL: "ws://localhost:5000/api",
-            TOAST_TIME_IN_SECONDS: 1,
-            ...common
-        };
+        )() : common;
