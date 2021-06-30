@@ -43,8 +43,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonButtons>
                         <IonMenuButton></IonMenuButton>
                     </IonButtons>
-                    <IonTitle id='authentication-title'>Authentication</IonTitle>
-                    {/* test */}
+                    <IonTitle id='authentication-title' style={{ backgroundColor: 'red' }}>Authentication</IonTitle>
                 </IonToolbar>
             </IonHeader>
 
