@@ -44,6 +44,7 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
                         <IonMenuButton></IonMenuButton>
                     </IonButtons>
                     <IonTitle id='authentication-title'>Authentication</IonTitle>
+                    {/* test */}
                 </IonToolbar>
             </IonHeader>
 
