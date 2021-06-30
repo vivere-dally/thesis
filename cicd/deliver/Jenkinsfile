@@ -195,7 +195,7 @@ ResourceGroupName: ${env.ResourceGroupName}"""
 
             post {
                 always {
-                    junit "automated_tests/target/failsafe-reports/*.xml"
+                    junit allowEmptyResults: true, healthScaleFactor: 0.0, testResults: "automated_tests/target/failsafe-reports/*.xml"
                 }
             }
         }
