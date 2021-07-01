@@ -32,8 +32,6 @@ const AuthenticationPage: React.FC<RouteComponentProps> = ({ history }) => {
     //     }
     // }, [isAuthenticated]);
 
-    // AA
-
     if (isAuthenticated) {
         return <Redirect to={{ pathname: '/' }} />
     }
